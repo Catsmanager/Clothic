@@ -26,10 +26,10 @@
 - [x] Supabase 프로젝트 생성
 - [x] profiles / items / outfits 테이블 생성 및 RLS 설정
 - [x] authStore (Zustand) 구현  ← stores/authStore.ts (세션 복원·signUp/signIn/signOut)
-- [ ] 로그인 화면 구현
-- [ ] 회원가입 화면 구현
-- [ ] 인증 가드 (app/_layout.tsx)  ← 현재 AsyncStorage 온보딩 가드만 존재
-- [ ] 카카오 OAuth Supabase 연동 설정
+- [x] 로그인 화면 구현  ← app/login.tsx (이메일/비번 폼, authStore.signInWithEmail)
+- [x] 회원가입 화면 구현  ← app/signup.tsx (이메일/비번/확인, authStore.signUpWithEmail)
+- [x] 인증 가드 (app/_layout.tsx)  ← 세션·온보딩 기반 가드, AsyncStorage→SecureStore 정리 완료
+- [ ] 카카오 OAuth Supabase 연동 설정  ← 코드 완료. Supabase/Kakao 콘솔 기본 설정 완료, 인증창 도달 확인. 잔여: KOE205 — account_email은 Supabase(GoTrue)가 기본 주입하므로 코드 제거 불가, **카카오 콘솔 동의항목에서 account_email "선택 동의" 활성화**로 해소(사용자). 웹 SecureStore 크래시는 lib/onboarding.ts에서 수정 완료
 
 ## Phase 3: 에셋 제작
 - [x] 에셋 폴더 구조 + 네이밍 가이드 (assets/avatar/{cat}/, README 체크리스트)
@@ -42,7 +42,7 @@
 - [x] constants/items.ts 에 메타데이터 등록  ← 33종, imagePath는 문자열 경로(빌드 안전)
 
 ## Phase 4: 핵심 화면
-- [x] 온보딩 화면
+- [x] 온보딩 화면  ← 2026-05-31 6컷 시안 반영 재작업 (LOG 참조)
 - [x] 홈 화면
 - [x] 코디 생성 화면 (아바타 레이어 렌더러)
 - [x] 아이템 선택 (카테고리별 탭)
@@ -55,9 +55,12 @@
 
 ## Phase 5: 검증 및 출시
 - [ ] TEST_PLAN.md 기준 전체 검증
-- [ ] Expo EAS Build 설정
-- [ ] App Store 제출
+- [x] CI 구축 (GitHub Actions: typecheck/lint/format)  ← .github/workflows/ci.yml
+- [~] Expo EAS Build 설정  ← eas.json·eas-build.yml·docs/CICD.md 작성. 실제 빌드는 Expo/Apple 계정 필요(사용자)
+- [ ] App Store 제출  ← docs/CICD.md 체크리스트 참조 (Bundle ID com.clothic.app)
 - [ ] Google Play 제출
+
+> 2026-05-31: CI/CD 구축(feature/ci-cd). 번들 ID com.clothic.app 설정, DonutChart lint error 해소. (LOG 참조)
 
 ---
 
@@ -72,9 +75,7 @@
 - 에셋: base 아바타 1종만 제작, 나머지는 mockItems.ts 색상 placeholder
 - `npx tsc --noEmit` 통과 (에러 없음)
 
-⚠️ 규칙 위반 1건:
-- `@react-native-async-storage/async-storage`가 설치·사용 중
-  (app/_layout.tsx, app/onboarding.tsx)
-- CLAUDE.md 절대규칙 "Supabase 사용 (AsyncStorage 사용 금지)"과 충돌
-- 처리 방향은 사용자 승인 후 결정 (Phase 2 Supabase 도입 시 정리 예정)
-
+✅ 규칙 위반 해소 (2026-05-31):
+- 기존 `@react-native-async-storage/async-storage` 사용·패키지 제거 완료
+- 온보딩 플래그를 expo-secure-store(lib/onboarding.ts)로 이관
+- 인증 가드 구현 시 함께 정리 (CLAUDE.md "AsyncStorage 금지" 규칙 충족)
