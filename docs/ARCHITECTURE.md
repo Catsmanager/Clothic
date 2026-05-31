@@ -51,26 +51,29 @@ User
 ```
 app/
   _layout.tsx           ← 인증 가드
-  (auth)/
-    login.tsx
-    signup.tsx
+  login.tsx
+  signup.tsx
+  onboarding.tsx
+  outfits.tsx
+  item-select.tsx
   (tabs)/
     index.tsx           ← 홈
     calendar.tsx
+    create.tsx
     stats.tsx
-    closet.tsx
-    challenge.tsx
+    more.tsx            ← 잠자는 옷장
+  outfit/
+    [id].tsx
 
 lib/
   supabase.ts           ← Supabase 클라이언트
 
-store/
+stores/
   authStore.ts
   outfitStore.ts
-  itemStore.ts
 
 constants/
-  items.ts              ← 아이템 메타데이터 (에셋 경로 포함)
+  items.ts              ← 아이템 메타데이터 (에셋 경로 포함, hair 제외)
   colors.ts
   spacing.ts
 

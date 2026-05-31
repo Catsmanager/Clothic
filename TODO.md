@@ -20,7 +20,7 @@
 - [x] 패키지 설치: @supabase/supabase-js, expo-secure-store, expo-web-browser
 - [x] .env.local 생성 (Supabase URL/Key)  ← 빈 placeholder, 실제 키는 사용자 입력 필요
 - [x] Supabase 클라이언트 (`lib/supabase.ts`)  ← SecureStore 세션 어댑터
-- [x] constants/colors.ts, constants/spacing.ts 생성  (+ mockItems.ts placeholder 추가)
+- [x] constants/colors.ts, constants/spacing.ts 생성  (+ items.ts placeholder 카탈로그)
 
 ## Phase 2: DB 및 인증
 - [x] Supabase 프로젝트 생성
@@ -48,8 +48,8 @@
 - [x] 아이템 선택 (카테고리별 탭)
 - [x] 코디 저장 (mood, weather, memo)  ← components/SaveOutfitSheet.tsx + outfitStore.addOutfit + create.tsx 연결. Supabase insert. 잔여: is_favorite 마이그레이션·실키 필요
 - [x] 코디 목록 / 상세 조회  ← app/outfits.tsx·app/outfit/[id].tsx·stores/outfitStore.ts (Supabase 연동, 즐겨찾기 포함). 잔여: is_favorite 컬럼 마이그레이션(사용자), 저장 기능 미구현이라 실데이터 빈 상태
-- [x] 캘린더 화면  (mock 데이터)
-- [x] 월간 통계 화면  (mock 데이터)
+- [x] 캘린더 화면  (Supabase outfits 기반)
+- [x] 월간 통계 화면  (Supabase outfits 기반 클라이언트 계산)
 - [x] 잠자는 옷장 화면  (mock 데이터)
 - [ ] 챌린지 화면
 
@@ -70,9 +70,9 @@
 **Phase 4 화면(UI)을 mock 데이터로 먼저 구현**한 상태로 진행되었다.
 
 확인된 사실:
-- 구현됨: 온보딩·홈·코디생성·아이템선택·캘린더·통계·옷장 화면 (모두 mock 데이터)
+- 구현됨: 온보딩·홈·코디생성·아이템선택·캘린더·통계·옷장 화면
 - 미구현: Supabase 연동, 인증(로그인/회원가입), Zustand store, 실제 데이터 영속화
-- 에셋: base 아바타 1종만 제작, 나머지는 mockItems.ts 색상 placeholder
+- 에셋: base 아바타 1종만 제작, 나머지는 constants/items.ts 색상 placeholder
 - `npx tsc --noEmit` 통과 (에러 없음)
 
 ✅ 규칙 위반 해소 (2026-05-31):

@@ -7,11 +7,12 @@ import { colors } from '../constants/colors'
 import { spacing, radius } from '../constants/spacing'
 import {
   type Category,
-  type MockItem,
-  MOCK_ITEMS,
+  type CatalogItem,
+  ITEMS,
   SUB_CATEGORIES,
   CATEGORY_LABELS,
-} from '../constants/mockItems'
+  isCategory,
+} from '../constants/items'
 
 const SCREEN_WIDTH = Dimensions.get('window').width
 const COLUMN_COUNT = 3
@@ -21,15 +22,15 @@ const CARD_SIZE =
   (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - CARD_GAP * (COLUMN_COUNT - 1)) / COLUMN_COUNT
 
 export default function ItemSelectScreen() {
-  const params = useLocalSearchParams<{ category: Category }>()
-  const category: Category = params.category ?? 'top'
+  const params = useLocalSearchParams<{ category?: string }>()
+  const category: Category = isCategory(params.category) ? params.category : 'top'
 
   const [activeSubCategory, setActiveSubCategory] = useState<string>('전체')
 
   const subCategories = SUB_CATEGORIES[category] ?? ['전체']
   const categoryLabel = CATEGORY_LABELS[category] ?? ''
 
-  const filteredItems: MockItem[] = MOCK_ITEMS.filter(
+  const filteredItems: CatalogItem[] = ITEMS.filter(
     (item) =>
       item.category === category &&
       (activeSubCategory === '전체' || item.subCategory === activeSubCategory)
@@ -78,7 +79,7 @@ export default function ItemSelectScreen() {
               <View style={[styles.itemColorBox, { backgroundColor: item.color }]} />
             </View>
             <Text style={styles.itemLabel} numberOfLines={1}>
-              {item.label}
+              {item.name}
             </Text>
           </TouchableOpacity>
         )}

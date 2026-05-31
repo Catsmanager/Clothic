@@ -17,31 +17,21 @@ import { colors } from '../../constants/colors'
 import { spacing, radius } from '../../constants/spacing'
 import {
   type Category,
-  type MockItem,
-  MOCK_ITEMS,
+  type CatalogItem,
+  ITEM_CATEGORIES,
+  ITEMS,
   SUB_CATEGORIES,
   CATEGORY_LABELS,
-} from '../../constants/mockItems'
+} from '../../constants/items'
 import SaveOutfitSheet from '../../components/SaveOutfitSheet'
 import { useOutfitStore, type NewOutfit } from '../../stores/outfitStore'
 
 const BASE_AVATAR = require('../../assets/avatar/base/base_female_01.png')
 
-const CATEGORIES: Category[] = ['hair', 'top', 'bottom', 'shoes', 'bag', 'accessory']
 const SCREEN_WIDTH = Dimensions.get('window').width
-
-const CATEGORY_ICONS: Record<Category, string> = {
-  hair: '헤어',
-  top: '상의',
-  bottom: '하의',
-  shoes: '신발',
-  bag: '가방',
-  accessory: '악세서리',
-}
 
 // 카테고리별 Feather 아이콘 대신 텍스트 이모지 사용
 const CATEGORY_EMOJI: Record<Category, string> = {
-  hair: '💆',
   top: '👕',
   bottom: '👖',
   shoes: '👟',
@@ -61,7 +51,7 @@ export default function CreateScreen() {
 
   const subCategories = SUB_CATEGORIES[activeCategory]
 
-  const filteredItems = MOCK_ITEMS.filter(
+  const filteredItems = ITEMS.filter(
     (item) =>
       item.category === activeCategory &&
       (activeSubCategory === '전체' || item.subCategory === activeSubCategory)
@@ -77,7 +67,7 @@ export default function CreateScreen() {
   }, [])
 
   const handleItemPress = useCallback(
-    (item: MockItem) => {
+    (item: CatalogItem) => {
       const next = { ...equipped, [item.category]: item.id }
       const newHistory = history.slice(0, historyIndex + 1)
       setHistory([...newHistory, next])
@@ -143,7 +133,7 @@ export default function CreateScreen() {
           contentContainerStyle={styles.categoryContent}
           showsVerticalScrollIndicator={false}
         >
-          {CATEGORIES.map((cat) => (
+          {ITEM_CATEGORIES.map((cat) => (
             <TouchableOpacity
               key={cat}
               style={[styles.categoryItem, activeCategory === cat && styles.categoryItemActive]}

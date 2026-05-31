@@ -21,6 +21,8 @@ CRITICAL: docs/PRD.md의 MVP 범위를 벗어난 기능은 만들지 않는다.
 CRITICAL: 구조 변경 전에는 먼저 제안하고 승인받는다.
 CRITICAL: API 키는 절대 코드에 하드코딩하지 않는다.
 CRITICAL: 환경변수는 .env.local을 사용한다.
+CRITICAL: 모든 작업은 작업별 GitHub 이슈를 먼저 만들고, 작업별 브랜치에서 진행한다.
+CRITICAL: 작업 완료 후 커밋·푸시하고 Pull Request를 생성한다.
 CRITICAL: 작업 후 변경 파일 목록을 보고한다.
 CRITICAL: 작업 후 검증 결과를 보고한다.
 CRITICAL: TODO.md의 다음 미완료 항목 하나만 처리한다.

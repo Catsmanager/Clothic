@@ -1,5 +1,36 @@
 # LOG
 
+## 2026-05-31 (카탈로그/데이터 흐름 리팩토링)
+
+### 처리 항목
+- 사용자 결정: hair는 현재 제품 범위에서 제외하고, 추후 추가 가능하도록 유지
+- 사용자 작업 규칙 추가: 모든 작업은 이슈 생성 → 작업 브랜치 → 완료 후 PR 생성 흐름으로 진행
+
+### 신규/변경
+- constants/items.ts — 단일 아이템 카탈로그로 정리
+  - ITEM_CATEGORIES, SUB_CATEGORIES, isCategory 추가
+  - hair는 현재 Category에서 제외, 추후 확장 가능 주석 보강
+- constants/mockItems.ts 삭제 — create/item-select가 constants/items.ts를 사용하도록 전환
+- app/(tabs)/create.tsx — hair 카테고리 제거, ITEMS 기반 선택 UI로 변경
+- app/item-select.tsx — ITEMS 기반 목록 + category 파라미터 런타임 검증 추가
+- app/(tabs)/index.tsx — 오늘 저장된 outfit의 mood/memo 표시
+- app/(tabs)/calendar.tsx — mock outfits 제거, outfitStore 데이터 기반 날짜 표시/상세 카드로 변경
+- app/(tabs)/stats.tsx — mock 월간 리포트 제거, 저장된 outfits/itemIds 기반 클라이언트 통계 계산
+- stores/authStore.ts — initialize 중 auth listener 중복 등록 방지, 초기화 예외 시 로딩 고착 방지
+- CLAUDE.md / docs/ARCHITECTURE.md / TODO.md — 실제 구조와 작업 규칙 반영
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 대상 변경 파일 → PASS
+- git diff --check → PASS
+
+### 남은 리스크
+- GitHub CLI 토큰 만료로 이슈/PR 생성은 미완료
+  - `gh auth status`: token invalid
+  - 필요 조치: `gh auth login -h github.com` 재인증 후 issue/PR 생성
+- 잠자는 옷장(app/(tabs)/more.tsx)은 여전히 mock 데이터 기반
+
 ## 2026-05-31 (코디 저장 — Phase 4)
 
 ### 처리 항목 (TODO 1개): 코디 저장 (mood, weather, memo)
