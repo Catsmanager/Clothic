@@ -1,5 +1,30 @@
 # LOG
 
+## 2026-06-01 (아이템 선택 화면 책임 분리)
+
+### 처리 항목
+- GitHub Issue: #26 Refactor item select screen responsibilities
+- 작업 브랜치: feature/refactor-item-select-screen
+
+### 신규/변경
+- hooks/useItemSelect.ts 신규
+  - route category 검증, active subcategory 상태, category label, filtered items 계산 분리
+- components/item-select/ItemSelectHeader.tsx 신규
+  - 아이템 선택 헤더 UI 분리
+- components/item-select/ItemSubCategoryTabs.tsx 신규
+  - 서브카테고리 탭 UI 분리
+- components/item-select/ItemGrid.tsx 신규
+  - 3열 아이템 그리드와 카드 렌더링 분리
+- app/item-select.tsx 축소
+  - 기존 182줄 → 32줄
+  - 라우트 화면은 hook 호출, router.back 연결, 섹션 조립만 담당
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 변경 파일 → PASS
+- git diff --check → PASS
+
 ## 2026-05-31 (월간 통계 화면 책임 분리)
 
 ### 처리 항목
