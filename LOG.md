@@ -23,6 +23,48 @@
 - app/(tabs)/stats.tsx 축소
   - 기존 466줄 → 79줄
   - 라우트 화면은 outfit fetch, 월 상태, 리포트 계산 결과와 섹션 조립만 담당
+## 2026-05-31 (잠자는 옷장 화면 책임 분리)
+
+### 처리 항목
+- GitHub Issue: #16 Refactor sleeping wardrobe screen responsibilities
+- 작업 브랜치: feature/refactor-sleeping-wardrobe
+
+### 신규/변경
+- constants/sleepingWardrobe.ts 신규
+  - 잠자는 옷장 mock 데이터, 카테고리 타입, 정렬 타입, 카테고리별 카운트 분리
+- hooks/useSleepingWardrobe.ts 신규
+  - 선택 카테고리, 정렬 상태, 필터링/정렬된 item 목록, 정렬 토글 담당
+- components/sleeping-wardrobe/WardrobeHeader.tsx 신규
+- components/sleeping-wardrobe/SleepingSummaryBanner.tsx 신규
+- components/sleeping-wardrobe/SleepingCategoryTabs.tsx 신규
+- components/sleeping-wardrobe/SleepingToolbar.tsx 신규
+- components/sleeping-wardrobe/SleepingItemList.tsx 신규
+- components/sleeping-wardrobe/SleepingBottomBanner.tsx 신규
+- app/(tabs)/more.tsx 축소
+  - 기존 634줄 → 44줄
+  - 라우트 화면은 hook 결과와 섹션 컴포넌트 조립만 담당
+## 2026-05-31 (온보딩 화면 책임 분리)
+
+### 처리 항목
+- GitHub Issue: #14 Refactor onboarding screen responsibilities
+- 작업 브랜치: feature/refactor-onboarding-screen
+
+### 신규/변경
+- constants/onboarding.ts 신규
+  - 6개 온보딩 슬라이드 데이터, 리포트 샘플 데이터, 컨페티 데이터를 화면 파일 밖으로 분리
+- hooks/useOnboardingPager.ts 신규
+  - FlatList ref, 현재 인덱스, 스크롤 동기화, 다음 슬라이드 이동 로직 분리
+- components/onboarding/OnboardingSlideView.tsx 신규
+  - welcome/feature/final 슬라이드 텍스트 레이아웃 담당
+- components/onboarding/OnboardingControls.tsx 신규
+  - 첫 화면/중간 화면/마지막 화면의 하단 버튼·도트 UI 담당
+- components/onboarding/OnboardingIllustrations.tsx 신규
+  - 6개 슬라이드 일러스트 렌더링 담당
+- components/onboarding/layout.ts 신규
+  - 온보딩 화면 width/height 상수화
+- app/onboarding.tsx 축소
+  - 기존 785줄 → 62줄
+  - 라우트 화면은 인증 완료 처리, FlatList 조립, 하단 컨트롤 연결만 담당
 
 ### 검증
 - npm run typecheck → PASS
