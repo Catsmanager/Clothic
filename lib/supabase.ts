@@ -30,5 +30,6 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false, // React Native에는 URL 세션 감지가 없다.
+    flowType: 'pkce', // 모바일 OAuth: 리다이렉트 code를 exchangeCodeForSession으로 교환.
   },
 })
