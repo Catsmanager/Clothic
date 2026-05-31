@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
+  Alert,
   StyleSheet,
   Dimensions,
 } from 'react-native'
@@ -21,6 +22,8 @@ import {
   SUB_CATEGORIES,
   CATEGORY_LABELS,
 } from '../../constants/mockItems'
+import SaveOutfitSheet from '../../components/SaveOutfitSheet'
+import { useOutfitStore, type NewOutfit } from '../../stores/outfitStore'
 
 const BASE_AVATAR = require('../../assets/avatar/base/base_female_01.png')
 
@@ -52,6 +55,9 @@ export default function CreateScreen() {
   const [equipped, setEquipped] = useState<Partial<Record<Category, string>>>({})
   const [history, setHistory] = useState<Partial<Record<Category, string>>[]>([{}])
   const [historyIndex, setHistoryIndex] = useState(0)
+  const [sheetVisible, setSheetVisible] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const addOutfit = useOutfitStore((s) => s.addOutfit)
 
   const subCategories = SUB_CATEGORIES[activeCategory]
 
@@ -98,6 +104,24 @@ export default function CreateScreen() {
   const canUndo = historyIndex > 0
   const canRedo = historyIndex < history.length - 1
 
+  // 선택한 아이템 id 목록 (값이 있는 것만)
+  const equippedItemIds = Object.values(equipped).filter((id): id is string => id != null)
+
+  const handleSave = useCallback(
+    async (input: NewOutfit) => {
+      setSaving(true)
+      const { error } = await addOutfit(input)
+      setSaving(false)
+      if (error) {
+        Alert.alert('저장 실패', error)
+        return
+      }
+      setSheetVisible(false)
+      router.replace('/outfits')
+    },
+    [addOutfit]
+  )
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       {/* 헤더 */}
@@ -106,7 +130,7 @@ export default function CreateScreen() {
           <Feather name="arrow-left" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>코디 만들기</Text>
-        <TouchableOpacity style={styles.saveBtn}>
+        <TouchableOpacity style={styles.saveBtn} onPress={() => setSheetVisible(true)}>
           <Text style={styles.saveBtnText}>저장</Text>
         </TouchableOpacity>
       </View>
@@ -234,6 +258,14 @@ export default function CreateScreen() {
           )}
         />
       </View>
+
+      <SaveOutfitSheet
+        visible={sheetVisible}
+        itemIds={equippedItemIds}
+        saving={saving}
+        onClose={() => setSheetVisible(false)}
+        onSave={handleSave}
+      />
     </SafeAreaView>
   )
 }

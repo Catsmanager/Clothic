@@ -1,5 +1,36 @@
 # LOG
 
+## 2026-05-31 (코디 저장 — Phase 4)
+
+### 처리 항목 (TODO 1개): 코디 저장 (mood, weather, memo)
+- HARNESS 절차: router(C) → context 선언 → loop(plan·draft·review·revise·report) → roles
+- 사용자 결정: 저장 입력을 '저장 바텀시트(모달)'로 받음
+
+### 신규/변경
+- stores/outfitStore.ts — addOutfit(NewOutfit) 추가
+  - supabase.auth.getUser()로 user_id 확보(미로그인 시 에러 반환), outfits insert + 목록 맨 앞 반영
+  - NewOutfit 타입 export
+- components/SaveOutfitSheet.tsx (신규) — 저장 바텀시트(Modal)
+  - 날씨/기분 칩 선택(토글), 한 줄 메모(50자), 저장/취소, saving 중 로딩·비활성화
+  - 날짜는 오늘(YYYY-MM-DD) 자동
+- app/(tabs)/create.tsx — '저장' 버튼에 시트 연결
+  - 선택 아이템 id 수집 → addOutfit → 성공 시 router.replace('/outfits'), 실패 시 Alert
+
+### 검토(Reviewer)/수정(Reviser)
+- 미로그인 사용자: addOutfit에서 '로그인이 필요합니다' 반환 → create에서 Alert 처리
+- create.tsx:30 기존 unused CATEGORY_ICONS 경고는 이번 범위 밖이라 미수정(유지)
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS (신규 파일 경고 0; 기존 mock 화면 warning만 잔존)
+- npm run format:check → PASS
+- ⚠️ 미검증(불가): 실제 저장 DB 왕복 — .env.local 실제 키 + is_favorite 컬럼 마이그레이션 필요(사용자)
+  + 미로그인 시 저장 불가(설계대로)
+
+### 남은 리스크
+- 아이템 PNG 부재로 코디는 색상 placeholder 기반 — item_ids는 저장되나 시각 렌더는 base 아바타
+- 저장 후 /outfits 목록에서 확인 가능(이전 PR #7과 연결)
+
 ## 2026-05-31 (코디 목록/상세 조회 — Phase 4)
 
 ### 처리 항목 (TODO 1개): 코디 목록 / 상세 조회
