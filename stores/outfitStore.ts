@@ -4,7 +4,17 @@ import type { Database } from '../lib/database.types'
 
 // DB(snake_case) Row를 앱(camelCase) 모델로 매핑한다. (DATA_MODEL.md 기준)
 type OutfitRow = Database['public']['Tables']['outfits']['Row']
+type OutfitInsert = Database['public']['Tables']['outfits']['Insert']
 type OutfitUpdate = Database['public']['Tables']['outfits']['Update']
+
+// 코디 저장 입력 (신규 저장 시 화면에서 받는 값)
+export interface NewOutfit {
+  date: string // YYYY-MM-DD
+  mood: Mood | null
+  weather: Weather | null
+  memo: string | null
+  itemIds: string[]
+}
 
 export type Mood = 'happy' | 'confident' | 'cozy' | 'tired' | 'excited' | 'calm'
 export type Weather = 'sunny' | 'cloudy' | 'rainy' | 'snowy' | 'hot' | 'cold' | 'windy'
@@ -44,6 +54,7 @@ interface OutfitState {
   error: string | null
 
   fetchOutfits: () => Promise<void>
+  addOutfit: (input: NewOutfit) => Promise<Result>
   toggleFavorite: (id: string, next: boolean) => Promise<Result>
   removeOutfit: (id: string) => Promise<Result>
 }
@@ -66,6 +77,27 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
       return
     }
     set({ outfits: (data ?? []).map(mapRow), loading: false })
+  },
+
+  // 코디 저장: 현재 로그인 사용자로 insert하고 목록 맨 앞에 반영한다.
+  addOutfit: async (input) => {
+    const { data: userData } = await supabase.auth.getUser()
+    const userId = userData.user?.id
+    if (!userId) return { error: '로그인이 필요합니다.' }
+
+    const payload: OutfitInsert = {
+      user_id: userId,
+      date: input.date,
+      mood: input.mood,
+      weather: input.weather,
+      memo: input.memo,
+      item_ids: input.itemIds,
+    }
+
+    const { data, error } = await supabase.from('outfits').insert(payload).select().single()
+    if (error) return { error: error.message }
+    if (data) set({ outfits: [mapRow(data), ...get().outfits] })
+    return { error: null }
   },
 
   // 즐겨찾기 토글: 낙관적 업데이트 후 실패 시 롤백한다.

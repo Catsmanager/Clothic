@@ -1,5 +1,67 @@
 # LOG
 
+## 2026-05-31 (카탈로그/데이터 흐름 리팩토링)
+
+### 처리 항목
+- 사용자 결정: hair는 현재 제품 범위에서 제외하고, 추후 추가 가능하도록 유지
+- 사용자 작업 규칙 추가: 모든 작업은 이슈 생성 → 작업 브랜치 → 완료 후 PR 생성 흐름으로 진행
+
+### 신규/변경
+- constants/items.ts — 단일 아이템 카탈로그로 정리
+  - ITEM_CATEGORIES, SUB_CATEGORIES, isCategory 추가
+  - hair는 현재 Category에서 제외, 추후 확장 가능 주석 보강
+- constants/mockItems.ts 삭제 — create/item-select가 constants/items.ts를 사용하도록 전환
+- app/(tabs)/create.tsx — hair 카테고리 제거, ITEMS 기반 선택 UI로 변경
+- app/item-select.tsx — ITEMS 기반 목록 + category 파라미터 런타임 검증 추가
+- app/(tabs)/index.tsx — 오늘 저장된 outfit의 mood/memo 표시
+- app/(tabs)/calendar.tsx — mock outfits 제거, outfitStore 데이터 기반 날짜 표시/상세 카드로 변경
+- app/(tabs)/stats.tsx — mock 월간 리포트 제거, 저장된 outfits/itemIds 기반 클라이언트 통계 계산
+- stores/authStore.ts — initialize 중 auth listener 중복 등록 방지, 초기화 예외 시 로딩 고착 방지
+- CLAUDE.md / docs/ARCHITECTURE.md / TODO.md — 실제 구조와 작업 규칙 반영
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 대상 변경 파일 → PASS
+- git diff --check → PASS
+
+### 남은 리스크
+- GitHub CLI 토큰 만료로 이슈/PR 생성은 미완료
+  - `gh auth status`: token invalid
+  - 필요 조치: `gh auth login -h github.com` 재인증 후 issue/PR 생성
+- 잠자는 옷장(app/(tabs)/more.tsx)은 여전히 mock 데이터 기반
+
+## 2026-05-31 (코디 저장 — Phase 4)
+
+### 처리 항목 (TODO 1개): 코디 저장 (mood, weather, memo)
+- HARNESS 절차: router(C) → context 선언 → loop(plan·draft·review·revise·report) → roles
+- 사용자 결정: 저장 입력을 '저장 바텀시트(모달)'로 받음
+
+### 신규/변경
+- stores/outfitStore.ts — addOutfit(NewOutfit) 추가
+  - supabase.auth.getUser()로 user_id 확보(미로그인 시 에러 반환), outfits insert + 목록 맨 앞 반영
+  - NewOutfit 타입 export
+- components/SaveOutfitSheet.tsx (신규) — 저장 바텀시트(Modal)
+  - 날씨/기분 칩 선택(토글), 한 줄 메모(50자), 저장/취소, saving 중 로딩·비활성화
+  - 날짜는 오늘(YYYY-MM-DD) 자동
+- app/(tabs)/create.tsx — '저장' 버튼에 시트 연결
+  - 선택 아이템 id 수집 → addOutfit → 성공 시 router.replace('/outfits'), 실패 시 Alert
+
+### 검토(Reviewer)/수정(Reviser)
+- 미로그인 사용자: addOutfit에서 '로그인이 필요합니다' 반환 → create에서 Alert 처리
+- create.tsx:30 기존 unused CATEGORY_ICONS 경고는 이번 범위 밖이라 미수정(유지)
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS (신규 파일 경고 0; 기존 mock 화면 warning만 잔존)
+- npm run format:check → PASS
+- ⚠️ 미검증(불가): 실제 저장 DB 왕복 — .env.local 실제 키 + is_favorite 컬럼 마이그레이션 필요(사용자)
+  + 미로그인 시 저장 불가(설계대로)
+
+### 남은 리스크
+- 아이템 PNG 부재로 코디는 색상 placeholder 기반 — item_ids는 저장되나 시각 렌더는 base 아바타
+- 저장 후 /outfits 목록에서 확인 가능(이전 PR #7과 연결)
+
 ## 2026-05-31 (코디 목록/상세 조회 — Phase 4)
 
 ### 처리 항목 (TODO 1개): 코디 목록 / 상세 조회

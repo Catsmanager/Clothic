@@ -1,80 +1,95 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { spacing, radius } from '../../constants/spacing'
 import DonutChart from '../../components/DonutChart'
+import { getItemById } from '../../constants/items'
+import { type Outfit, useOutfitStore } from '../../stores/outfitStore'
 
-// ── mock 데이터 ────────────────────────────────────────────────
 interface MonthData {
   totalOutfits: number
   diffFromLastMonth: number
-  topColors: Array<{ label: string; color: string; percent: number }>
-  topItems: Array<{ label: string; color: string; count: number }>
-  topStyles: Array<{ tag: string; count: number }>
-}
-
-const MONTH_DATA: Record<string, MonthData> = {
-  '2026-05': {
-    totalOutfits: 24,
-    diffFromLastMonth: 6,
-    topColors: [
-      { label: 'Black', color: '#1C1C1C', percent: 42 },
-      { label: 'Gray', color: '#8A8A8A', percent: 21 },
-      { label: 'White', color: '#E8E8E8', percent: 15 },
-      { label: 'Beige', color: '#D4C4A8', percent: 10 },
-      { label: 'Pink', color: '#F4A0A0', percent: 12 },
-    ],
-    topItems: [
-      { label: '블랙 롱 부츠', color: '#1C1C1C', count: 12 },
-      { label: '네이비 후드', color: '#2C3E6B', count: 10 },
-      { label: '슬리브리스', color: '#2A2A2A', count: 8 },
-      { label: '숄더백', color: '#1C1C1C', count: 7 },
-      { label: '볼캡', color: '#6A7A5A', count: 6 },
-    ],
-    topStyles: [
-      { tag: '#캐주얼', count: 10 },
-      { tag: '#데일리룩', count: 8 },
-      { tag: '#스트릿', count: 6 },
-    ],
-  },
-  '2026-04': {
-    totalOutfits: 18,
-    diffFromLastMonth: -2,
-    topColors: [
-      { label: 'Beige', color: '#D4C4A8', percent: 35 },
-      { label: 'White', color: '#E8E8E8', percent: 28 },
-      { label: 'Black', color: '#1C1C1C', percent: 20 },
-      { label: 'Pink', color: '#F4A0A0', percent: 17 },
-    ],
-    topItems: [
-      { label: '화이트 티셔츠', color: '#F0F0F0', count: 9 },
-      { label: '베이지 스커트', color: '#C8B89A', count: 7 },
-      { label: '스니커즈', color: '#F0F0F0', count: 6 },
-      { label: '토트백', color: '#E8DCC8', count: 5 },
-      { label: '크림 가디건', color: '#D4C4A8', count: 4 },
-    ],
-    topStyles: [
-      { tag: '#페미닌', count: 8 },
-      { tag: '#미니멀', count: 7 },
-      { tag: '#캐주얼', count: 3 },
-    ],
-  },
+  topColors: { label: string; color: string; percent: number }[]
+  topItems: { label: string; color: string; count: number }[]
+  topStyles: { tag: string; count: number }[]
 }
 
 function getMonthKey(year: number, month: number): string {
   return `${year}-${String(month + 1).padStart(2, '0')}`
 }
 
+function buildMonthData(outfits: Outfit[], year: number, month: number): MonthData | null {
+  const currentKey = getMonthKey(year, month)
+  const prevDate = new Date(year, month - 1, 1)
+  const previousKey = getMonthKey(prevDate.getFullYear(), prevDate.getMonth())
+  const currentOutfits = outfits.filter((outfit) => outfit.date.startsWith(currentKey))
+  const previousCount = outfits.filter((outfit) => outfit.date.startsWith(previousKey)).length
+
+  if (currentOutfits.length === 0) return null
+
+  const itemCounts = new Map<string, { label: string; color: string; count: number }>()
+  const colorCounts = new Map<string, { label: string; color: string; count: number }>()
+  const styleCounts = new Map<string, { tag: string; count: number }>()
+
+  currentOutfits.forEach((outfit) => {
+    outfit.itemIds.forEach((itemId) => {
+      const item = getItemById(itemId)
+      if (!item) return
+
+      const itemCount = itemCounts.get(item.id)
+      itemCounts.set(item.id, {
+        label: item.name,
+        color: item.color,
+        count: (itemCount?.count ?? 0) + 1,
+      })
+
+      const colorCount = colorCounts.get(item.color)
+      colorCounts.set(item.color, {
+        label: item.color,
+        color: item.color,
+        count: (colorCount?.count ?? 0) + 1,
+      })
+
+      item.styleTags.forEach((tag) => {
+        const styleCount = styleCounts.get(tag)
+        styleCounts.set(tag, { tag: `#${tag}`, count: (styleCount?.count ?? 0) + 1 })
+      })
+    })
+  })
+
+  const totalItemCount = [...colorCounts.values()].reduce((sum, item) => sum + item.count, 0)
+
+  return {
+    totalOutfits: currentOutfits.length,
+    diffFromLastMonth: currentOutfits.length - previousCount,
+    topColors: [...colorCounts.values()]
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5)
+      .map((item) => ({
+        label: item.label,
+        color: item.color,
+        percent: totalItemCount > 0 ? Math.round((item.count / totalItemCount) * 100) : 0,
+      })),
+    topItems: [...itemCounts.values()].sort((a, b) => b.count - a.count).slice(0, 5),
+    topStyles: [...styleCounts.values()].sort((a, b) => b.count - a.count).slice(0, 3),
+  }
+}
+
 // ── 컴포넌트 ──────────────────────────────────────────────────
 export default function StatsScreen() {
+  const outfits = useOutfitStore((s) => s.outfits)
+  const fetchOutfits = useOutfitStore((s) => s.fetchOutfits)
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth())
 
-  const key = getMonthKey(year, month)
-  const data: MonthData | null = MONTH_DATA[key] ?? null
+  useEffect(() => {
+    fetchOutfits()
+  }, [fetchOutfits])
+
+  const data = useMemo(() => buildMonthData(outfits, year, month), [outfits, year, month])
 
   function prevMonth() {
     if (month === 0) {

@@ -25,6 +25,8 @@ interface AuthState {
   signOut: () => Promise<AuthResult>
 }
 
+let authSubscription: { unsubscribe: () => void } | null = null
+
 export const useAuthStore = create<AuthState>((set) => ({
   session: null,
   user: null,
@@ -34,20 +36,27 @@ export const useAuthStore = create<AuthState>((set) => ({
   // 저장된 세션·온보딩 플래그를 복원하고 이후 인증 상태 변화를 구독한다.
   // root layout에서 1회만 호출한다.
   initialize: async () => {
-    const [{ data }, onboardingDone] = await Promise.all([
-      supabase.auth.getSession(),
-      isOnboardingDone(),
-    ])
-    set({
-      session: data.session,
-      user: data.session?.user ?? null,
-      onboardingDone,
-      initialized: true,
-    })
+    try {
+      const [{ data }, onboardingDone] = await Promise.all([
+        supabase.auth.getSession(),
+        isOnboardingDone(),
+      ])
+      set({
+        session: data.session,
+        user: data.session?.user ?? null,
+        onboardingDone,
+        initialized: true,
+      })
+    } catch {
+      set({ initialized: true })
+    }
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    if (authSubscription) return
+
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       set({ session, user: session?.user ?? null })
     })
+    authSubscription = data.subscription
   },
 
   // 온보딩 완료 처리: SecureStore에 저장하고 메모리 상태도 갱신한다.

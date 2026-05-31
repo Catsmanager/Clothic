@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
+  Alert,
   StyleSheet,
   Dimensions,
 } from 'react-native'
@@ -16,29 +17,21 @@ import { colors } from '../../constants/colors'
 import { spacing, radius } from '../../constants/spacing'
 import {
   type Category,
-  type MockItem,
-  MOCK_ITEMS,
+  type CatalogItem,
+  ITEM_CATEGORIES,
+  ITEMS,
   SUB_CATEGORIES,
   CATEGORY_LABELS,
-} from '../../constants/mockItems'
+} from '../../constants/items'
+import SaveOutfitSheet from '../../components/SaveOutfitSheet'
+import { useOutfitStore, type NewOutfit } from '../../stores/outfitStore'
 
 const BASE_AVATAR = require('../../assets/avatar/base/base_female_01.png')
 
-const CATEGORIES: Category[] = ['hair', 'top', 'bottom', 'shoes', 'bag', 'accessory']
 const SCREEN_WIDTH = Dimensions.get('window').width
-
-const CATEGORY_ICONS: Record<Category, string> = {
-  hair: '헤어',
-  top: '상의',
-  bottom: '하의',
-  shoes: '신발',
-  bag: '가방',
-  accessory: '악세서리',
-}
 
 // 카테고리별 Feather 아이콘 대신 텍스트 이모지 사용
 const CATEGORY_EMOJI: Record<Category, string> = {
-  hair: '💆',
   top: '👕',
   bottom: '👖',
   shoes: '👟',
@@ -52,10 +45,13 @@ export default function CreateScreen() {
   const [equipped, setEquipped] = useState<Partial<Record<Category, string>>>({})
   const [history, setHistory] = useState<Partial<Record<Category, string>>[]>([{}])
   const [historyIndex, setHistoryIndex] = useState(0)
+  const [sheetVisible, setSheetVisible] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const addOutfit = useOutfitStore((s) => s.addOutfit)
 
   const subCategories = SUB_CATEGORIES[activeCategory]
 
-  const filteredItems = MOCK_ITEMS.filter(
+  const filteredItems = ITEMS.filter(
     (item) =>
       item.category === activeCategory &&
       (activeSubCategory === '전체' || item.subCategory === activeSubCategory)
@@ -71,7 +67,7 @@ export default function CreateScreen() {
   }, [])
 
   const handleItemPress = useCallback(
-    (item: MockItem) => {
+    (item: CatalogItem) => {
       const next = { ...equipped, [item.category]: item.id }
       const newHistory = history.slice(0, historyIndex + 1)
       setHistory([...newHistory, next])
@@ -98,6 +94,24 @@ export default function CreateScreen() {
   const canUndo = historyIndex > 0
   const canRedo = historyIndex < history.length - 1
 
+  // 선택한 아이템 id 목록 (값이 있는 것만)
+  const equippedItemIds = Object.values(equipped).filter((id): id is string => id != null)
+
+  const handleSave = useCallback(
+    async (input: NewOutfit) => {
+      setSaving(true)
+      const { error } = await addOutfit(input)
+      setSaving(false)
+      if (error) {
+        Alert.alert('저장 실패', error)
+        return
+      }
+      setSheetVisible(false)
+      router.replace('/outfits')
+    },
+    [addOutfit]
+  )
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       {/* 헤더 */}
@@ -106,7 +120,7 @@ export default function CreateScreen() {
           <Feather name="arrow-left" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>코디 만들기</Text>
-        <TouchableOpacity style={styles.saveBtn}>
+        <TouchableOpacity style={styles.saveBtn} onPress={() => setSheetVisible(true)}>
           <Text style={styles.saveBtnText}>저장</Text>
         </TouchableOpacity>
       </View>
@@ -119,7 +133,7 @@ export default function CreateScreen() {
           contentContainerStyle={styles.categoryContent}
           showsVerticalScrollIndicator={false}
         >
-          {CATEGORIES.map((cat) => (
+          {ITEM_CATEGORIES.map((cat) => (
             <TouchableOpacity
               key={cat}
               style={[styles.categoryItem, activeCategory === cat && styles.categoryItemActive]}
@@ -234,6 +248,14 @@ export default function CreateScreen() {
           )}
         />
       </View>
+
+      <SaveOutfitSheet
+        visible={sheetVisible}
+        itemIds={equippedItemIds}
+        saving={saving}
+        onClose={() => setSheetVisible(false)}
+        onSave={handleSave}
+      />
     </SafeAreaView>
   )
 }

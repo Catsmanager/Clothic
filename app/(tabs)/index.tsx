@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from 'react'
 import { View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
@@ -7,14 +8,28 @@ import AvatarCard from '../../components/AvatarCard'
 import MoodMemoCard from '../../components/MoodMemoCard'
 import { colors } from '../../constants/colors'
 import { spacing, radius } from '../../constants/spacing'
+import { useOutfitStore } from '../../stores/outfitStore'
 
-// mock 데이터 — 에셋/DB 연동 전 임시
-const mockOutfit = {
-  mood: 'happy' as const,
-  memo: '친구랑 카페 가는 날 ☕',
+function todayStr(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate()
+  ).padStart(2, '0')}`
 }
 
 export default function HomeScreen() {
+  const outfits = useOutfitStore((s) => s.outfits)
+  const fetchOutfits = useOutfitStore((s) => s.fetchOutfits)
+
+  useEffect(() => {
+    fetchOutfits()
+  }, [fetchOutfits])
+
+  const todayOutfit = useMemo(
+    () => outfits.find((outfit) => outfit.date === todayStr()) ?? null,
+    [outfits]
+  )
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <HomeHeader />
@@ -29,7 +44,7 @@ export default function HomeScreen() {
           onCopy={() => {}}
           onDelete={() => {}}
         />
-        <MoodMemoCard mood={mockOutfit.mood} memo={mockOutfit.memo} />
+        <MoodMemoCard mood={todayOutfit?.mood ?? null} memo={todayOutfit?.memo ?? null} />
       </ScrollView>
 
       <View style={styles.footer}>
