@@ -54,6 +54,7 @@ interface Outfit {
   weather: Weather | null
   memo: string | null
   itemIds: string[]     // Item.id 배열
+  isFavorite: boolean   // 즐겨찾기(★) — 목록 화면 필터용
   createdAt: string
 }
 ```
@@ -127,12 +128,20 @@ create table outfits (
   weather text,
   memo text,
   item_ids uuid[] default '{}',
+  is_favorite boolean not null default false,
   created_at timestamptz default now()
 );
 alter table outfits enable row level security;
 create policy "own outfits" on outfits
   using (auth.uid() = user_id);
 ```
+
+> **마이그레이션 (2026-05-31, 코디 목록/즐겨찾기)**: 기존 outfits 테이블이 이미 있다면
+> 아래를 Supabase SQL Editor에서 실행해 `is_favorite` 컬럼을 추가한다. (사용자 작업)
+>
+> ```sql
+> alter table outfits add column if not exists is_favorite boolean not null default false;
+> ```
 
 ## 관계
 

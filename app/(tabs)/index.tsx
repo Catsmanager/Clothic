@@ -34,6 +34,13 @@ export default function HomeScreen() {
 
       <View style={styles.footer}>
         <TouchableOpacity
+          style={styles.savedButton}
+          onPress={() => router.push('/outfits')}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.savedText}>저장한 코디 보기</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
           style={styles.ctaButton}
           onPress={() => router.push('/(tabs)/create')}
           activeOpacity={0.85}
@@ -63,6 +70,21 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     paddingTop: spacing.sm,
     backgroundColor: colors.secondary,
+    gap: spacing.sm,
+  },
+  savedButton: {
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.full,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  savedText: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: '600',
   },
   ctaButton: {
     backgroundColor: colors.text,
