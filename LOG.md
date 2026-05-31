@@ -1,5 +1,31 @@
 # LOG
 
+## 2026-05-31 (잠자는 옷장 화면 책임 분리)
+
+### 처리 항목
+- GitHub Issue: #16 Refactor sleeping wardrobe screen responsibilities
+- 작업 브랜치: feature/refactor-sleeping-wardrobe
+
+### 신규/변경
+- constants/sleepingWardrobe.ts 신규
+  - 잠자는 옷장 mock 데이터, 카테고리 타입, 정렬 타입, 카테고리별 카운트 분리
+- hooks/useSleepingWardrobe.ts 신규
+  - 선택 카테고리, 정렬 상태, 필터링/정렬된 item 목록, 정렬 토글 담당
+- components/sleeping-wardrobe/WardrobeHeader.tsx 신규
+- components/sleeping-wardrobe/SleepingSummaryBanner.tsx 신규
+- components/sleeping-wardrobe/SleepingCategoryTabs.tsx 신규
+- components/sleeping-wardrobe/SleepingToolbar.tsx 신규
+- components/sleeping-wardrobe/SleepingItemList.tsx 신규
+- components/sleeping-wardrobe/SleepingBottomBanner.tsx 신규
+- app/(tabs)/more.tsx 축소
+  - 기존 634줄 → 44줄
+  - 라우트 화면은 hook 결과와 섹션 컴포넌트 조립만 담당
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 변경 파일 → PASS
+
 ## 2026-05-31 (코디 생성 화면 책임 분리)
 
 ### 처리 항목
