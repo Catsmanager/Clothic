@@ -1,5 +1,34 @@
 # LOG
 
+## 2026-05-31 (월간 통계 화면 책임 분리)
+
+### 처리 항목
+- GitHub Issue: #18 Refactor monthly stats screen responsibilities
+- 작업 브랜치: feature/refactor-monthly-stats
+
+### 신규/변경
+- lib/monthlyStats.ts 신규
+  - 월 key 생성, 월간 리포트 데이터 계산, 아이템/색상/스타일 집계 분리
+- hooks/useMonthNavigation.ts 신규
+  - 연/월 상태와 이전/다음 월 이동 로직 분리
+- components/monthly-stats/StatsHeader.tsx 신규
+- components/monthly-stats/MonthNavigator.tsx 신규
+- components/monthly-stats/StatsCard.tsx 신규
+- components/monthly-stats/TotalOutfitsCard.tsx 신규
+- components/monthly-stats/TopColorsCard.tsx 신규
+- components/monthly-stats/TopItemsCard.tsx 신규
+- components/monthly-stats/TopStylesCard.tsx 신규
+- components/monthly-stats/StatsTipCard.tsx 신규
+- components/monthly-stats/EmptyStatsCard.tsx 신규
+- app/(tabs)/stats.tsx 축소
+  - 기존 466줄 → 79줄
+  - 라우트 화면은 outfit fetch, 월 상태, 리포트 계산 결과와 섹션 조립만 담당
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 변경 파일 → PASS
+
 ## 2026-05-31 (코디 생성 화면 책임 분리)
 
 ### 처리 항목
