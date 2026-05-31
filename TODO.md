@@ -47,7 +47,7 @@
 - [x] 코디 생성 화면 (아바타 레이어 렌더러)
 - [x] 아이템 선택 (카테고리별 탭)
 - [ ] 코디 저장 (mood, weather, memo)  ← UI 일부 존재, 영속 저장 없음
-- [ ] 코디 목록 / 상세 조회
+- [x] 코디 목록 / 상세 조회  ← app/outfits.tsx·app/outfit/[id].tsx·stores/outfitStore.ts (Supabase 연동, 즐겨찾기 포함). 잔여: is_favorite 컬럼 마이그레이션(사용자), 저장 기능 미구현이라 실데이터 빈 상태
 - [x] 캘린더 화면  (mock 데이터)
 - [x] 월간 통계 화면  (mock 데이터)
 - [x] 잠자는 옷장 화면  (mock 데이터)

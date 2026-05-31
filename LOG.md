@@ -1,5 +1,42 @@
 # LOG
 
+## 2026-05-31 (코디 목록/상세 조회 — Phase 4)
+
+### 처리 항목 (TODO 1개): 코디 목록 / 상세 조회
+- HARNESS 절차 준수: router(C 작업) → context 선언 → loop(plan·draft·review·revise) → roles(writer·reviewer·reviser)
+- 사용자 결정: ① 코디 목록/상세 조회 처리 ② '코디 저장'은 탭이 아닌 별도 화면 ③ 즐겨찾기(★) 포함
+
+### 신규/변경
+- stores/outfitStore.ts (신규) — Zustand. outfits Supabase 연동
+  - fetchOutfits(date 내림차순), toggleFavorite(낙관적 업데이트+롤백), removeOutfit
+  - DB(snake_case) Row → 앱(camelCase) Outfit 매핑, is_favorite 미존재 DB 방어(?? false)
+  - MOOD_LABELS / WEATHER_LABELS (DATA_MODEL Mood/Weather → 한글)
+- app/outfits.tsx (신규) — 코디 저장 목록 화면(별도 스택, 탭 아님)
+  - 전체 코디 / 즐겨찾기 탭, 3열 그리드 카드(아바타 썸네일·날짜·메모·★ 토글)
+  - 빈 상태 / 로딩 / 에러+재시도, 하단 '새 코디 저장하기'(→ create) — 이미지 시안 반영
+- app/outfit/[id].tsx (신규) — 코디 상세(아바타 카드·날씨/기분/메모·착용 아이템 칩·★ 토글·삭제)
+- app/(tabs)/index.tsx — 홈 하단에 '저장한 코디 보기'(→ /outfits) 버튼 추가
+- lib/database.types.ts — outfits에 is_favorite 추가 + 각 테이블 Relationships:[] 보강
+  (supabase-js 2.106 update/delete가 never로 추론되던 타입 이슈 해소)
+- docs/DATA_MODEL.md — Outfit.isFavorite + outfits.is_favorite 컬럼 + 마이그레이션 SQL 명시
+
+### 검토(Reviewer)와 수정(Reviser)
+- 이미지 우상단 '편집'·카드 '⋮' 메뉴: 별도 편집 기능이라 '조회' 범위에서 제외(의도적 축소)
+- 상세 화면 삭제: '조회' 범위를 넘으나 이미지 ⋮ 메뉴가 암시하고 코디 관리에 필요해 유지(리스크로 보고)
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS (신규 파일 경고 0, 기존 mock 화면 warning 2건은 비차단)
+- npm run format:check → PASS
+- ⚠️ 미검증(불가): 실제 화면 렌더링·Supabase 왕복. 사유:
+  (1) '코디 저장' 미구현이라 outfits 테이블이 비어 목록은 빈 상태로 보임
+  (2) is_favorite 컬럼 마이그레이션은 사용자가 Supabase에서 실행해야 동작(DATA_MODEL.md SQL)
+  (3) 아바타 썸네일 PNG 부재 → 카드/상세는 base 아바타로 표시
+
+### 남은 리스크
+- 코디 저장(다음 TODO) 완료 전에는 목록에 표시할 실데이터가 없음
+- is_favorite 마이그레이션 전 즐겨찾기 토글은 DB 오류 가능(코드는 롤백 처리)
+
 ## 2026-05-31 (CI/CD 구축)
 
 ### 범위: CI 검증 + EAS 스캐폴딩 (사용자 결정)

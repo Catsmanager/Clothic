@@ -13,3 +13,6 @@ web-build/
 # misc
 *.log
 .DS_Store
+
+# Claude Code (로컬 도구 상태 — 커밋 제외)
+.claude/

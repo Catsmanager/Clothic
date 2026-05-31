@@ -20,6 +20,7 @@ export interface Database {
           username?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       items: {
         Row: {
@@ -52,6 +53,7 @@ export interface Database {
           style_tags?: string[]
           created_at?: string
         }
+        Relationships: []
       }
       outfits: {
         Row: {
@@ -62,6 +64,7 @@ export interface Database {
           weather: string | null
           memo: string | null
           item_ids: string[]
+          is_favorite: boolean
           created_at: string
         }
         Insert: {
@@ -72,6 +75,7 @@ export interface Database {
           weather?: string | null
           memo?: string | null
           item_ids?: string[]
+          is_favorite?: boolean
           created_at?: string
         }
         Update: {
@@ -82,8 +86,10 @@ export interface Database {
           weather?: string | null
           memo?: string | null
           item_ids?: string[]
+          is_favorite?: boolean
           created_at?: string
         }
+        Relationships: []
       }
     }
     Views: Record<string, never>
