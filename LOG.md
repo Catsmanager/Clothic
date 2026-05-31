@@ -1,5 +1,30 @@
 # LOG
 
+## 2026-06-01 (공통 코디 아바타 렌더링 분리)
+
+### 처리 항목
+- GitHub Issue: #22 Refactor shared outfit avatar rendering
+- 작업 브랜치: feature/refactor-outfit-avatar
+
+### 신규/변경
+- components/OutfitAvatar.tsx 신규
+  - 현재 코디 화면들이 공통으로 쓰는 base avatar 이미지 렌더링을 단일 컴포넌트로 분리
+- components/AvatarCard.tsx
+  - 홈 카드의 직접 `BASE_AVATAR` import 제거 후 `OutfitAvatar` 사용
+- components/outfit-editor/AvatarPreview.tsx
+  - 코디 생성 preview의 base avatar 렌더링을 `OutfitAvatar`로 교체
+- app/(tabs)/calendar.tsx
+  - 캘린더 mini avatar 렌더링을 `OutfitAvatar`로 교체
+- app/outfits.tsx, app/outfit/[id].tsx
+  - 코디 목록/상세의 base avatar 렌더링을 `OutfitAvatar`로 교체
+- 온보딩 일러스트는 프레젠테이션 전용 시안이므로 이번 공통화 범위에서 제외
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 변경 파일 → PASS
+- git diff --check → PASS
+
 ## 2026-05-31 (월간 통계 화면 책임 분리)
 
 ### 처리 항목

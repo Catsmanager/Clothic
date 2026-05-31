@@ -1,17 +1,10 @@
-import {
-  View,
-  Image,
-  ImageBackground,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-} from 'react-native'
+import { View, ImageBackground, TouchableOpacity, StyleSheet, Dimensions } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../constants/colors'
 import { spacing, radius } from '../constants/spacing'
+import OutfitAvatar from './OutfitAvatar'
 
 const CARD_WIDTH = Dimensions.get('window').width - spacing.md * 2
-const BASE_AVATAR = require('../assets/avatar/base/base_female_01.png')
 // 아바타 뒤 방 배경 (오늘의 코디 카드)
 const ROOM_BACKGROUND = require('../assets/avatar/background/room_01.png')
 
@@ -25,7 +18,7 @@ export default function AvatarCard({ onEdit, onCopy, onDelete }: Props) {
   return (
     <View style={styles.card}>
       <ImageBackground source={ROOM_BACKGROUND} style={styles.avatarArea} resizeMode="cover">
-        <Image source={BASE_AVATAR} style={styles.avatarImage} resizeMode="contain" />
+        <OutfitAvatar style={styles.avatarImage} />
       </ImageBackground>
 
       <View style={styles.actions}>

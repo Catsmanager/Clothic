@@ -1,20 +1,11 @@
 import { useEffect, useState, useMemo } from 'react'
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  Dimensions,
-} from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors } from '../../constants/colors'
 import { spacing, radius } from '../../constants/spacing'
 import { getItemById } from '../../constants/items'
+import OutfitAvatar from '../../components/OutfitAvatar'
 import { WEATHER_LABELS, useOutfitStore } from '../../stores/outfitStore'
-
-const BASE_AVATAR = require('../../assets/avatar/base/base_female_01.png')
 
 const SCREEN_WIDTH = Dimensions.get('window').width
 const CELL_WIDTH = Math.floor(SCREEN_WIDTH / 7)
@@ -159,9 +150,7 @@ export default function CalendarScreen() {
                       {cell.date.getDate()}
                     </Text>
                   </View>
-                  {outfit && cell.isCurrentMonth && (
-                    <Image source={BASE_AVATAR} style={styles.miniAvatar} resizeMode="contain" />
-                  )}
+                  {outfit && cell.isCurrentMonth && <OutfitAvatar style={styles.miniAvatar} />}
                 </TouchableOpacity>
               )
             })}
