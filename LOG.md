@@ -1,5 +1,29 @@
 # LOG
 
+## 2026-05-31 (코디 생성 화면 책임 분리)
+
+### 처리 항목
+- GitHub Issue: #12 Refactor outfit creation screen responsibilities
+- 작업 브랜치: feature/refactor-create-screen
+- 기준: 이전 카탈로그 리팩토링 브랜치 위에 stacked 작업
+
+### 신규/변경
+- hooks/useOutfitEditor.ts 신규
+  - active category/subcategory, equipped item state, undo/redo history, filtered items, 저장 itemIds 파생을 담당
+- components/outfit-editor/CreateHeader.tsx 신규
+- components/outfit-editor/CategoryRail.tsx 신규
+- components/outfit-editor/AvatarPreview.tsx 신규
+- components/outfit-editor/EditorActionPanel.tsx 신규
+- components/outfit-editor/ItemPickerPanel.tsx 신규
+- app/(tabs)/create.tsx 축소
+  - 기존 461줄 → 87줄
+  - 라우트 화면은 저장 시트 상태, 저장 액션, 섹션 조립만 담당
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 변경 파일 → PASS
+
 ## 2026-05-31 (카탈로그/데이터 흐름 리팩토링)
 
 ### 처리 항목
