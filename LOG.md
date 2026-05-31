@@ -1,5 +1,62 @@
 # LOG
 
+## 2026-05-31 (저녁)
+
+### 온보딩 화면 시안 반영 (재작업)
+- app/onboarding.tsx — 제공된 6컷 시안에 맞춰 레이아웃·일러스트 정밀 재구성
+  - 슬라이드 0(welcome): 텍스트 상단 → room_01 배경 위 아바타 일러스트(ImageBackground),
+    하단 시작하기 버튼 → 도트 순
+  - 슬라이드 1: 날짜(좌)/날씨(우) 분리 행 + 방 배경 카드 아바타 +
+    사진/아바타/직접 선택 버튼(Feather image·MaterialCommunityIcons hanger·Feather plus, 아이콘+라벨)
+  - 슬라이드 2: 날씨/오늘 기분(드롭다운 박스)/오늘 한 줄(입력 박스) 필드형 카드
+  - 슬라이드 3: 옷장 박스(행거 레일·선반) + '잠자는 옷이 많아요' 배너(아이콘·제목·설명·chevron)
+  - 슬라이드 4: 월간 리포트 카드 — 헤더/월 네비, 총 코디 수, DonutChart+범례(5색), TOP3 아이템
+  - 슬라이드 5(final): 컨페티 + 아바타 → 중앙 정렬 텍스트 → 도트 → 시작하기 버튼
+  - 하단 영역 분기: welcome(버튼→도트) / feature(도트 좌·화살표 우) / final(도트→버튼)
+  - (후속) welcome '시작하기'를 goStart→goNext로 변경: 첫 화면 버튼이 다음 장으로 진행,
+    온보딩 완료는 마지막 슬라이드 '시작하기'에서만. 사용자 결정(2026-05-31).
+    웹에서 마우스로 스와이프 불가해 첫 장만 보이던 문제도 함께 해소(버튼만으로 6장 탐색 가능)
+  - (후속2) 버튼을 눌러도 안 넘어가던 문제 수정: scrollToIndex(웹에서 getItemLayout 없이 실패)
+    → scrollToOffset(next*SW)로 교체 + getItemLayout 지정. 인덱스 추적도
+    onViewableItemsChanged → onScroll(offset/SW 반올림)로 변경(웹에서 더 안정적)
+  - 기존 DonutChart 컴포넌트 재사용, 색상은 디자인 시스템(colors) 준수
+- 범위: 화면 1개(onboarding.tsx)만 수정. 실제 일러스트 PNG(옷장·컨페티 아바타)는
+  미보유 → 보유 에셋(base_female_01, room_01)+스타일/이모지로 시안 구조를 재현
+
+### 검증
+- npx tsc --noEmit → 에러 없음
+- npx eslint app/onboarding.tsx → 통과
+- npx prettier --check app/onboarding.tsx → 정합
+- ⚠️ 미검증: 실제 렌더링(시각 확인은 사용자 npm run web/실기기 필요)
+
+## 2026-05-31 (오후)
+
+### 웹 SecureStore 크래시 수정
+- 증상: `npm run web` 시 `ExpoSecureStore.default.getValueWithKeyAsync is not a function`
+  (lib/onboarding.ts → authStore.initialize → app/_layout.tsx)
+- 원인: expo-secure-store는 네이티브 전용 — web에 native 함수가 없음
+  (lib/supabase.ts는 이미 Platform 가드 있었으나 lib/onboarding.ts는 누락)
+- lib/onboarding.ts 수정 — Platform.OS === 'web'일 때 localStorage로 분기
+  (supabase.ts의 storage 분기 정책과 동일, 웹에서도 온보딩 플래그 영속)
+
+### 카카오 OAuth 외부 콘솔 진행 (사용자)
+- Supabase Kakao provider 활성화 + REST API Key/Client Secret 설정 완료
+- "이메일 없는 사용자 허용" 켜짐
+- OAuth 흐름이 카카오 인증 서버까지 도달 확인(provider/키 동작)
+- 잔여: 카카오 KOE205 — 요청 scope의 `account_email`이 카카오 동의항목 미설정.
+  Supabase(GoTrue)가 Kakao에 account_email을 기본 주입하므로 클라이언트 코드로
+  제거 불가 → 해결은 카카오 콘솔 동의항목에서 account_email을 "선택 동의"로 활성화
+
+### 홈 카드 배경 적용
+- assets/avatar/background/room_01.png 추가 — 방 배경 일러스트(1023×1537)
+- components/AvatarCard.tsx 수정 — 단색 View를 ImageBackground로 교체,
+  resizeMode="cover"로 카드에 채움. 아바타는 배경 위 중앙 유지, 액션 버튼은 absolute로 오버레이
+
+### 검증
+- lib/onboarding.ts: 웹 분기 추가, 네이티브 경로 기존 동작 유지
+- AvatarCard.tsx: ImageBackground(RN 표준) import·교체, 구조 이상 없음
+- ⚠️ 미검증(사용자): 실제 화면 렌더링 확인(npm run web / 실기기), 카카오 KOE205 해소 후 재시도
+
 ## 2026-05-31
 
 ### authStore (Zustand) 구현 (Phase 2)
@@ -15,6 +72,83 @@
 - npx tsc --noEmit → 에러 없음
 - npx eslint stores/authStore.ts → 통과
 - npx prettier --check stores/authStore.ts → 정합
+
+### 로그인 화면 구현 (Phase 2)
+- app/login.tsx 신규 — 이메일/비밀번호 로그인 화면
+  - 입력 폼(이메일·비밀번호), useAuthStore().signInWithEmail 호출
+  - 로딩 상태(ActivityIndicator)·에러 메시지·버튼 비활성화 처리
+  - 성공 시 router.replace('/(tabs)'), 회원가입 링크 router.push('/signup')(다음 항목)
+  - KeyboardAvoidingView(iOS), 기존 디자인 시스템(colors/spacing/radius) 준수
+- 범위 한정: TODO 규칙대로 "로그인 화면" 항목만 처리.
+  회원가입 화면·인증 가드·카카오 OAuth는 다음 항목으로 남김.
+
+### 검증
+- npx tsc --noEmit → 에러 없음
+- npx eslint app/login.tsx → 통과
+- npx prettier --check app/login.tsx → 정합(--write 적용 후)
+
+### 회원가입 화면 구현 (Phase 2)
+- app/signup.tsx 신규 — 이메일/비밀번호 회원가입 화면
+  - 입력 폼(이메일·비밀번호·비밀번호 확인), useAuthStore().signUpWithEmail 호출
+  - 클라이언트 검증: 비밀번호 최소 6자(Supabase 기본), 비밀번호 일치 확인
+  - 로딩 상태·에러 메시지·버튼 비활성화, 성공 시 router.replace('/(tabs)')
+  - 하단 '로그인' 링크 router.back() → login.tsx의 /signup 링크와 왕복 연결
+  - login.tsx와 동일 디자인 시스템·레이아웃 적용
+- 범위 한정: TODO 규칙대로 "회원가입 화면" 항목만 처리.
+  인증 가드·카카오 OAuth는 다음 항목으로 남김.
+
+### 검증
+- npx tsc --noEmit → 에러 없음
+- npx eslint app/signup.tsx → 통과
+- npx prettier --check app/signup.tsx → 정합(--write 적용 후)
+
+### 인증 가드 + AsyncStorage 정리 (Phase 2)
+- 사용자 결정: 온보딩 플래그 저장소를 AsyncStorage→expo-secure-store로 교체
+- lib/onboarding.ts 신규 — SecureStore 기반 온보딩 플래그 헬퍼
+  (isOnboardingDone / setOnboardingDone, 키 'clothic_onboarding_done')
+- stores/authStore.ts 확장 — 부트스트랩 게이트로 onboardingDone 상태 + completeOnboarding() 추가
+  - initialize(): getSession()·isOnboardingDone() 병렬 로드 후 initialized 설정
+- app/_layout.tsx 전면 수정 — 인증 가드
+  - AsyncStorage 제거, useSegments 기반 분기:
+    온보딩 미완료→/onboarding, 완료·미로그인→/login, 로그인→/(tabs)
+  - 복원 완료(initialized) 전 ActivityIndicator 로딩 표시(깜빡임 방지)
+- app/onboarding.tsx 수정 — AsyncStorage 제거 → completeOnboarding() 사용,
+  완료 후 router.replace('/login') (미로그인 상태이므로)
+- 패키지 제거: @react-native-async-storage/async-storage (npm uninstall)
+- ⚠️ 규칙 위반(AsyncStorage 사용) 해소 완료 — TODO 현황 메모 갱신
+
+### 검증
+- grep AsyncStorage → 코드 사용처 0건(주석 언급만)
+- npx tsc --noEmit → 에러 없음
+- npx eslint (_layout/onboarding/authStore/lib/onboarding) → 통과
+- npx prettier --check → 정합
+
+### 다음 단계
+- Phase 2 남은 항목: 카카오 OAuth Supabase 연동 설정
+
+### 카카오 OAuth 연동 (Phase 2)
+- lib/supabase.ts — auth.flowType: 'pkce' 추가 (모바일 OAuth code 교환)
+- stores/authStore.ts — signInWithKakao() 추가
+  - signInWithOAuth({ provider:'kakao', redirectTo: Linking.createURL('auth/callback'),
+    skipBrowserRedirect:true }) → WebBrowser.openAuthSessionAsync로 인증창
+  - 리다이렉트 URL의 code를 Linking.parse로 추출 → exchangeCodeForSession
+  - 취소(success 아님) 시 에러 없이 종료, 성공 시 onAuthStateChange가 세션 갱신
+- app/login.tsx — "카카오로 시작하기" 버튼 + '또는' 구분선, kakaoLoading 상태,
+  email/kakao 동시 busy 처리
+- docs/KAKAO_OAUTH.md 신규 — 카카오 디벨로퍼스/Supabase 대시보드 설정 가이드 +
+  실기기 검증 체크리스트
+- 한계 명시: 외부 콘솔(카카오 앱 등록·Supabase provider 키·Redirect URL)과
+  실기기 OAuth 왕복은 직접 수행/검증 불가 → 코드+문서까지만 처리
+
+### 검증
+- npx tsc --noEmit → 에러 없음
+- npx eslint (login/authStore/supabase) → 통과
+- npx prettier --check → 정합
+- ⚠️ 미검증: 실제 카카오 OAuth 왕복(콘솔 설정 + 실기기 필요, KAKAO_OAUTH.md 체크리스트)
+
+### Phase 2 완료
+- DB/RLS · authStore · 로그인/회원가입 화면 · 인증 가드 · 카카오 OAuth(코드) 모두 완료
+- 잔여: 카카오 OAuth 실기기 검증(사용자), .env.local 실제 키 입력(사용자)
 
 ## 2026-05-30
 
