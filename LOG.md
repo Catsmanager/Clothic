@@ -1,5 +1,39 @@
 # LOG
 
+## 2026-06-01 (인증 화면 공통 UI 분리)
+
+### 처리 항목
+- GitHub Issue: #24 Refactor shared auth screen components
+- 작업 브랜치: feature/refactor-auth-screens
+
+### 신규/변경
+- components/auth/AuthScreen.tsx 신규
+  - SafeAreaView, KeyboardAvoidingView, 중앙 content, footer 배치 공통화
+- components/auth/AuthHeader.tsx 신규
+  - 인증 화면 제목/설명 typography 공통화
+- components/auth/AuthTextField.tsx 신규
+  - label + TextInput 필드 스타일과 기본 입력 props 공통화
+- components/auth/AuthSubmitButton.tsx 신규
+  - submit 버튼, disabled opacity, loading indicator 공통화
+- components/auth/AuthErrorText.tsx 신규
+  - 인증 에러 텍스트 표시 공통화
+- components/auth/AuthFooterLink.tsx 신규
+  - 로그인/회원가입 전환 footer link 공통화
+- components/auth/AuthDivider.tsx 신규
+  - 로그인 화면의 "또는" 구분선 컴포넌트 분리
+- app/login.tsx 축소
+  - 기존 259줄 → 138줄
+  - 로그인/카카오 인증 상태와 submit 흐름은 유지하고 반복 UI를 공통 컴포넌트로 교체
+- app/signup.tsx 축소
+  - 기존 230줄 → 119줄
+  - 회원가입 validation/auth 흐름은 유지하고 반복 UI를 공통 컴포넌트로 교체
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 변경 파일 → PASS
+- git diff --check → PASS
+
 ## 2026-05-31 (월간 통계 화면 책임 분리)
 
 ### 처리 항목
