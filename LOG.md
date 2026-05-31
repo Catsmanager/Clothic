@@ -1,5 +1,30 @@
 # LOG
 
+## 2026-05-31 (CI/CD 구축)
+
+### 범위: CI 검증 + EAS 스캐폴딩 (사용자 결정)
+- 선행: PR #2(feature/auth-onboarding) develop 머지 후, feature/ci-cd를 develop에서 분기
+- .github/workflows/ci.yml: PR + develop/main push 시 Node 20·npm ci·typecheck·lint·format:check
+- package.json: `typecheck: tsc --noEmit` 스크립트 추가
+- app.json: ios.bundleIdentifier / android.package = `com.clothic.app` (사용자 결정)
+- eas.json: development/preview/production 빌드 프로필 + production iOS submit(플레이스홀더)
+- .github/workflows/eas-build.yml: 수동 트리거(workflow_dispatch) production 빌드(EXPO_TOKEN secret 필요)
+- docs/CICD.md: CI 설명 + EAS/Apple 계정 준비·빌드·제출 + App Store 체크리스트
+- components/DonutChart.tsx: 렌더 중 가변 변수(currentAngle) 재할당 ESLint error 해소
+  (reduce 누적 배열로 시작 각도 사전 계산) — CI lint 통과 위해 필수였음
+
+### 검증 (CI 단계 로컬 시뮬레이션)
+- npm ci → PASS (lockfile 동기화 확인)
+- npm run typecheck → PASS
+- npm run lint → PASS (0 errors; warning 다수는 기존 mock 화면, 비차단)
+- npm run format:check → PASS
+- package.json/app.json/eas.json JSON 유효성 확인
+- ⚠️ 미검증: 실제 EAS 빌드·App Store 제출 (Expo/Apple 계정 + EXPO_TOKEN secret 필요 — 사용자만 가능)
+
+### 정정 (이전 주장 철회)
+- 이전 대화에서 "package.json이 최초 커밋부터 깨진 JSON"이라고 했으나 **사실이 아님**.
+  node JSON.parse로 최초 커밋·현재 모두 유효 JSON 확인. async-storage도 이미 제거된 상태였음.
+
 ## 2026-05-31 (저녁)
 
 ### 온보딩 화면 시안 반영 (재작업)

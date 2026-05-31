@@ -55,9 +55,12 @@
 
 ## Phase 5: 검증 및 출시
 - [ ] TEST_PLAN.md 기준 전체 검증
-- [ ] Expo EAS Build 설정
-- [ ] App Store 제출
+- [x] CI 구축 (GitHub Actions: typecheck/lint/format)  ← .github/workflows/ci.yml
+- [~] Expo EAS Build 설정  ← eas.json·eas-build.yml·docs/CICD.md 작성. 실제 빌드는 Expo/Apple 계정 필요(사용자)
+- [ ] App Store 제출  ← docs/CICD.md 체크리스트 참조 (Bundle ID com.clothic.app)
 - [ ] Google Play 제출
+
+> 2026-05-31: CI/CD 구축(feature/ci-cd). 번들 ID com.clothic.app 설정, DonutChart lint error 해소. (LOG 참조)
 
 ---
 

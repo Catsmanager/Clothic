@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native'
+import { View } from 'react-native'
 import Svg, { Path, Circle } from 'react-native-svg'
 
 interface Segment {
@@ -47,12 +47,15 @@ export default function DonutChart({ segments, size = 140, strokeWidth = 36 }: P
   const innerR = r - strokeWidth
   const total = segments.reduce((s, seg) => s + seg.value, 0)
 
-  let currentAngle = 0
+  // 각 세그먼트의 시작 각도를 누적 합으로 미리 계산한다(렌더 중 가변 변수 재할당 회피).
+  const startAngles = segments.reduce<number[]>((acc, seg, i) => {
+    acc.push(i === 0 ? 0 : acc[i - 1] + (segments[i - 1].value / total) * 360)
+    return acc
+  }, [])
   const paths = segments.map((seg, i) => {
     const sweep = (seg.value / total) * 360
-    const start = currentAngle
-    const end = currentAngle + sweep - 1 // 1도 간격
-    currentAngle += sweep
+    const start = startAngles[i]
+    const end = start + sweep - 1 // 1도 간격
     return <Path key={i} d={segmentPath(cx, cy, r, innerR, start, end)} fill={seg.color} />
   })
 
