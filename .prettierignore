@@ -1,0 +1,11 @@
+node_modules/
+.expo/
+dist/
+web-build/
+assets/
+package-lock.json
+
+# 손으로 작성·관리하는 문서는 포매팅 대상에서 제외 (의도된 레이아웃 보존)
+*.md
+docs/
+HARNESS/

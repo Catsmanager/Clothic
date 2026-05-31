@@ -1,0 +1,80 @@
+# TODO
+
+> 재점검: 2026-05-30 — 실제 파일과 대조해 체크 상태 정정. 하단 "현황 메모" 참조.
+
+## Phase 0: 문서 정비
+- [x] PRD.md Supabase/인증 범위 반영
+- [x] ARCHITECTURE.md Supabase 스택 추가
+- [x] ADR.md ADR-002 추가
+- [x] DATA_MODEL.md 작성
+- [x] ASSET_PLAN.md 작성
+- [x] DESIGN_SYSTEM.md 작성
+- [x] TODO.md 작성
+- [x] CLAUDE.md 기술스택 Supabase 반영
+
+## Phase 1: 프로젝트 초기화
+- [x] Expo 프로젝트 생성 (`npx create-expo-app`)
+- [x] TypeScript strict mode 설정
+- [x] ESLint / Prettier 설정  ← flat config + scripts. 기존 코드 12파일 포매팅 미적용(별도 작업)
+- [x] Expo Router 설정
+- [x] 패키지 설치: @supabase/supabase-js, expo-secure-store, expo-web-browser
+- [x] .env.local 생성 (Supabase URL/Key)  ← 빈 placeholder, 실제 키는 사용자 입력 필요
+- [x] Supabase 클라이언트 (`lib/supabase.ts`)  ← SecureStore 세션 어댑터
+- [x] constants/colors.ts, constants/spacing.ts 생성  (+ mockItems.ts placeholder 추가)
+
+## Phase 2: DB 및 인증
+- [x] Supabase 프로젝트 생성
+- [x] profiles / items / outfits 테이블 생성 및 RLS 설정
+- [x] authStore (Zustand) 구현  ← stores/authStore.ts (세션 복원·signUp/signIn/signOut)
+- [ ] 로그인 화면 구현
+- [ ] 회원가입 화면 구현
+- [ ] 인증 가드 (app/_layout.tsx)  ← 현재 AsyncStorage 온보딩 가드만 존재
+- [ ] 카카오 OAuth Supabase 연동 설정
+
+## Phase 3: 에셋 제작
+- [x] 에셋 폴더 구조 + 네이밍 가이드 (assets/avatar/{cat}/, README 체크리스트)
+- [x] 아바타 base 이미지 제작 (64×128px)  (base_female_01.png)
+- [ ] 상의 10종 제작  ← PNG 미제작 (디자이너/툴 작업 필요). 경로는 items.ts에 예약됨
+- [ ] 하의 8종 제작
+- [ ] 신발 6종 제작
+- [ ] 가방 5종 제작
+- [ ] 액세서리 4종 제작 (none 포함)
+- [x] constants/items.ts 에 메타데이터 등록  ← 33종, imagePath는 문자열 경로(빌드 안전)
+
+## Phase 4: 핵심 화면
+- [x] 온보딩 화면
+- [x] 홈 화면
+- [x] 코디 생성 화면 (아바타 레이어 렌더러)
+- [x] 아이템 선택 (카테고리별 탭)
+- [ ] 코디 저장 (mood, weather, memo)  ← UI 일부 존재, 영속 저장 없음
+- [ ] 코디 목록 / 상세 조회
+- [x] 캘린더 화면  (mock 데이터)
+- [x] 월간 통계 화면  (mock 데이터)
+- [x] 잠자는 옷장 화면  (mock 데이터)
+- [ ] 챌린지 화면
+
+## Phase 5: 검증 및 출시
+- [ ] TEST_PLAN.md 기준 전체 검증
+- [ ] Expo EAS Build 설정
+- [ ] App Store 제출
+- [ ] Google Play 제출
+
+---
+
+## 현황 메모 (2026-05-30 재점검)
+
+실제 파일 점검 결과, 작업이 TODO 순서(Phase 1~3 백엔드 우선)와 다르게
+**Phase 4 화면(UI)을 mock 데이터로 먼저 구현**한 상태로 진행되었다.
+
+확인된 사실:
+- 구현됨: 온보딩·홈·코디생성·아이템선택·캘린더·통계·옷장 화면 (모두 mock 데이터)
+- 미구현: Supabase 연동, 인증(로그인/회원가입), Zustand store, 실제 데이터 영속화
+- 에셋: base 아바타 1종만 제작, 나머지는 mockItems.ts 색상 placeholder
+- `npx tsc --noEmit` 통과 (에러 없음)
+
+⚠️ 규칙 위반 1건:
+- `@react-native-async-storage/async-storage`가 설치·사용 중
+  (app/_layout.tsx, app/onboarding.tsx)
+- CLAUDE.md 절대규칙 "Supabase 사용 (AsyncStorage 사용 금지)"과 충돌
+- 처리 방향은 사용자 승인 후 결정 (Phase 2 Supabase 도입 시 정리 예정)
+

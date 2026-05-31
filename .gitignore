@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# env (실제 키 보호 — .env.example만 커밋)
+.env.local
+.env*.local
+
+# misc
+*.log
+.DS_Store
