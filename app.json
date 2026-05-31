@@ -8,9 +8,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.clothic.app"
     },
     "android": {
+      "package": "com.clothic.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6D8D0",
         "foregroundImage": "./assets/android-icon-foreground.png",
