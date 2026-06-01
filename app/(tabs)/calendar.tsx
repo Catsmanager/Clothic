@@ -12,6 +12,12 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors } from '../../constants/colors'
 import { spacing, radius } from '../../constants/spacing'
 import { getItemById } from '../../constants/items'
+import {
+  formatDateKey,
+  formatKoreanMonthDayWithWeekday,
+  getTodayDateKey,
+  WEEKDAY_LABELS,
+} from '../../lib/date'
 import { WEATHER_LABELS, useOutfitStore } from '../../stores/outfitStore'
 
 const BASE_AVATAR = require('../../assets/avatar/base/base_female_01.png')
@@ -19,21 +25,8 @@ const BASE_AVATAR = require('../../assets/avatar/base/base_female_01.png')
 const SCREEN_WIDTH = Dimensions.get('window').width
 const CELL_WIDTH = Math.floor(SCREEN_WIDTH / 7)
 
-const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
 const TODAY = new Date()
-const TODAY_STR = toDateKey(TODAY)
-
-// ── 날짜 유틸 ────────────────────────────────────────────────────
-function toDateKey(date: Date): string {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
-
-function getDayLabel(date: Date): string {
-  return DAY_LABELS[date.getDay()]
-}
+const TODAY_STR = getTodayDateKey(TODAY)
 
 interface CalendarCell {
   date: Date
@@ -49,20 +42,20 @@ function buildCalendarCells(year: number, month: number): CalendarCell[] {
   // 이전 달 날짜 채우기
   for (let i = firstDay.getDay() - 1; i >= 0; i--) {
     const d = new Date(year, month, -i)
-    cells.push({ date: d, key: toDateKey(d), isCurrentMonth: false })
+    cells.push({ date: d, key: formatDateKey(d), isCurrentMonth: false })
   }
 
   // 이번 달 날짜
   for (let d = 1; d <= lastDay.getDate(); d++) {
     const date = new Date(year, month, d)
-    cells.push({ date, key: toDateKey(date), isCurrentMonth: true })
+    cells.push({ date, key: formatDateKey(date), isCurrentMonth: true })
   }
 
   // 다음 달 날짜 채우기 (6행 맞춤)
   const remaining = 42 - cells.length
   for (let d = 1; d <= remaining; d++) {
     const date = new Date(year, month + 1, d)
-    cells.push({ date, key: toDateKey(date), isCurrentMonth: false })
+    cells.push({ date, key: formatDateKey(date), isCurrentMonth: false })
   }
 
   return cells
@@ -122,7 +115,7 @@ export default function CalendarScreen() {
 
       {/* 요일 헤더 */}
       <View style={styles.dayLabelRow}>
-        {DAY_LABELS.map((label, i) => (
+        {WEEKDAY_LABELS.map((label, i) => (
           <Text
             key={label}
             style={[styles.dayLabel, i === 0 && styles.dayLabelSun, i === 6 && styles.dayLabelSat]}
@@ -173,10 +166,7 @@ export default function CalendarScreen() {
       {selectedOutfit && (
         <View style={styles.detailCard}>
           <View style={styles.detailHeader}>
-            <Text style={styles.detailDate}>
-              {month + 1}월 {new Date(selectedKey).getDate()}일 (
-              {getDayLabel(new Date(selectedKey))})
-            </Text>
+            <Text style={styles.detailDate}>{formatKoreanMonthDayWithWeekday(selectedKey)}</Text>
             <Text style={styles.detailWeather}>
               {selectedOutfit.weather ? WEATHER_LABELS[selectedOutfit.weather] : '-'}
             </Text>
