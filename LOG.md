@@ -1,5 +1,30 @@
 # LOG
 
+## 2026-06-01 (코디 저장 시트 책임 분리)
+
+### 처리 항목
+- GitHub Issue: #32 Refactor save outfit sheet responsibilities
+- 작업 브랜치: feature/refactor-save-outfit-sheet
+
+### 신규/변경
+- hooks/useSaveOutfitForm.ts 신규
+  - mood/weather/memo 상태, chip toggle, 저장 input 생성 로직을 sheet UI에서 분리
+- components/save-outfit/OptionChipGroup.tsx 신규
+  - 날씨/기분 chip 그룹 렌더링 공통화
+- components/save-outfit/SaveOutfitMemoField.tsx 신규
+  - 저장 시트 memo 입력 UI 분리
+- components/save-outfit/SaveOutfitActions.tsx 신규
+  - 취소/저장 버튼과 saving indicator UI 분리
+- components/SaveOutfitSheet.tsx 축소
+  - 기존 218줄 → 90줄
+  - modal shell, title, 섹션 조립, 저장 submit 연결만 담당
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 변경 파일 → PASS
+- git diff --check → PASS
+
 ## 2026-06-01 (캘린더 화면 책임 분리)
 
 ### 처리 항목
