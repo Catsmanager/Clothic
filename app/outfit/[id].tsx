@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react'
-import { View, Text, Image, TouchableOpacity, Alert, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Feather, Ionicons } from '@expo/vector-icons'
@@ -7,9 +7,8 @@ import { colors } from '../../constants/colors'
 import { spacing, radius } from '../../constants/spacing'
 import { useOutfitStore, MOOD_LABELS, WEATHER_LABELS } from '../../stores/outfitStore'
 import { getItemById } from '../../constants/items'
+import OutfitAvatar from '../../components/OutfitAvatar'
 import { formatFullDateWithWeekday } from '../../lib/date'
-
-const BASE_AVATAR = require('../../assets/avatar/base/base_female_01.png')
 
 export default function OutfitDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -64,7 +63,7 @@ export default function OutfitDetailScreen() {
       <View style={styles.body}>
         {/* 아바타 카드 */}
         <View style={styles.avatarCard}>
-          <Image source={BASE_AVATAR} style={styles.avatar} resizeMode="contain" />
+          <OutfitAvatar style={styles.avatar} />
           <TouchableOpacity
             style={styles.starBtn}
             onPress={() => toggleFavorite(outfit.id, !outfit.isFavorite)}

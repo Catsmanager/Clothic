@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo, useCallback } from 'react'
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
@@ -14,10 +13,10 @@ import { router } from 'expo-router'
 import { Feather, Ionicons } from '@expo/vector-icons'
 import { colors } from '../constants/colors'
 import { spacing, radius } from '../constants/spacing'
+import OutfitAvatar from '../components/OutfitAvatar'
 import { formatShortDateWithWeekday } from '../lib/date'
 import { useOutfitStore, type Outfit } from '../stores/outfitStore'
 
-const BASE_AVATAR = require('../assets/avatar/base/base_female_01.png')
 const SCREEN_WIDTH = Dimensions.get('window').width
 const CARD_GAP = spacing.sm
 const H_PADDING = spacing.md
@@ -127,7 +126,7 @@ function OutfitCard({ outfit, onToggleFav }: { outfit: Outfit; onToggleFav: () =
       onPress={() => router.push(`/outfit/${outfit.id}`)}
     >
       <View style={styles.thumb}>
-        <Image source={BASE_AVATAR} style={styles.thumbAvatar} resizeMode="contain" />
+        <OutfitAvatar style={styles.thumbAvatar} />
         <TouchableOpacity style={styles.starBtn} onPress={onToggleFav} hitSlop={8}>
           <Ionicons
             name={outfit.isFavorite ? 'star' : 'star-outline'}

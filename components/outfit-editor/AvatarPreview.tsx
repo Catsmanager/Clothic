@@ -1,12 +1,11 @@
-import { Image, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { spacing } from '../../constants/spacing'
-
-const BASE_AVATAR = require('../../assets/avatar/base/base_female_01.png')
+import OutfitAvatar from '../OutfitAvatar'
 
 export default function AvatarPreview() {
   return (
     <View style={styles.avatarArea}>
-      <Image source={BASE_AVATAR} style={styles.avatarImage} resizeMode="contain" />
+      <OutfitAvatar style={styles.avatarImage} />
     </View>
   )
 }
