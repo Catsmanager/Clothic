@@ -1,5 +1,25 @@
 # LOG
 
+## 2026-06-01 (아이템 카탈로그 데이터 모듈 분리)
+
+### 처리 항목
+- GitHub Issue: #28 Refactor item catalog data module
+- 작업 브랜치: feature/refactor-item-catalog-data
+
+### 신규/변경
+- constants/itemCatalog.ts 신규
+  - 33개 static item catalog 배열을 전용 데이터 모듈로 분리
+- constants/items.ts 축소
+  - 기존 373줄 → 68줄
+  - Category/StyleTag/CatalogItem 타입, category label/subcategory/render order, helper 함수 public API 유지
+  - 기존 `ITEMS`, `getItemsByCategory`, `getItemById`, `isCategory` import 경로 유지
+
+### 검증
+- item id 개수 확인 → 33개
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 변경 파일 → PASS
+- git diff --check → PASS
 ## 2026-06-01 (인증 화면 공통 UI 분리)
 
 ### 처리 항목
