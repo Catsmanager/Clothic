@@ -7,17 +7,9 @@ import { colors } from '../../constants/colors'
 import { spacing, radius } from '../../constants/spacing'
 import { useOutfitStore, MOOD_LABELS, WEATHER_LABELS } from '../../stores/outfitStore'
 import { getItemById } from '../../constants/items'
+import { formatFullDateWithWeekday } from '../../lib/date'
 
 const BASE_AVATAR = require('../../assets/avatar/base/base_female_01.png')
-
-const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
-function formatFullDate(dateStr: string): string {
-  const d = new Date(dateStr)
-  if (Number.isNaN(d.getTime())) return dateStr
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(
-    d.getDate()
-  ).padStart(2, '0')} (${WEEKDAYS[d.getDay()]})`
-}
 
 export default function OutfitDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -88,7 +80,7 @@ export default function OutfitDetailScreen() {
 
         {/* 메타 정보 */}
         <View style={styles.infoCard}>
-          <Text style={styles.date}>{formatFullDate(outfit.date)}</Text>
+          <Text style={styles.date}>{formatFullDateWithWeekday(outfit.date)}</Text>
 
           <View style={styles.metaRow}>
             <Text style={styles.metaLabel}>날씨</Text>

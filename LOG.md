@@ -20,6 +20,34 @@
 - npm run lint → PASS
 - npx prettier --check 변경 파일 → PASS
 - git diff --check → PASS
+## 2026-06-01 (공통 날짜 유틸 분리)
+
+### 처리 항목
+- GitHub Issue: #20 Refactor shared date utilities
+- 작업 브랜치: feature/refactor-shared-date-utils
+- 기준: 닫힌 리팩토링 PR #13, #15, #17, #19 확인 후 후속 작업
+
+### 신규/변경
+- lib/date.ts 신규
+  - YYYY-MM-DD 로컬 날짜 key, 월 key, 요일 라벨, 날짜 표시 포맷 함수 분리
+  - `parseDateKey`는 `YYYY-MM-DD`를 로컬 Date로 파싱해 UTC 파싱 시차 문제를 피하도록 구성
+- components/DateWeatherBar.tsx
+  - 로컬 요일/날짜 포맷 helper 제거 후 공통 유틸 사용
+- components/SaveOutfitSheet.tsx
+  - 오늘 날짜 생성 로직을 `getTodayDateKey`로 교체
+- app/(tabs)/index.tsx
+  - 오늘 코디 조회 날짜 key 생성 로직 공통화
+- app/(tabs)/calendar.tsx
+  - 캘린더 cell key, 요일 헤더, 선택 날짜 표시 로직 공통화
+- app/outfits.tsx, app/outfit/[id].tsx
+  - 코디 목록/상세 날짜 표시 helper 제거 후 공통 유틸 사용
+- lib/monthlyStats.ts
+  - 월 key 생성 로직을 `lib/date.ts`로 이동
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 변경 파일 → PASS
 
 ## 2026-05-31 (월간 통계 화면 책임 분리)
 
