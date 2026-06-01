@@ -8,14 +8,8 @@ import AvatarCard from '../../components/AvatarCard'
 import MoodMemoCard from '../../components/MoodMemoCard'
 import { colors } from '../../constants/colors'
 import { spacing, radius } from '../../constants/spacing'
+import { getTodayDateKey } from '../../lib/date'
 import { useOutfitStore } from '../../stores/outfitStore'
-
-function todayStr(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
-    d.getDate()
-  ).padStart(2, '0')}`
-}
 
 export default function HomeScreen() {
   const outfits = useOutfitStore((s) => s.outfits)
@@ -26,7 +20,7 @@ export default function HomeScreen() {
   }, [fetchOutfits])
 
   const todayOutfit = useMemo(
-    () => outfits.find((outfit) => outfit.date === todayStr()) ?? null,
+    () => outfits.find((outfit) => outfit.date === getTodayDateKey()) ?? null,
     [outfits]
   )
 
