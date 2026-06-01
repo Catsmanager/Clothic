@@ -1,5 +1,33 @@
 # LOG
 
+## 2026-06-01 (캘린더 화면 책임 분리)
+
+### 처리 항목
+- 완료된 리팩토링 GitHub Issue 정리: #12, #14, #16, #18, #20, #22, #24, #26, #28 닫기
+- GitHub Issue: #30 Refactor calendar screen responsibilities
+- 작업 브랜치: feature/refactor-calendar-screen
+
+### 신규/변경
+- lib/calendar.ts 신규
+  - 6주 캘린더 cell 생성 로직을 route 화면에서 분리
+- hooks/useCalendarMonth.ts 신규
+  - 연/월 이동, 오늘 날짜 key, 선택 날짜 상태, 월별 cell 계산을 hook으로 분리
+- components/calendar/CalendarHeader.tsx 신규
+  - 월 이동 헤더 UI 분리
+- components/calendar/CalendarGrid.tsx 신규
+  - 요일 헤더, 날짜 grid, 날짜 선택, mini avatar 렌더링 분리
+- components/calendar/SelectedOutfitCard.tsx 신규
+  - 선택 날짜의 날씨/아이템/memo 상세 카드 분리
+- app/(tabs)/calendar.tsx 축소
+  - 기존 335줄 → 54줄
+  - route 화면은 outfit fetch, 날짜별 outfit map, 선택 outfit item 파생, 섹션 조립만 담당
+
+### 검증
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 변경 파일 → PASS
+- git diff --check → PASS
+
 ## 2026-06-01 (공통 코디 아바타 렌더링 분리)
 
 ### 처리 항목
