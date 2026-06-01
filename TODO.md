@@ -51,7 +51,7 @@
 - [x] 캘린더 화면  (Supabase outfits 기반)
 - [x] 월간 통계 화면  (Supabase outfits 기반 클라이언트 계산)
 - [x] 잠자는 옷장 화면  (mock 데이터)
-- [ ] 챌린지 화면
+- [x] 챌린지 화면  (mock 데이터)  ← app/challenge.tsx + components/challenge/* (히어로/진행 챌린지/획득 배지/안내 배너). 홈 헤더 award 아이콘으로 진입
 
 ## Phase 5: 검증 및 출시
 - [ ] TEST_PLAN.md 기준 전체 검증
