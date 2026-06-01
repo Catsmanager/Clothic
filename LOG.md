@@ -18,6 +18,94 @@
 - app/outfits.tsx, app/outfit/[id].tsx
   - 코디 목록/상세의 base avatar 렌더링을 `OutfitAvatar`로 교체
 - 온보딩 일러스트는 프레젠테이션 전용 시안이므로 이번 공통화 범위에서 제외
+## 2026-06-01 (아이템 카탈로그 데이터 모듈 분리)
+
+### 처리 항목
+- GitHub Issue: #28 Refactor item catalog data module
+- 작업 브랜치: feature/refactor-item-catalog-data
+
+### 신규/변경
+- constants/itemCatalog.ts 신규
+  - 33개 static item catalog 배열을 전용 데이터 모듈로 분리
+- constants/items.ts 축소
+  - 기존 373줄 → 68줄
+  - Category/StyleTag/CatalogItem 타입, category label/subcategory/render order, helper 함수 public API 유지
+  - 기존 `ITEMS`, `getItemsByCategory`, `getItemById`, `isCategory` import 경로 유지
+
+### 검증
+- item id 개수 확인 → 33개
+- npm run typecheck → PASS
+- npm run lint → PASS
+- npx prettier --check 변경 파일 → PASS
+- git diff --check → PASS
+## 2026-06-01 (인증 화면 공통 UI 분리)
+
+### 처리 항목
+- GitHub Issue: #24 Refactor shared auth screen components
+- 작업 브랜치: feature/refactor-auth-screens
+
+### 신규/변경
+- components/auth/AuthScreen.tsx 신규
+  - SafeAreaView, KeyboardAvoidingView, 중앙 content, footer 배치 공통화
+- components/auth/AuthHeader.tsx 신규
+  - 인증 화면 제목/설명 typography 공통화
+- components/auth/AuthTextField.tsx 신규
+  - label + TextInput 필드 스타일과 기본 입력 props 공통화
+- components/auth/AuthSubmitButton.tsx 신규
+  - submit 버튼, disabled opacity, loading indicator 공통화
+- components/auth/AuthErrorText.tsx 신규
+  - 인증 에러 텍스트 표시 공통화
+- components/auth/AuthFooterLink.tsx 신규
+  - 로그인/회원가입 전환 footer link 공통화
+- components/auth/AuthDivider.tsx 신규
+  - 로그인 화면의 "또는" 구분선 컴포넌트 분리
+- app/login.tsx 축소
+  - 기존 259줄 → 138줄
+  - 로그인/카카오 인증 상태와 submit 흐름은 유지하고 반복 UI를 공통 컴포넌트로 교체
+- app/signup.tsx 축소
+  - 기존 230줄 → 119줄
+  - 회원가입 validation/auth 흐름은 유지하고 반복 UI를 공통 컴포넌트로 교체
+## 2026-06-01 (아이템 선택 화면 책임 분리)
+
+### 처리 항목
+- GitHub Issue: #26 Refactor item select screen responsibilities
+- 작업 브랜치: feature/refactor-item-select-screen
+
+### 신규/변경
+- hooks/useItemSelect.ts 신규
+  - route category 검증, active subcategory 상태, category label, filtered items 계산 분리
+- components/item-select/ItemSelectHeader.tsx 신규
+  - 아이템 선택 헤더 UI 분리
+- components/item-select/ItemSubCategoryTabs.tsx 신규
+  - 서브카테고리 탭 UI 분리
+- components/item-select/ItemGrid.tsx 신규
+  - 3열 아이템 그리드와 카드 렌더링 분리
+- app/item-select.tsx 축소
+  - 기존 182줄 → 32줄
+  - 라우트 화면은 hook 호출, router.back 연결, 섹션 조립만 담당
+## 2026-06-01 (공통 날짜 유틸 분리)
+
+### 처리 항목
+- GitHub Issue: #20 Refactor shared date utilities
+- 작업 브랜치: feature/refactor-shared-date-utils
+- 기준: 닫힌 리팩토링 PR #13, #15, #17, #19 확인 후 후속 작업
+
+### 신규/변경
+- lib/date.ts 신규
+  - YYYY-MM-DD 로컬 날짜 key, 월 key, 요일 라벨, 날짜 표시 포맷 함수 분리
+  - `parseDateKey`는 `YYYY-MM-DD`를 로컬 Date로 파싱해 UTC 파싱 시차 문제를 피하도록 구성
+- components/DateWeatherBar.tsx
+  - 로컬 요일/날짜 포맷 helper 제거 후 공통 유틸 사용
+- components/SaveOutfitSheet.tsx
+  - 오늘 날짜 생성 로직을 `getTodayDateKey`로 교체
+- app/(tabs)/index.tsx
+  - 오늘 코디 조회 날짜 key 생성 로직 공통화
+- app/(tabs)/calendar.tsx
+  - 캘린더 cell key, 요일 헤더, 선택 날짜 표시 로직 공통화
+- app/outfits.tsx, app/outfit/[id].tsx
+  - 코디 목록/상세 날짜 표시 helper 제거 후 공통 유틸 사용
+- lib/monthlyStats.ts
+  - 월 key 생성 로직을 `lib/date.ts`로 이동
 
 ### 검증
 - npm run typecheck → PASS

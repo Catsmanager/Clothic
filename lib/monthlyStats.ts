@@ -1,5 +1,6 @@
 import { getItemById } from '../constants/items'
 import type { Outfit } from '../stores/outfitStore'
+import { getMonthKey } from './date'
 
 export interface MonthData {
   totalOutfits: number
@@ -7,10 +8,6 @@ export interface MonthData {
   topColors: { label: string; color: string; percent: number }[]
   topItems: { label: string; color: string; count: number }[]
   topStyles: { tag: string; count: number }[]
-}
-
-export function getMonthKey(year: number, month: number): string {
-  return `${year}-${String(month + 1).padStart(2, '0')}`
 }
 
 export function buildMonthData(outfits: Outfit[], year: number, month: number): MonthData | null {

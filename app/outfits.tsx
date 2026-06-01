@@ -14,6 +14,7 @@ import { Feather, Ionicons } from '@expo/vector-icons'
 import { colors } from '../constants/colors'
 import { spacing, radius } from '../constants/spacing'
 import OutfitAvatar from '../components/OutfitAvatar'
+import { formatShortDateWithWeekday } from '../lib/date'
 import { useOutfitStore, type Outfit } from '../stores/outfitStore'
 
 const SCREEN_WIDTH = Dimensions.get('window').width
@@ -22,16 +23,6 @@ const H_PADDING = spacing.md
 const CARD_WIDTH = (SCREEN_WIDTH - H_PADDING * 2 - CARD_GAP * 2) / 3
 
 type Tab = '전체 코디' | '즐겨찾기'
-
-// 날짜(YYYY-MM-DD) → "MM.DD (요일)" 표시
-const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
-function formatCardDate(dateStr: string): string {
-  const d = new Date(dateStr)
-  if (Number.isNaN(d.getTime())) return dateStr
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${mm}.${dd} (${WEEKDAYS[d.getDay()]})`
-}
 
 export default function OutfitsScreen() {
   const outfits = useOutfitStore((s) => s.outfits)
@@ -144,7 +135,7 @@ function OutfitCard({ outfit, onToggleFav }: { outfit: Outfit; onToggleFav: () =
           />
         </TouchableOpacity>
       </View>
-      <Text style={styles.cardDate}>{formatCardDate(outfit.date)}</Text>
+      <Text style={styles.cardDate}>{formatShortDateWithWeekday(outfit.date)}</Text>
       <Text style={styles.cardMemo} numberOfLines={1}>
         {outfit.memo ?? '메모 없음'}
       </Text>

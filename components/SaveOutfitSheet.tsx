@@ -18,6 +18,7 @@ import {
   WEATHER_LABELS,
   type NewOutfit,
 } from '../stores/outfitStore'
+import { getTodayDateKey } from '../lib/date'
 
 interface Props {
   visible: boolean
@@ -30,14 +31,6 @@ interface Props {
 const MOODS = Object.keys(MOOD_LABELS) as Mood[]
 const WEATHERS = Object.keys(WEATHER_LABELS) as Weather[]
 
-// 오늘 날짜 YYYY-MM-DD (로컬 기준)
-function todayStr(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
-    d.getDate()
-  ).padStart(2, '0')}`
-}
-
 export default function SaveOutfitSheet({ visible, itemIds, saving, onClose, onSave }: Props) {
   const [mood, setMood] = useState<Mood | null>(null)
   const [weather, setWeather] = useState<Weather | null>(null)
@@ -45,7 +38,7 @@ export default function SaveOutfitSheet({ visible, itemIds, saving, onClose, onS
 
   function handleSave() {
     onSave({
-      date: todayStr(),
+      date: getTodayDateKey(),
       mood,
       weather,
       memo: memo.trim() === '' ? null : memo.trim(),
