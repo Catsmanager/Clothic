@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { router } from 'expo-router'
 import SleepingBottomBanner from '../../components/sleeping-wardrobe/SleepingBottomBanner'
 import SleepingCategoryTabs from '../../components/sleeping-wardrobe/SleepingCategoryTabs'
 import SleepingItemList from '../../components/sleeping-wardrobe/SleepingItemList'
@@ -16,7 +17,7 @@ export default function WardrobeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <WardrobeHeader />
+      <WardrobeHeader onAddPress={() => router.push('/item-new')} />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <SleepingSummaryBanner totalCount={SLEEPING_CATEGORY_COUNT['전체']} />

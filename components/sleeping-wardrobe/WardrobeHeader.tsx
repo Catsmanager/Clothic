@@ -3,7 +3,11 @@ import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { spacing } from '../../constants/spacing'
 
-export default function WardrobeHeader() {
+interface Props {
+  onAddPress: () => void
+}
+
+export default function WardrobeHeader({ onAddPress }: Props) {
   return (
     <View style={styles.header}>
       <View style={styles.headerLeft}>
@@ -12,8 +16,8 @@ export default function WardrobeHeader() {
           <Feather name="help-circle" size={16} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity>
-        <Feather name="settings" size={20} color={colors.text} />
+      <TouchableOpacity style={styles.addButton} onPress={onAddPress}>
+        <Feather name="plus" size={20} color={colors.text} />
       </TouchableOpacity>
     </View>
   )
@@ -39,5 +43,11 @@ const styles = StyleSheet.create({
   },
   helpButton: {
     padding: 2,
+  },
+  addButton: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })

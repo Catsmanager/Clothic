@@ -1,25 +1,38 @@
-import { useCallback, useMemo, useState } from 'react'
-import { type CatalogItem, type Category, ITEMS, SUB_CATEGORIES } from '../constants/items'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { type CatalogItem, type Category, SUB_CATEGORIES } from '../constants/items'
+import { buildCatalogItems, useItemStore } from '../stores/itemStore'
 
 type EquippedItems = Partial<Record<Category, string>>
 
 export function useOutfitEditor() {
+  const userItems = useItemStore((s) => s.items)
+  const fetchItems = useItemStore((s) => s.fetchItems)
   const [activeCategory, setActiveCategory] = useState<Category>('top')
   const [activeSubCategory, setActiveSubCategory] = useState<string>('전체')
   const [equipped, setEquipped] = useState<EquippedItems>({})
   const [history, setHistory] = useState<EquippedItems[]>([{}])
   const [historyIndex, setHistoryIndex] = useState(0)
 
-  const subCategories = SUB_CATEGORIES[activeCategory]
+  const catalogItems = useMemo(() => buildCatalogItems(userItems), [userItems])
+  const hasUserItems = catalogItems.some(
+    (item) => item.category === activeCategory && item.subCategory === '내 아이템'
+  )
+  const subCategories = hasUserItems
+    ? [...SUB_CATEGORIES[activeCategory], '내 아이템']
+    : SUB_CATEGORIES[activeCategory]
+
+  useEffect(() => {
+    fetchItems()
+  }, [fetchItems])
 
   const filteredItems = useMemo(
     () =>
-      ITEMS.filter(
+      catalogItems.filter(
         (item) =>
           item.category === activeCategory &&
           (activeSubCategory === '전체' || item.subCategory === activeSubCategory)
       ),
-    [activeCategory, activeSubCategory]
+    [activeCategory, activeSubCategory, catalogItems]
   )
 
   const selectCategory = useCallback((category: Category) => {
