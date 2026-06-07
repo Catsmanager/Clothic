@@ -33,11 +33,7 @@ export default function HomeScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <AvatarCard
-          onEdit={() => router.push('/(tabs)/create')}
-          onCopy={() => {}}
-          onDelete={() => {}}
-        />
+        <AvatarCard />
         <MoodMemoCard mood={todayOutfit?.mood ?? null} memo={todayOutfit?.memo ?? null} />
       </ScrollView>
 
