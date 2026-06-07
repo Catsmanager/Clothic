@@ -4,62 +4,57 @@ import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 
 interface Props {
-  canRedo: boolean
   canUndo: boolean
-  onRedo: () => void
+  onRandom: () => void
   onUndo: () => void
 }
 
-export default function EditorActionPanel({ canRedo, canUndo, onRedo, onUndo }: Props) {
+export default function EditorActionPanel({ canUndo, onRandom, onUndo }: Props) {
   return (
     <View style={styles.actionPanel}>
-      <TouchableOpacity
-        style={[styles.actionBtn, !canUndo && styles.actionBtnDisabled]}
-        onPress={onUndo}
-        disabled={!canUndo}
-      >
-        <Feather name="rotate-ccw" size={18} color={canUndo ? colors.text : colors.textMuted} />
-      </TouchableOpacity>
-      <Text style={[styles.actionLabel, !canUndo && styles.actionLabelDisabled]}>실행 취소</Text>
+      <View style={styles.actionItem}>
+        <TouchableOpacity
+          style={[styles.actionBtn, !canUndo && styles.actionBtnDisabled]}
+          onPress={onUndo}
+          disabled={!canUndo}
+        >
+          <Feather name="rotate-ccw" size={17} color={canUndo ? colors.text : colors.textMuted} />
+        </TouchableOpacity>
+        <Text style={[styles.actionLabel, !canUndo && styles.actionLabelDisabled]}>실행 취소</Text>
+      </View>
 
-      <TouchableOpacity
-        style={[styles.actionBtn, !canRedo && styles.actionBtnDisabled]}
-        onPress={onRedo}
-        disabled={!canRedo}
-      >
-        <Feather name="rotate-cw" size={18} color={canRedo ? colors.text : colors.textMuted} />
-      </TouchableOpacity>
-      <Text style={[styles.actionLabel, !canRedo && styles.actionLabelDisabled]}>다시 실행</Text>
-
-      <TouchableOpacity style={styles.actionBtn}>
-        <Feather name="refresh-cw" size={18} color={colors.text} />
-      </TouchableOpacity>
-      <Text style={styles.actionLabel}>회전</Text>
-
-      <TouchableOpacity style={styles.actionBtn}>
-        <Feather name="minimize-2" size={18} color={colors.text} />
-      </TouchableOpacity>
-      <Text style={styles.actionLabel}>좌우 반전</Text>
+      <View style={styles.actionItem}>
+        <TouchableOpacity style={styles.actionBtn} onPress={onRandom}>
+          <Feather name="shuffle" size={17} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.actionLabel}>랜덤</Text>
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   actionPanel: {
-    width: 72,
-    paddingTop: spacing.sm,
-    paddingRight: spacing.xs,
-    gap: 2,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: spacing.lg,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.sm,
     alignItems: 'center',
   },
+  actionItem: {
+    width: 58,
+    alignItems: 'center',
+    gap: 2,
+  },
   actionBtn: {
-    width: 44,
-    height: 44,
+    width: 34,
+    height: 34,
     backgroundColor: colors.white,
     borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: spacing.xs,
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 3,
@@ -71,6 +66,7 @@ const styles = StyleSheet.create({
   },
   actionLabel: {
     fontSize: 10,
+    lineHeight: 13,
     color: colors.textMuted,
     textAlign: 'center',
   },

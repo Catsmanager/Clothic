@@ -4,14 +4,18 @@ import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { spacing } from '../../constants/spacing'
 
-export default function ChallengeHeader() {
+interface Props {
+  onHelpPress: () => void
+}
+
+export default function ChallengeHeader({ onHelpPress }: Props) {
   return (
     <View style={styles.header}>
       <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} hitSlop={8}>
         <Feather name="arrow-left" size={22} color={colors.text} />
       </TouchableOpacity>
       <Text style={styles.title}>챌린지</Text>
-      <TouchableOpacity style={styles.iconButton} hitSlop={8}>
+      <TouchableOpacity style={styles.iconButton} onPress={onHelpPress} hitSlop={8}>
         <Feather name="help-circle" size={20} color={colors.textMuted} />
       </TouchableOpacity>
     </View>
