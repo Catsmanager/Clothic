@@ -9,30 +9,48 @@ interface Props {
 }
 
 export default function SleepingItemList({ items }: Props) {
+  if (items.length === 0) {
+    return (
+      <View style={styles.emptyCard}>
+        <Feather name="search" size={22} color={colors.textMuted} />
+        <Text style={styles.emptyTitle}>조건에 맞는 옷이 없어요</Text>
+        <Text style={styles.emptyDesc}>필터를 줄이거나 다른 카테고리를 선택해보세요.</Text>
+      </View>
+    )
+  }
+
   return (
     <View style={styles.itemList}>
       {items.map((item) => (
-        <TouchableOpacity key={item.id} style={styles.itemCard}>
-          <View style={[styles.itemThumbnail, { backgroundColor: item.color }]} />
+        <TouchableOpacity key={item.id} style={styles.itemCard} activeOpacity={0.85}>
+          <View style={styles.thumbnailWrap}>
+            <View style={[styles.itemThumbnail, { backgroundColor: item.color }]} />
+          </View>
           <View style={styles.itemInfo}>
-            <Text style={styles.itemName}>{item.name}</Text>
-            <View style={styles.itemTags}>
-              {item.tags.map((tag) => (
-                <View key={tag} style={styles.tag}>
-                  <Text style={styles.tagText}>{tag}</Text>
-                </View>
-              ))}
+            <Text style={styles.itemName} numberOfLines={1}>
+              {item.name}
+            </Text>
+            <View style={styles.metaRow}>
+              <Feather name="calendar" size={12} color={colors.textMuted} />
+              <Text style={styles.itemLastWornDate}>마지막 착용 {item.lastWorn}</Text>
             </View>
           </View>
-          <View style={styles.itemRight}>
-            <Text style={styles.itemLastWornLabel}>마지막 착용</Text>
-            <Text style={styles.itemLastWornDate}>{item.lastWorn}</Text>
-          </View>
+          <Text style={styles.sleepDays}>{getSleepingDaysLabel(item.lastWorn)}</Text>
           <Feather name="chevron-right" size={16} color={colors.textMuted} />
         </TouchableOpacity>
       ))}
     </View>
   )
+}
+
+function getSleepingDaysLabel(lastWorn: string) {
+  const [year, month, day] = lastWorn.split('.').map(Number)
+  const lastWornDate = new Date(year, month - 1, day)
+  const today = new Date()
+  const diffTime = today.getTime() - lastWornDate.getTime()
+  const diffDays = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)))
+
+  return `${diffDays}일`
 }
 
 const styles = StyleSheet.create({
@@ -45,7 +63,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.white,
     borderRadius: radius.md,
-    padding: spacing.sm,
+    padding: 10,
     gap: spacing.sm,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -53,9 +71,17 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 1,
   },
+  thumbnailWrap: {
+    width: 58,
+    height: 58,
+    borderRadius: radius.sm,
+    backgroundColor: colors.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   itemThumbnail: {
-    width: 72,
-    height: 72,
+    width: 44,
+    height: 44,
     borderRadius: radius.sm,
   },
   itemInfo: {
@@ -64,36 +90,44 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
   },
-  itemTags: {
+  metaRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
     gap: 4,
   },
-  tag: {
-    backgroundColor: colors.primary,
-    borderRadius: radius.full,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  tagText: {
+  itemLastWornDate: {
     fontSize: 11,
     color: colors.textMuted,
     fontWeight: '500',
   },
-  itemRight: {
-    alignItems: 'flex-end',
-    gap: 2,
+  sleepDays: {
+    minWidth: 44,
+    textAlign: 'right',
+    fontSize: 13,
+    fontWeight: '800',
+    color: colors.text,
   },
-  itemLastWornLabel: {
-    fontSize: 11,
-    color: colors.textMuted,
+  emptyCard: {
+    marginHorizontal: spacing.md,
+    backgroundColor: colors.white,
+    borderRadius: radius.md,
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.md,
+    alignItems: 'center',
+    gap: spacing.xs,
   },
-  itemLastWornDate: {
+  emptyTitle: {
+    marginTop: spacing.xs,
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  emptyDesc: {
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: '500',
+    textAlign: 'center',
   },
 })

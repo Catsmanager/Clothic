@@ -1,4 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { router } from 'expo-router'
+import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 
@@ -6,14 +8,17 @@ export default function SleepingBottomBanner() {
   return (
     <View style={styles.bottomBanner}>
       <View style={styles.bottomBannerLeft}>
-        <Text style={styles.bottomBannerLeaf}>🌱</Text>
+        <View style={styles.iconBox}>
+          <Feather name="refresh-cw" size={17} color={colors.text} />
+        </View>
         <View>
-          <Text style={styles.bottomBannerTitle}>옷장을 가볍게, 스타일은 더 풍성하게 🌱</Text>
-          <Text style={styles.bottomBannerDesc}>잠자는 옷을 다시 활용해보세요!</Text>
+          <Text style={styles.bottomBannerTitle}>잠자는 옷으로 새 코디 만들기</Text>
+          <Text style={styles.bottomBannerDesc}>아이템을 골라 바로 조합해보세요.</Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.recommendButton}>
-        <Text style={styles.recommendButtonText}>코디 추천 받기</Text>
+      <TouchableOpacity style={styles.recommendButton} onPress={() => router.push('/create')}>
+        <Text style={styles.recommendButtonText}>시작</Text>
+        <Feather name="arrow-right" size={14} color={colors.white} />
       </TouchableOpacity>
     </View>
   )
@@ -28,7 +33,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     backgroundColor: colors.white,
     borderRadius: radius.md,
-    padding: spacing.md,
+    padding: spacing.sm,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
@@ -42,8 +47,13 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginRight: spacing.sm,
   },
-  bottomBannerLeaf: {
-    fontSize: 24,
+  iconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.sm,
+    backgroundColor: colors.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bottomBannerTitle: {
     fontSize: 13,
@@ -56,10 +66,13 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   recommendButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     backgroundColor: colors.text,
     borderRadius: radius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 10,
+    paddingHorizontal: 13,
+    paddingVertical: 9,
     flexShrink: 0,
   },
   recommendButtonText: {

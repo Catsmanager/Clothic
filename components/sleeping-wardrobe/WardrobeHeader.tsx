@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
-import { spacing } from '../../constants/spacing'
+import { radius, spacing } from '../../constants/spacing'
 
 interface Props {
   onAddPress: () => void
@@ -13,13 +13,16 @@ export default function WardrobeHeader({ onAddPress, onHelpPress }: Props) {
     <View style={styles.header}>
       <View style={styles.headerLeft}>
         <Text style={styles.headerTitle}>잠자는 옷장</Text>
+        <Text style={styles.headerSubtitle}>오랫동안 입지 않은 옷을 확인하세요</Text>
+      </View>
+      <View style={styles.headerActions}>
         <TouchableOpacity style={styles.helpButton} onPress={onHelpPress}>
           <Feather name="help-circle" size={16} color={colors.textMuted} />
         </TouchableOpacity>
+        <TouchableOpacity style={styles.addButton} onPress={onAddPress}>
+          <Feather name="plus" size={18} color={colors.white} />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.addButton} onPress={onAddPress}>
-        <Feather name="plus" size={20} color={colors.text} />
-      </TouchableOpacity>
     </View>
   )
 }
@@ -27,27 +30,45 @@ export default function WardrobeHeader({ onAddPress, onHelpPress }: Props) {
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
   },
   headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
+    flex: 1,
+    paddingRight: spacing.md,
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: '700',
     color: colors.text,
   },
+  headerSubtitle: {
+    marginTop: 3,
+    fontSize: 12,
+    color: colors.textMuted,
+    lineHeight: 17,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
   helpButton: {
-    padding: 2,
+    width: 34,
+    height: 34,
+    borderRadius: radius.full,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   addButton: {
-    width: 36,
-    height: 36,
+    width: 34,
+    height: 34,
+    borderRadius: radius.full,
+    backgroundColor: colors.text,
     alignItems: 'center',
     justifyContent: 'center',
   },

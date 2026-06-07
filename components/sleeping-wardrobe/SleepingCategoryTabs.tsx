@@ -28,44 +28,34 @@ export default function SleepingCategoryTabs({ selectedCategory, onCategoryPress
           style={[styles.categoryTab, selectedCategory === category && styles.categoryTabActive]}
           onPress={() => onCategoryPress(category)}
         >
-          {category === '전체' ? null : (
-            <View style={styles.categoryIconWrapper}>
-              <CategoryIcon category={category} active={selectedCategory === category} />
-            </View>
-          )}
+          <CategoryIcon category={category} active={selectedCategory === category} />
           <Text
             style={[
               styles.categoryTabText,
               selectedCategory === category && styles.categoryTabTextActive,
             ]}
           >
-            {category === '전체' ? '전체' : `${category} ${SLEEPING_CATEGORY_COUNT[category]}`}
+            {category}
           </Text>
-          {category === '전체' && (
+          <View
+            style={[styles.countBadge, selectedCategory === category && styles.countBadgeActive]}
+          >
             <Text
-              style={[
-                styles.categoryTabCount,
-                selectedCategory === category && styles.categoryTabCountActive,
-              ]}
+              style={[styles.countText, selectedCategory === category && styles.countTextActive]}
             >
-              {SLEEPING_CATEGORY_COUNT['전체']}
+              {SLEEPING_CATEGORY_COUNT[category]}
             </Text>
-          )}
+          </View>
         </TouchableOpacity>
       ))}
     </ScrollView>
   )
 }
 
-function CategoryIcon({
-  active,
-  category,
-}: {
-  active: boolean
-  category: Exclude<SleepingCategory, '전체'>
-}) {
-  const color = active ? colors.white : colors.text
-  const iconMap: Record<Exclude<SleepingCategory, '전체'>, ReactNode> = {
+function CategoryIcon({ active, category }: { active: boolean; category: SleepingCategory }) {
+  const color = active ? colors.white : colors.textMuted
+  const iconMap: Record<SleepingCategory, ReactNode> = {
+    전체: <Feather name="grid" size={14} color={color} />,
     상의: <Ionicons name="shirt-outline" size={18} color={color} />,
     하의: <Feather name="align-justify" size={18} color={color} />,
     원피스: <Ionicons name="body-outline" size={18} color={color} />,
@@ -77,44 +67,56 @@ function CategoryIcon({
 
 const styles = StyleSheet.create({
   categoryScroll: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   categoryContainer: {
     paddingHorizontal: spacing.md,
     gap: spacing.xs,
   },
   categoryTab: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: spacing.xs,
-    gap: 4,
-    minWidth: 56,
-  },
-  categoryTabActive: {},
-  categoryIconWrapper: {
-    width: 40,
-    height: 40,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: radius.full,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.white,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    gap: 5,
+    minHeight: 36,
+  },
+  categoryTabActive: {
+    borderColor: colors.text,
+    backgroundColor: colors.text,
+  },
+  countBadge: {
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    paddingHorizontal: 5,
+    backgroundColor: colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  countBadgeActive: {
+    backgroundColor: 'rgba(255,255,255,0.18)',
+  },
   categoryTabText: {
-    fontSize: 11,
-    color: colors.textMuted,
-    fontWeight: '400',
+    fontSize: 13,
+    color: colors.text,
+    fontWeight: '600',
     textAlign: 'center',
   },
   categoryTabTextActive: {
-    color: colors.text,
+    color: colors.white,
     fontWeight: '600',
   },
-  categoryTabCount: {
+  countText: {
     fontSize: 11,
+    fontWeight: '700',
     color: colors.textMuted,
   },
-  categoryTabCountActive: {
-    color: colors.text,
-    fontWeight: '600',
+  countTextActive: {
+    color: colors.white,
   },
 })

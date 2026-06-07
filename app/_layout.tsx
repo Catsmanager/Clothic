@@ -25,6 +25,9 @@ export default function RootLayout() {
 
     const inOnboarding = segments[0] === 'onboarding'
     const inAuth = segments[0] === 'login' || segments[0] === 'signup'
+    const inPublic = segments[0] === 'privacy' || segments[0] === 'terms'
+
+    if (inPublic) return
 
     if (!onboardingDone) {
       // 온보딩 미완료 → 온보딩으로

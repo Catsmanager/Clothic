@@ -23,6 +23,7 @@ interface AuthState {
   signInWithEmail: (email: string, password: string) => Promise<AuthResult>
   signInWithKakao: () => Promise<AuthResult>
   signOut: () => Promise<AuthResult>
+  deleteAccount: () => Promise<AuthResult>
 }
 
 let authSubscription: { unsubscribe: () => void } | null = null
@@ -103,5 +104,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   signOut: async () => {
     const { error } = await supabase.auth.signOut()
     return { error: error?.message ?? null }
+  },
+
+  // 계정 영구 삭제: Edge Function(delete-account)이 데이터+auth 계정을 삭제한다.
+  // 성공 시 무효해진 로컬 세션을 정리한다(scope: 'local' — 서버 재호출 없이 토큰 제거).
+  deleteAccount: async () => {
+    const { error } = await supabase.functions.invoke('delete-account')
+    if (error) return { error: error.message }
+    await supabase.auth.signOut({ scope: 'local' })
+    return { error: null }
   },
 }))

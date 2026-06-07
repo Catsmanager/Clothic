@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: spacing.xs,
-    paddingBottom: spacing.lg,
+    paddingBottom: spacing.sm,
   },
   footerText: {
     fontSize: 13,
