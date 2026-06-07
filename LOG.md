@@ -1,5 +1,23 @@
 # LOG
 
+## 2026-06-07 (홈 화면 실시간 날씨 연동)
+
+### 처리 항목
+- 홈 DateWeatherBar의 하드코딩 날씨(`⛅ 22°C`)를 실제 API 연동으로 교체
+- 작업 브랜치: feature/weather-api / 이슈 #37
+
+### 신규/변경
+- lib/weather.ts 신규 — Open-Meteo 현재 날씨 조회(`fetchCurrentWeather`), WMO 코드→아이콘/설명 매핑. API 키 불필요(무료, 비용 없음)
+- hooks/useWeather.ts 신규 — expo-location 권한 요청 → 현재 위치 → 날씨 조회. 권한 거부/실패 시 'error'
+- components/DateWeatherBar.tsx 변경 — useWeather 사용, 성공 시 아이콘+기온 표시, 그 외(로딩/에러)엔 날짜만 표시
+- app.json 변경 — expo-location 플러그인 + 위치 권한 안내 문구 추가
+- package.json — expo-location 추가
+
+### 비고
+- Open-Meteo는 API 키·카드 등록이 없어 과금 위험 0.
+- 위치 권한 거부 또는 조회 실패 시 날씨 영역을 숨기고 날짜만 표시(폴백).
+- 함께 작업한 AvatarCard 변경(방 배경 비율 수정·액션 버튼 제거)은 별도 변경분으로 이 브랜치에 미포함.
+
 ## 2026-06-01 (코디 저장 시트 책임 분리)
 
 ### 처리 항목
