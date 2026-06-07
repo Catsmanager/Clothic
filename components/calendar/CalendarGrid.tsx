@@ -2,6 +2,7 @@ import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import OutfitAvatar from '../OutfitAvatar'
+import type { CatalogItem } from '../../constants/items'
 import type { CalendarCell } from '../../lib/calendar'
 import { WEEKDAY_LABELS } from '../../lib/date'
 import type { Outfit } from '../../stores/outfitStore'
@@ -12,6 +13,7 @@ const CELL_HEIGHT = Math.floor((Dimensions.get('window').height * 0.46) / 6)
 
 interface Props {
   cells: CalendarCell[]
+  catalogItems: CatalogItem[]
   outfitsByDate: Map<string, Outfit>
   selectedKey: string
   todayKey: string
@@ -20,6 +22,7 @@ interface Props {
 
 export default function CalendarGrid({
   cells,
+  catalogItems,
   outfitsByDate,
   selectedKey,
   todayKey,
@@ -47,6 +50,10 @@ export default function CalendarGrid({
           <View key={rowIndex} style={styles.row}>
             {cells.slice(rowIndex * 7, rowIndex * 7 + 7).map((cell) => {
               const outfit = outfitsByDate.get(cell.key)
+              const outfitItems =
+                outfit?.itemIds
+                  .map((id) => catalogItems.find((item) => item.id === id))
+                  .filter((item): item is CatalogItem => item != null) ?? []
               const isToday = cell.key === todayKey
               const isSelected = cell.key === selectedKey
 
@@ -68,7 +75,9 @@ export default function CalendarGrid({
                       {cell.date.getDate()}
                     </Text>
                   </View>
-                  {outfit && cell.isCurrentMonth && <OutfitAvatar style={styles.miniAvatar} />}
+                  {outfit && cell.isCurrentMonth && (
+                    <OutfitAvatar items={outfitItems} compact style={styles.miniAvatar} />
+                  )}
                 </TouchableOpacity>
               )
             })}

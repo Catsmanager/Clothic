@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { router } from 'expo-router'
 import { colors } from '../../constants/colors'
 import CalendarGrid from '../../components/calendar/CalendarGrid'
 import CalendarHeader from '../../components/calendar/CalendarHeader'
@@ -42,13 +43,19 @@ export default function CalendarScreen() {
       <CalendarHeader month={month} year={year} onNextMonth={nextMonth} onPrevMonth={prevMonth} />
       <CalendarGrid
         cells={cells}
+        catalogItems={catalogItems}
         outfitsByDate={outfitsByDate}
         selectedKey={selectedKey}
         todayKey={todayKey}
         onSelectDate={setSelectedKey}
       />
       {selectedOutfit && (
-        <SelectedOutfitCard dateKey={selectedKey} items={selectedItems} outfit={selectedOutfit} />
+        <SelectedOutfitCard
+          dateKey={selectedKey}
+          items={selectedItems}
+          outfit={selectedOutfit}
+          onPress={() => router.push(`/outfit/${selectedOutfit.id}`)}
+        />
       )}
     </SafeAreaView>
   )

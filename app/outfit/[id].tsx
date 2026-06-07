@@ -75,7 +75,7 @@ export default function OutfitDetailScreen() {
       <View style={styles.body}>
         {/* 아바타 카드 */}
         <View style={styles.avatarCard}>
-          <OutfitAvatar style={styles.avatar} />
+          <OutfitAvatar items={items} style={styles.avatar} />
           <TouchableOpacity
             style={styles.starBtn}
             onPress={() => toggleFavorite(outfit.id, !outfit.isFavorite)}
