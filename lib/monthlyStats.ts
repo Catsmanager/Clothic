@@ -1,4 +1,4 @@
-import { getItemById } from '../constants/items'
+import type { CatalogItem } from '../constants/items'
 import type { Outfit } from '../stores/outfitStore'
 import { getMonthKey } from './date'
 
@@ -10,7 +10,12 @@ export interface MonthData {
   topStyles: { tag: string; count: number }[]
 }
 
-export function buildMonthData(outfits: Outfit[], year: number, month: number): MonthData | null {
+export function buildMonthData(
+  outfits: Outfit[],
+  items: CatalogItem[],
+  year: number,
+  month: number
+): MonthData | null {
   const currentKey = getMonthKey(year, month)
   const prevDate = new Date(year, month - 1, 1)
   const previousKey = getMonthKey(prevDate.getFullYear(), prevDate.getMonth())
@@ -25,7 +30,7 @@ export function buildMonthData(outfits: Outfit[], year: number, month: number): 
 
   currentOutfits.forEach((outfit) => {
     outfit.itemIds.forEach((itemId) => {
-      const item = getItemById(itemId)
+      const item = items.find((candidate) => candidate.id === itemId)
       if (!item) return
 
       const itemCount = itemCounts.get(item.id)

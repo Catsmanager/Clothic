@@ -1,25 +1,38 @@
-import { useCallback, useMemo, useState } from 'react'
-import { type CatalogItem, type Category, ITEMS, SUB_CATEGORIES } from '../constants/items'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { type CatalogItem, type Category, SUB_CATEGORIES } from '../constants/items'
+import { buildCatalogItems, useItemStore } from '../stores/itemStore'
 
 type EquippedItems = Partial<Record<Category, string>>
 
 export function useOutfitEditor() {
+  const userItems = useItemStore((s) => s.items)
+  const fetchItems = useItemStore((s) => s.fetchItems)
   const [activeCategory, setActiveCategory] = useState<Category>('top')
   const [activeSubCategory, setActiveSubCategory] = useState<string>('전체')
   const [equipped, setEquipped] = useState<EquippedItems>({})
   const [history, setHistory] = useState<EquippedItems[]>([{}])
   const [historyIndex, setHistoryIndex] = useState(0)
 
-  const subCategories = SUB_CATEGORIES[activeCategory]
+  const catalogItems = useMemo(() => buildCatalogItems(userItems), [userItems])
+  const hasUserItems = catalogItems.some(
+    (item) => item.category === activeCategory && item.subCategory === '내 아이템'
+  )
+  const subCategories = hasUserItems
+    ? [...SUB_CATEGORIES[activeCategory], '내 아이템']
+    : SUB_CATEGORIES[activeCategory]
+
+  useEffect(() => {
+    fetchItems()
+  }, [fetchItems])
 
   const filteredItems = useMemo(
     () =>
-      ITEMS.filter(
+      catalogItems.filter(
         (item) =>
           item.category === activeCategory &&
           (activeSubCategory === '전체' || item.subCategory === activeSubCategory)
       ),
-    [activeCategory, activeSubCategory]
+    [activeCategory, activeSubCategory, catalogItems]
   )
 
   const selectCategory = useCallback((category: Category) => {
@@ -42,18 +55,23 @@ export function useOutfitEditor() {
     [equipped, history, historyIndex]
   )
 
+  const randomizeActiveCategory = useCallback(() => {
+    if (filteredItems.length === 0) return
+    const randomItem = filteredItems[Math.floor(Math.random() * filteredItems.length)]
+    if (randomItem == null) return
+
+    const next = { ...equipped, [randomItem.category]: randomItem.id }
+    const nextHistory = history.slice(0, historyIndex + 1)
+    setHistory([...nextHistory, next])
+    setHistoryIndex(nextHistory.length)
+    setEquipped(next)
+  }, [equipped, filteredItems, history, historyIndex])
+
   const undo = useCallback(() => {
     if (historyIndex <= 0) return
     const prev = historyIndex - 1
     setHistoryIndex(prev)
     setEquipped(history[prev] ?? {})
-  }, [history, historyIndex])
-
-  const redo = useCallback(() => {
-    if (historyIndex >= history.length - 1) return
-    const next = historyIndex + 1
-    setHistoryIndex(next)
-    setEquipped(history[next] ?? {})
   }, [history, historyIndex])
 
   const equippedItemIds = useMemo(
@@ -64,12 +82,11 @@ export function useOutfitEditor() {
   return {
     activeCategory,
     activeSubCategory,
-    canRedo: historyIndex < history.length - 1,
     canUndo: historyIndex > 0,
     equipped,
     equippedItemIds,
     filteredItems,
-    redo,
+    randomizeActiveCategory,
     selectCategory,
     selectSubCategory,
     subCategories,

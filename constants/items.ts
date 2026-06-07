@@ -22,6 +22,19 @@ export type StyleTag =
   | 'bohemian'
   | 'preppy'
 
+export const STYLE_TAGS: StyleTag[] = [
+  'casual',
+  'formal',
+  'street',
+  'feminine',
+  'minimal',
+  'sporty',
+  'vintage',
+  'chic',
+  'bohemian',
+  'preppy',
+]
+
 export interface CatalogItem {
   id: string // 스프라이트 식별자, e.g. 'top_001'
   category: Category
@@ -65,4 +78,8 @@ export function getItemById(id: string): CatalogItem | undefined {
 
 export function isCategory(value: unknown): value is Category {
   return typeof value === 'string' && ITEM_CATEGORIES.includes(value as Category)
+}
+
+export function isStyleTag(value: unknown): value is StyleTag {
+  return typeof value === 'string' && STYLE_TAGS.includes(value as StyleTag)
 }

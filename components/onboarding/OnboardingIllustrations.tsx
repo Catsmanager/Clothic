@@ -12,7 +12,12 @@ const ROOM_BG = require('../../assets/avatar/background/room_01.png')
 
 function WelcomeIllustration() {
   return (
-    <ImageBackground source={ROOM_BG} style={styles.welcomeBox} imageStyle={styles.welcomeBgImg}>
+    <ImageBackground
+      source={ROOM_BG}
+      style={styles.welcomeBox}
+      imageStyle={styles.welcomeBgImg}
+      resizeMode="contain"
+    >
       <Image source={BASE_AVATAR} style={styles.welcomeAvatar} resizeMode="contain" />
     </ImageBackground>
   )
@@ -34,7 +39,12 @@ function OutfitCaptureIllustration() {
         <Text style={styles.cardDateText}>2026.05.30 (금)</Text>
         <Text style={styles.cardWeatherText}>⛅ 22°C</Text>
       </View>
-      <ImageBackground source={ROOM_BG} style={styles.cardImage} imageStyle={styles.cardImageBg}>
+      <ImageBackground
+        source={ROOM_BG}
+        style={styles.cardImage}
+        imageStyle={styles.cardImageBg}
+        resizeMode="contain"
+      >
         <Image source={BASE_AVATAR} style={styles.cardAvatar} resizeMode="contain" />
       </ImageBackground>
       <View style={styles.cardBtnRow}>
@@ -194,7 +204,7 @@ const styles = StyleSheet.create({
   },
   welcomeBgImg: {
     borderRadius: radius.lg,
-    resizeMode: 'cover',
+    backgroundColor: colors.secondary,
   },
   welcomeAvatar: {
     width: '46%',
@@ -228,6 +238,7 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     height: 150,
+    backgroundColor: colors.secondary,
     borderRadius: radius.sm,
     overflow: 'hidden',
     alignItems: 'center',
@@ -235,7 +246,7 @@ const styles = StyleSheet.create({
   },
   cardImageBg: {
     borderRadius: radius.sm,
-    resizeMode: 'cover',
+    backgroundColor: colors.secondary,
   },
   cardAvatar: {
     width: 70,

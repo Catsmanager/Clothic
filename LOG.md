@@ -1,5 +1,33 @@
 # LOG
 
+## 2026-06-01 (챌린지 화면 구현)
+
+### 처리 항목
+- TODO: Phase 4 — 챌린지 화면 (제공된 디자인 시안 기준, mock 데이터)
+- 작업 브랜치: feature/challenge-screen
+
+### 신규/변경
+- constants/challenges.ts 신규
+  - Challenge/Badge/ChallengeSummary 타입 + mock 데이터(히어로 통계, 챌린지 4종, 배지 5종)
+  - 아이콘은 string literal union으로 두고 표현은 컴포넌트에서 매핑 (constants에 RN 의존 없음)
+- components/challenge/ChallengeHeader.tsx 신규 — 뒤로가기 + 타이틀 + 도움말 (outfits.tsx 헤더 패턴)
+- components/challenge/ChallengeHeroCard.tsx 신규 — 격려 메시지·연속/주간 기록 통계·아바타(OutfitAvatar)·하트 말풍선
+- components/challenge/ChallengeListItem.tsx 신규 — 챌린지 카드(아이콘/제목/설명/상태칩/진행바/진행도/chevron)
+- components/challenge/ChallengeList.tsx 신규 — "진행 중인 챌린지" 섹션 + 진행 개수 + 리스트
+- components/challenge/BadgeShelf.tsx 신규 — "획득한 배지" 가로 스크롤, 잠금 배지 표시
+- components/challenge/ChallengeBottomBanner.tsx 신규 — 자동 진행 안내 배너
+- app/challenge.tsx 신규 — 위 컴포넌트 조립 (잠자는 옷장 화면과 동일 구조)
+- components/HomeHeader.tsx 변경 — 동작 없던 bell 아이콘을 award 아이콘으로 교체, /challenge 진입 동선 연결
+  - (PRD가 푸시 알림을 MVP 제외하므로 bell 아이콘은 의미 없음 → 챌린지 진입으로 활용)
+
+### 비고
+- 진행도/배지는 mock. 추후 코디 저장 데이터 기반 실제 진행 로직으로 대체 예정(별도 항목).
+- 디자인 시스템 토큰(colors/spacing/radius), 카드/태그/아이콘 규칙 준수. any 미사용, import type 사용.
+
+### 검증
+- npx tsc --noEmit → PASS
+- eslint (변경 파일) → PASS
+- npx prettier --check (변경 파일) → PASS
 ## 2026-06-07 (홈 화면 실시간 날씨 연동)
 
 ### 처리 항목

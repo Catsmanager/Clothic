@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
@@ -6,7 +6,7 @@ import { Feather, Ionicons } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { spacing, radius } from '../../constants/spacing'
 import { useOutfitStore, MOOD_LABELS, WEATHER_LABELS } from '../../stores/outfitStore'
-import { getItemById } from '../../constants/items'
+import { buildCatalogItems, findCatalogItemById, useItemStore } from '../../stores/itemStore'
 import OutfitAvatar from '../../components/OutfitAvatar'
 import { formatFullDateWithWeekday } from '../../lib/date'
 
@@ -15,11 +15,23 @@ export default function OutfitDetailScreen() {
   const outfit = useOutfitStore((s) => s.outfits.find((o) => o.id === id))
   const toggleFavorite = useOutfitStore((s) => s.toggleFavorite)
   const removeOutfit = useOutfitStore((s) => s.removeOutfit)
+  const userItems = useItemStore((s) => s.items)
+  const fetchItems = useItemStore((s) => s.fetchItems)
   const [busy, setBusy] = useState(false)
+  const catalogItems = useMemo(() => buildCatalogItems(userItems), [userItems])
+
+  useEffect(() => {
+    fetchItems()
+  }, [fetchItems])
 
   const items = useMemo(
-    () => (outfit ? outfit.itemIds.map((iid) => getItemById(iid)).filter((it) => it != null) : []),
-    [outfit]
+    () =>
+      outfit
+        ? outfit.itemIds
+            .map((iid) => findCatalogItemById(catalogItems, iid))
+            .filter((it) => it != null)
+        : [],
+    [catalogItems, outfit]
   )
 
   const onDelete = useCallback(() => {
