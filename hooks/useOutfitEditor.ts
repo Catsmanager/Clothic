@@ -55,18 +55,23 @@ export function useOutfitEditor() {
     [equipped, history, historyIndex]
   )
 
+  const randomizeActiveCategory = useCallback(() => {
+    if (filteredItems.length === 0) return
+    const randomItem = filteredItems[Math.floor(Math.random() * filteredItems.length)]
+    if (randomItem == null) return
+
+    const next = { ...equipped, [randomItem.category]: randomItem.id }
+    const nextHistory = history.slice(0, historyIndex + 1)
+    setHistory([...nextHistory, next])
+    setHistoryIndex(nextHistory.length)
+    setEquipped(next)
+  }, [equipped, filteredItems, history, historyIndex])
+
   const undo = useCallback(() => {
     if (historyIndex <= 0) return
     const prev = historyIndex - 1
     setHistoryIndex(prev)
     setEquipped(history[prev] ?? {})
-  }, [history, historyIndex])
-
-  const redo = useCallback(() => {
-    if (historyIndex >= history.length - 1) return
-    const next = historyIndex + 1
-    setHistoryIndex(next)
-    setEquipped(history[next] ?? {})
   }, [history, historyIndex])
 
   const equippedItemIds = useMemo(
@@ -77,12 +82,11 @@ export function useOutfitEditor() {
   return {
     activeCategory,
     activeSubCategory,
-    canRedo: historyIndex < history.length - 1,
     canUndo: historyIndex > 0,
     equipped,
     equippedItemIds,
     filteredItems,
-    redo,
+    randomizeActiveCategory,
     selectCategory,
     selectSubCategory,
     subCategories,

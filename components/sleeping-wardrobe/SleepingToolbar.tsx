@@ -5,20 +5,34 @@ import type { SortOrder } from '../../constants/sleepingWardrobe'
 import { radius, spacing } from '../../constants/spacing'
 
 interface Props {
+  activeFilterCount: number
+  onFilterPress: () => void
   sortOrder: SortOrder
   onSortPress: () => void
 }
 
-export default function SleepingToolbar({ sortOrder, onSortPress }: Props) {
+export default function SleepingToolbar({
+  activeFilterCount,
+  onFilterPress,
+  sortOrder,
+  onSortPress,
+}: Props) {
+  const hasActiveFilter = activeFilterCount > 0
+
   return (
     <View style={styles.sortBar}>
       <TouchableOpacity style={styles.sortButton} onPress={onSortPress}>
         <Text style={styles.sortButtonText}>{sortOrder}</Text>
         <Feather name="chevron-down" size={14} color={colors.text} />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.filterButton}>
-        <Feather name="filter" size={14} color={colors.text} />
-        <Text style={styles.filterButtonText}>필터</Text>
+      <TouchableOpacity
+        style={[styles.filterButton, hasActiveFilter && styles.filterButtonActive]}
+        onPress={onFilterPress}
+      >
+        <Feather name="filter" size={14} color={hasActiveFilter ? colors.white : colors.text} />
+        <Text style={[styles.filterButtonText, hasActiveFilter && styles.filterButtonTextActive]}>
+          {hasActiveFilter ? `필터 ${activeFilterCount}` : '필터'}
+        </Text>
       </TouchableOpacity>
     </View>
   )
@@ -53,8 +67,16 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     backgroundColor: colors.white,
   },
+  filterButtonActive: {
+    borderColor: colors.text,
+    backgroundColor: colors.text,
+  },
   filterButtonText: {
     fontSize: 13,
     color: colors.text,
+  },
+  filterButtonTextActive: {
+    color: colors.white,
+    fontWeight: '600',
   },
 })

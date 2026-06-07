@@ -11,6 +11,12 @@ const CATEGORY_EMOJI: Record<Category, string> = {
   accessory: '⭐',
 }
 
+const BACKGROUND_OPTION = {
+  key: 'background',
+  emoji: '🖼️',
+  label: '배경',
+}
+
 interface Props {
   activeCategory: Category
   onCategoryPress: (category: Category) => void
@@ -41,8 +47,8 @@ export default function CategoryRail({ activeCategory, onCategoryPress }: Props)
         </TouchableOpacity>
       ))}
       <TouchableOpacity style={styles.categoryItem}>
-        <Text style={styles.categoryEmoji}>🖼️</Text>
-        <Text style={styles.categoryLabel}>배경</Text>
+        <Text style={styles.categoryEmoji}>{BACKGROUND_OPTION.emoji}</Text>
+        <Text style={styles.categoryLabel}>{BACKGROUND_OPTION.label}</Text>
       </TouchableOpacity>
     </ScrollView>
   )
@@ -50,31 +56,42 @@ export default function CategoryRail({ activeCategory, onCategoryPress }: Props)
 
 const styles = StyleSheet.create({
   categoryPanel: {
-    width: 80,
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    zIndex: 2,
+    width: 64,
     backgroundColor: colors.secondary,
   },
   categoryContent: {
-    paddingVertical: spacing.xs,
+    paddingLeft: spacing.xs,
+    paddingRight: spacing.xs,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
     gap: spacing.xs,
-    paddingHorizontal: spacing.xs,
   },
   categoryItem: {
+    width: 56,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.sm,
     borderRadius: radius.sm,
-    gap: 2,
+    gap: 1,
   },
   categoryItemActive: {
     backgroundColor: colors.primary,
   },
   categoryEmoji: {
-    fontSize: 22,
+    fontSize: 16,
+    lineHeight: 18,
   },
   categoryLabel: {
-    fontSize: 11,
+    fontSize: 10,
+    lineHeight: 13,
     color: colors.textMuted,
     fontWeight: '400',
+    textAlign: 'center',
   },
   categoryLabelActive: {
     color: colors.text,

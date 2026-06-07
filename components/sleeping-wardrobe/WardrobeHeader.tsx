@@ -5,14 +5,15 @@ import { spacing } from '../../constants/spacing'
 
 interface Props {
   onAddPress: () => void
+  onHelpPress: () => void
 }
 
-export default function WardrobeHeader({ onAddPress }: Props) {
+export default function WardrobeHeader({ onAddPress, onHelpPress }: Props) {
   return (
     <View style={styles.header}>
       <View style={styles.headerLeft}>
         <Text style={styles.headerTitle}>잠자는 옷장</Text>
-        <TouchableOpacity style={styles.helpButton}>
+        <TouchableOpacity style={styles.helpButton} onPress={onHelpPress}>
           <Feather name="help-circle" size={16} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
