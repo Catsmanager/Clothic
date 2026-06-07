@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import * as AppleAuthentication from 'expo-apple-authentication'
 import { router } from 'expo-router'
 import AuthDivider from '../components/auth/AuthDivider'
 import AuthErrorText from '../components/auth/AuthErrorText'
@@ -16,14 +17,16 @@ import { useAuthStore } from '../stores/authStore'
 export default function LoginScreen() {
   const signInWithEmail = useAuthStore((s) => s.signInWithEmail)
   const signInWithKakao = useAuthStore((s) => s.signInWithKakao)
+  const signInWithApple = useAuthStore((s) => s.signInWithApple)
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [kakaoLoading, setKakaoLoading] = useState(false)
+  const [appleLoading, setAppleLoading] = useState(false)
 
-  const busy = loading || kakaoLoading
+  const busy = loading || kakaoLoading || appleLoading
   const canSubmit = email.trim().length > 0 && password.length > 0 && !busy
 
   async function handleSignIn() {
@@ -47,6 +50,16 @@ export default function LoginScreen() {
     setKakaoLoading(false)
     // 성공 시 onAuthStateChange→인증 가드가 자동으로 /(tabs)로 보낸다.
     if (kakaoError) setError(kakaoError)
+  }
+
+  async function handleApple() {
+    if (busy) return
+    setAppleLoading(true)
+    setError(null)
+    const { error: appleError } = await signInWithApple()
+    setAppleLoading(false)
+    // 성공 시 onAuthStateChange→인증 가드가 자동으로 /(tabs)로 보낸다.
+    if (appleError) setError(appleError)
   }
 
   return (
@@ -115,6 +128,16 @@ export default function LoginScreen() {
             <Text style={styles.kakaoBtnText}>카카오로 시작하기</Text>
           )}
         </TouchableOpacity>
+
+        {Platform.OS === 'ios' && (
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={radius.full}
+            style={styles.appleBtn}
+            onPress={handleApple}
+          />
+        )}
       </View>
     </AuthScreen>
   )
@@ -138,5 +161,9 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 16,
     fontWeight: '600',
+  },
+  appleBtn: {
+    width: '100%',
+    height: 54,
   },
 })
