@@ -1,9 +1,10 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import HomeHeader from '../../components/HomeHeader'
 import DateWeatherBar from '../../components/DateWeatherBar'
+import HomeMenuSheet from '../../components/HomeMenuSheet'
 import AvatarCard from '../../components/AvatarCard'
 import MoodMemoCard from '../../components/MoodMemoCard'
 import { colors } from '../../constants/colors'
@@ -12,6 +13,7 @@ import { getTodayDateKey } from '../../lib/date'
 import { useOutfitStore } from '../../stores/outfitStore'
 
 export default function HomeScreen() {
+  const [menuVisible, setMenuVisible] = useState(false)
   const outfits = useOutfitStore((s) => s.outfits)
   const fetchOutfits = useOutfitStore((s) => s.fetchOutfits)
 
@@ -26,7 +28,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <HomeHeader />
+      <HomeHeader onMenuPress={() => setMenuVisible(true)} />
       <DateWeatherBar />
       <ScrollView
         style={styles.scroll}
@@ -53,6 +55,7 @@ export default function HomeScreen() {
           <Text style={styles.ctaText}>＋ 새 코디 만들기</Text>
         </TouchableOpacity>
       </View>
+      <HomeMenuSheet visible={menuVisible} onClose={() => setMenuVisible(false)} />
     </SafeAreaView>
   )
 }

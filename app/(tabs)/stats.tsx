@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
-import { ScrollView, StyleSheet } from 'react-native'
+import { Alert, ScrollView, Share, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { router } from 'expo-router'
 import EmptyStatsCard from '../../components/monthly-stats/EmptyStatsCard'
 import ItemCategoryCard from '../../components/monthly-stats/ItemCategoryCard'
 import MonthNavigator from '../../components/monthly-stats/MonthNavigator'
@@ -39,9 +40,35 @@ export default function StatsScreen() {
   )
   const inventoryData = useMemo(() => buildItemInventoryData(items), [items])
 
+  async function handleShare() {
+    const monthLabel = `${monthNav.year}년 ${monthNav.month + 1}월`
+    const monthlySummary =
+      data == null
+        ? '이 달의 코디 기록이 없어요.'
+        : [
+            `총 코디 수: ${data.totalOutfits}회`,
+            `지난 달 대비: ${data.diffFromLastMonth >= 0 ? '+' : '-'}${Math.abs(
+              data.diffFromLastMonth
+            )}회`,
+            `많이 입은 색상: ${data.topColors.map((item) => item.label).join(', ') || '없음'}`,
+          ].join('\n')
+    const inventorySummary =
+      inventoryData.totalItems > 0
+        ? `등록 아이템: ${inventoryData.totalItems}개`
+        : '등록 아이템 없음'
+
+    try {
+      await Share.share({
+        message: `Clothic ${monthLabel} 월간 리포트\n${monthlySummary}\n${inventorySummary}`,
+      })
+    } catch {
+      Alert.alert('공유 실패', '월간 리포트를 공유하지 못했어요. 잠시 후 다시 시도해주세요.')
+    }
+  }
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <StatsHeader />
+      <StatsHeader onBackPress={() => router.push('/(tabs)')} onSharePress={handleShare} />
       <MonthNavigator
         month={monthNav.month}
         year={monthNav.year}

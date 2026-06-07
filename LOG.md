@@ -1,5 +1,23 @@
 # LOG
 
+## 2026-06-07 (설정/프로필 + 계정 삭제 + 로고)
+
+### 처리 항목
+- 이슈 #46(번들), #45(계정 삭제) / 작업 브랜치: feature/profile-settings-and-logo
+
+### 신규/변경
+- 설정/프로필/약관/개인정보/문의/앱정보 화면, 홈 메뉴 시트, 약관 링크 컴포넌트
+- 계정 삭제: supabase/functions/delete-account(Edge Function), authStore.deleteAccount, app/profile.tsx UI(2단계 확인)
+  - Edge Function은 JWT 검증 후 service_role로 outfits/items/profiles + auth 계정 삭제
+  - 배포 필요(사용자): `supabase functions deploy delete-account`
+- tsconfig: supabase/functions를 앱 타입체크에서 제외
+- 앱 로고: icon/splash/favicon/android-icon 에셋 교체(1024² 아이콘), app.json adaptive 배경색 변경
+- 통계/잠자는 옷장 화면 보강
+
+### 검증
+- npx tsc --noEmit → PASS
+- npx expo lint → PASS
+
 ## 2026-06-01 (챌린지 화면 구현)
 
 ### 처리 항목

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import { ScrollView, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import SleepingBottomBanner from '../../components/sleeping-wardrobe/SleepingBottomBanner'
@@ -27,7 +27,7 @@ export default function WardrobeScreen() {
         onHelpPress={() => setHelpVisible(true)}
       />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <SleepingSummaryBanner totalCount={SLEEPING_CATEGORY_COUNT['전체']} />
         <SleepingCategoryTabs
           selectedCategory={wardrobe.selectedCategory}
@@ -41,7 +41,6 @@ export default function WardrobeScreen() {
         />
         <SleepingItemList items={wardrobe.items} />
         <SleepingBottomBanner />
-        <View style={styles.bottomPadding} />
       </ScrollView>
       <SleepingFilterSheet
         availableTags={wardrobe.availableTags}
@@ -63,7 +62,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.secondary,
   },
-  bottomPadding: {
-    height: spacing.xl,
+  content: {
+    paddingBottom: spacing.xl,
   },
 })

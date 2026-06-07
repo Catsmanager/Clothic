@@ -1,10 +1,15 @@
-import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons'
-import {
-  SLEEPING_CATEGORIES,
-  type SleepingCategory,
-} from '../../constants/sleepingWardrobe'
+import { SLEEPING_CATEGORIES, type SleepingCategory } from '../../constants/sleepingWardrobe'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 
@@ -44,57 +49,67 @@ export default function SleepingFilterSheet({
         <Pressable style={styles.backdrop} onPress={onClose} />
         <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
           <View style={styles.header}>
-            <Text style={styles.title}>필터</Text>
+            <View>
+              <Text style={styles.title}>필터</Text>
+              <Text style={styles.subtitle}>분류를 고른 뒤 세부 조건을 선택하세요.</Text>
+            </View>
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
               <Feather name="x" size={18} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.sectionLabel}>분류</Text>
-          <View style={styles.chipRow}>
-            {SLEEPING_CATEGORIES.map((category) => {
-              const active = selectedCategory === category
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Text style={styles.sectionLabel}>분류</Text>
+            <View style={styles.chipRow}>
+              {SLEEPING_CATEGORIES.map((category) => {
+                const active = selectedCategory === category
 
-              return (
-                <TouchableOpacity
-                  key={category}
-                  style={[styles.chip, active && styles.chipActive]}
-                  onPress={() => onSelectCategory(category)}
-                >
-                  <Text style={[styles.chipText, active && styles.chipTextActive]}>
-                    {category}
-                  </Text>
-                </TouchableOpacity>
-              )
-            })}
+                return (
+                  <TouchableOpacity
+                    key={category}
+                    style={[styles.chip, active && styles.chipActive]}
+                    onPress={() => onSelectCategory(category)}
+                  >
+                    <Text style={[styles.chipText, active && styles.chipTextActive]}>
+                      {category}
+                    </Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+
+            <Text style={styles.sectionLabel}>세부 필터</Text>
+            <View style={styles.chipRow}>
+              {availableTags.map((tag) => {
+                const active = selectedTags.includes(tag)
+
+                return (
+                  <TouchableOpacity
+                    key={tag}
+                    style={[styles.chip, active && styles.chipActive]}
+                    onPress={() => onToggleTag(tag)}
+                  >
+                    <Text style={[styles.chipText, active && styles.chipTextActive]}>{tag}</Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+          </ScrollView>
+
+          <View style={styles.footer}>
+            <TouchableOpacity
+              style={[styles.clearButton, !hasActiveFilter && styles.clearButtonDisabled]}
+              onPress={onClear}
+              disabled={!hasActiveFilter}
+            >
+              <Text style={[styles.clearText, !hasActiveFilter && styles.clearTextDisabled]}>
+                초기화
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.applyButton} onPress={onClose}>
+              <Text style={styles.applyText}>적용하기</Text>
+            </TouchableOpacity>
           </View>
-
-          <Text style={styles.sectionLabel}>세부 필터</Text>
-          <View style={styles.chipRow}>
-            {availableTags.map((tag) => {
-              const active = selectedTags.includes(tag)
-
-              return (
-                <TouchableOpacity
-                  key={tag}
-                  style={[styles.chip, active && styles.chipActive]}
-                  onPress={() => onToggleTag(tag)}
-                >
-                  <Text style={[styles.chipText, active && styles.chipTextActive]}>{tag}</Text>
-                </TouchableOpacity>
-              )
-            })}
-          </View>
-
-          <TouchableOpacity
-            style={[styles.clearButton, !hasActiveFilter && styles.clearButtonDisabled]}
-            onPress={onClear}
-            disabled={!hasActiveFilter}
-          >
-            <Text style={[styles.clearText, !hasActiveFilter && styles.clearTextDisabled]}>
-              필터 초기화
-            </Text>
-          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -120,6 +135,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: radius.lg,
     paddingTop: spacing.lg,
     paddingHorizontal: spacing.lg,
+    maxHeight: '78%',
   },
   header: {
     flexDirection: 'row',
@@ -131,6 +147,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: colors.text,
+  },
+  subtitle: {
+    marginTop: 3,
+    fontSize: 12,
+    color: colors.textMuted,
   },
   closeButton: {
     width: 32,
@@ -154,7 +175,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: colors.secondary,
     paddingHorizontal: spacing.md,
-    paddingVertical: 7,
+    paddingVertical: 8,
   },
   chipActive: {
     backgroundColor: colors.text,
@@ -168,13 +189,18 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: '600',
   },
+  footer: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    paddingTop: spacing.lg,
+  },
   clearButton: {
+    flex: 0.9,
     height: 48,
     borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.secondary,
-    marginTop: spacing.lg,
   },
   clearButtonDisabled: {
     opacity: 0.45,
@@ -186,5 +212,18 @@ const styles = StyleSheet.create({
   },
   clearTextDisabled: {
     color: colors.textMuted,
+  },
+  applyButton: {
+    flex: 1.2,
+    height: 48,
+    borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.text,
+  },
+  applyText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.white,
   },
 })

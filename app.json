@@ -17,7 +17,7 @@
     "android": {
       "package": "com.clothic.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6D8D0",
+        "backgroundColor": "#FBF6EF",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"

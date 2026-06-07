@@ -1,23 +1,21 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { router } from 'expo-router'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { spacing } from '../../constants/spacing'
 
 interface Props {
-  onBackPress: () => void
-  onSharePress: () => void
+  title: string
 }
 
-export default function StatsHeader({ onBackPress, onSharePress }: Props) {
+export default function SettingsHeader({ title }: Props) {
   return (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.headerBtn} onPress={onBackPress} hitSlop={8}>
+      <TouchableOpacity style={styles.headerButton} onPress={() => router.back()} hitSlop={8}>
         <Feather name="arrow-left" size={22} color={colors.text} />
       </TouchableOpacity>
-      <Text style={styles.headerTitle}>월간 리포트</Text>
-      <TouchableOpacity style={styles.headerBtn} onPress={onSharePress} hitSlop={8}>
-        <Feather name="share" size={20} color={colors.text} />
-      </TouchableOpacity>
+      <Text style={styles.title}>{title}</Text>
+      <View style={styles.headerButton} />
     </View>
   )
 }
@@ -30,15 +28,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
-  headerBtn: {
+  headerButton: {
     width: 36,
     height: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: {
+  title: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
   },
 })

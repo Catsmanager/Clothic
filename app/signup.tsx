@@ -4,6 +4,7 @@ import { router } from 'expo-router'
 import AuthErrorText from '../components/auth/AuthErrorText'
 import AuthFooterLink from '../components/auth/AuthFooterLink'
 import AuthHeader from '../components/auth/AuthHeader'
+import AuthLegalLinks from '../components/auth/AuthLegalLinks'
 import AuthScreen from '../components/auth/AuthScreen'
 import AuthSubmitButton from '../components/auth/AuthSubmitButton'
 import AuthTextField from '../components/auth/AuthTextField'
@@ -51,12 +52,15 @@ export default function SignupScreen() {
   return (
     <AuthScreen
       footer={
-        <AuthFooterLink
-          disabled={loading}
-          prompt="이미 계정이 있으신가요?"
-          linkLabel="로그인"
-          onPress={() => router.back()}
-        />
+        <View>
+          <AuthFooterLink
+            disabled={loading}
+            prompt="이미 계정이 있으신가요?"
+            linkLabel="로그인"
+            onPress={() => router.back()}
+          />
+          <AuthLegalLinks />
+        </View>
       }
     >
       <AuthHeader

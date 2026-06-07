@@ -5,6 +5,7 @@ import AuthDivider from '../components/auth/AuthDivider'
 import AuthErrorText from '../components/auth/AuthErrorText'
 import AuthFooterLink from '../components/auth/AuthFooterLink'
 import AuthHeader from '../components/auth/AuthHeader'
+import AuthLegalLinks from '../components/auth/AuthLegalLinks'
 import AuthScreen from '../components/auth/AuthScreen'
 import AuthSubmitButton from '../components/auth/AuthSubmitButton'
 import AuthTextField from '../components/auth/AuthTextField'
@@ -51,12 +52,15 @@ export default function LoginScreen() {
   return (
     <AuthScreen
       footer={
-        <AuthFooterLink
-          disabled={busy}
-          prompt="아직 계정이 없으신가요?"
-          linkLabel="회원가입"
-          onPress={() => router.push('/signup')}
-        />
+        <View>
+          <AuthFooterLink
+            disabled={busy}
+            prompt="아직 계정이 없으신가요?"
+            linkLabel="회원가입"
+            onPress={() => router.push('/signup')}
+          />
+          <AuthLegalLinks />
+        </View>
       }
     >
       <AuthHeader

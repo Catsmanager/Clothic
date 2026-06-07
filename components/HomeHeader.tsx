@@ -4,10 +4,14 @@ import { Feather } from '@expo/vector-icons'
 import { colors } from '../constants/colors'
 import { radius, spacing } from '../constants/spacing'
 
-export default function HomeHeader() {
+interface Props {
+  onMenuPress: () => void
+}
+
+export default function HomeHeader({ onMenuPress }: Props) {
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.iconButton} hitSlop={8}>
+      <TouchableOpacity style={styles.iconButton} onPress={onMenuPress} hitSlop={8}>
         <Feather name="menu" size={22} color={colors.text} />
       </TouchableOpacity>
       <Text style={styles.title}>오늘의 코디</Text>
