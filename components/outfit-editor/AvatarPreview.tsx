@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native'
+import { colors } from '../../constants/colors'
 import { spacing } from '../../constants/spacing'
 import OutfitAvatar from '../OutfitAvatar'
 
@@ -15,10 +16,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    paddingBottom: spacing.sm,
+    backgroundColor: colors.secondary,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
   },
   avatarImage: {
-    width: '75%',
-    height: '90%',
+    width: '68%',
+    height: '92%',
   },
 })

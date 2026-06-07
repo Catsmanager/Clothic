@@ -6,9 +6,10 @@ import type { Challenge } from '../../constants/challenges'
 
 interface Props {
   challenges: Challenge[]
+  onChallengePress: (challenge: Challenge) => void
 }
 
-export default function ChallengeList({ challenges }: Props) {
+export default function ChallengeList({ challenges, onChallengePress }: Props) {
   const activeCount = challenges.filter((c) => c.current < c.goal).length
 
   return (
@@ -21,7 +22,11 @@ export default function ChallengeList({ challenges }: Props) {
       </View>
 
       {challenges.map((challenge) => (
-        <ChallengeListItem key={challenge.id} challenge={challenge} />
+        <ChallengeListItem
+          key={challenge.id}
+          challenge={challenge}
+          onPress={() => onChallengePress(challenge)}
+        />
       ))}
     </View>
   )

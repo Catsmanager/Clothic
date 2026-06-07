@@ -14,14 +14,15 @@ const ICON_MAP: Record<BadgeIcon, keyof typeof MaterialCommunityIcons.glyphMap> 
 
 interface Props {
   badges: Badge[]
+  onViewAllPress: () => void
 }
 
-export default function BadgeShelf({ badges }: Props) {
+export default function BadgeShelf({ badges, onViewAllPress }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>획득한 배지</Text>
-        <TouchableOpacity style={styles.viewAll} hitSlop={8}>
+        <TouchableOpacity style={styles.viewAll} onPress={onViewAllPress} hitSlop={8}>
           <Text style={styles.viewAllText}>전체 보기</Text>
           <Feather name="chevron-right" size={16} color={colors.textMuted} />
         </TouchableOpacity>

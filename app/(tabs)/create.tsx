@@ -37,18 +37,19 @@ export default function CreateScreen() {
     <SafeAreaView style={styles.screen} edges={['top']}>
       <CreateHeader onBack={() => router.back()} onSave={() => setSheetVisible(true)} />
 
-      <View style={styles.middle}>
+      <View style={styles.editorBody}>
         <CategoryRail
           activeCategory={editor.activeCategory}
           onCategoryPress={editor.selectCategory}
         />
-        <AvatarPreview />
-        <EditorActionPanel
-          canRedo={editor.canRedo}
-          canUndo={editor.canUndo}
-          onRedo={editor.redo}
-          onUndo={editor.undo}
-        />
+        <View style={styles.previewSection}>
+          <AvatarPreview />
+          <EditorActionPanel
+            canUndo={editor.canUndo}
+            onRandom={editor.randomizeActiveCategory}
+            onUndo={editor.undo}
+          />
+        </View>
       </View>
 
       <ItemPickerPanel
@@ -79,9 +80,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.secondary,
   },
-  middle: {
-    flexDirection: 'row',
+  editorBody: {
     flex: 1,
     minHeight: 0,
+    position: 'relative',
+  },
+  previewSection: {
+    flex: 1,
+    paddingHorizontal: 0,
   },
 })

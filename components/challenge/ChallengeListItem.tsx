@@ -13,15 +13,16 @@ const ICON_MAP: Record<ChallengeIcon, keyof typeof MaterialCommunityIcons.glyphM
 
 interface Props {
   challenge: Challenge
+  onPress: () => void
 }
 
-export default function ChallengeListItem({ challenge }: Props) {
+export default function ChallengeListItem({ challenge, onPress }: Props) {
   const { icon, title, description, current, goal } = challenge
   const ratio = goal > 0 ? Math.min(current / goal, 1) : 0
   const completed = current >= goal
 
   return (
-    <TouchableOpacity style={styles.card} activeOpacity={0.85}>
+    <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
       <View style={styles.iconBox}>
         <MaterialCommunityIcons name={ICON_MAP[icon]} size={28} color={colors.accent} />
       </View>
