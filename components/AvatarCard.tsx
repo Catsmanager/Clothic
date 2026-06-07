@@ -1,36 +1,26 @@
-import { View, ImageBackground, TouchableOpacity, StyleSheet, Dimensions } from 'react-native'
-import { Feather } from '@expo/vector-icons'
+import { View, Image, StyleSheet, Dimensions } from 'react-native'
 import { colors } from '../constants/colors'
 import { spacing, radius } from '../constants/spacing'
 import OutfitAvatar from './OutfitAvatar'
 
+// 방 배경 이미지 원본 크기 (가로 x 세로)
+const ROOM_IMAGE_WIDTH = 1023
+const ROOM_IMAGE_HEIGHT = 1537
+
 const CARD_WIDTH = Dimensions.get('window').width - spacing.md * 2
+// 카드 높이를 배경 이미지 비율에 맞춰 고정 → 배경 전체가 잘림 없이 보인다
+const CARD_HEIGHT = Math.round((CARD_WIDTH * ROOM_IMAGE_HEIGHT) / ROOM_IMAGE_WIDTH)
+
 // 아바타 뒤 방 배경 (오늘의 코디 카드)
 const ROOM_BACKGROUND = require('../assets/avatar/background/room_01.png')
 
-interface Props {
-  onEdit?: () => void
-  onCopy?: () => void
-  onDelete?: () => void
-}
-
-export default function AvatarCard({ onEdit, onCopy, onDelete }: Props) {
+export default function AvatarCard() {
   return (
     <View style={styles.card}>
-      <ImageBackground source={ROOM_BACKGROUND} style={styles.avatarArea} resizeMode="cover">
-        <OutfitAvatar style={styles.avatarImage} />
-      </ImageBackground>
+      <Image source={ROOM_BACKGROUND} style={styles.background} resizeMode="cover" />
 
-      <View style={styles.actions}>
-        <TouchableOpacity style={styles.actionBtn} onPress={onEdit}>
-          <Feather name="edit-2" size={16} color={colors.text} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionBtn} onPress={onCopy}>
-          <Feather name="copy" size={16} color={colors.text} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionBtn} onPress={onDelete}>
-          <Feather name="trash-2" size={16} color={colors.text} />
-        </TouchableOpacity>
+      <View style={styles.avatarArea}>
+        <OutfitAvatar style={styles.avatarImage} />
       </View>
     </View>
   )
@@ -39,38 +29,29 @@ export default function AvatarCard({ onEdit, onCopy, onDelete }: Props) {
 const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
-    height: CARD_WIDTH * 0.9,
-    backgroundColor: colors.primary,
+    height: CARD_HEIGHT,
+    backgroundColor: colors.secondary,
     borderRadius: radius.lg,
     marginHorizontal: spacing.md,
     overflow: 'hidden',
   },
+  background: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+  },
   avatarArea: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: '6%',
   },
   avatarImage: {
-    width: '60%',
-    height: '95%',
-  },
-  actions: {
-    position: 'absolute',
-    top: spacing.sm,
-    right: spacing.sm,
-    gap: spacing.xs,
-  },
-  actionBtn: {
-    width: 40,
-    height: 40,
-    backgroundColor: colors.white,
-    borderRadius: radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    width: '55%',
+    height: '70%',
   },
 })
