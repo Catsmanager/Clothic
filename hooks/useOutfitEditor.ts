@@ -78,6 +78,13 @@ export function useOutfitEditor() {
     () => Object.values(equipped).filter((id): id is string => id != null),
     [equipped]
   )
+  const equippedItems = useMemo(
+    () =>
+      equippedItemIds
+        .map((id) => catalogItems.find((item) => item.id === id))
+        .filter((item): item is CatalogItem => item != null),
+    [catalogItems, equippedItemIds]
+  )
 
   return {
     activeCategory,
@@ -85,6 +92,7 @@ export function useOutfitEditor() {
     canUndo: historyIndex > 0,
     equipped,
     equippedItemIds,
+    equippedItems,
     filteredItems,
     randomizeActiveCategory,
     selectCategory,

@@ -35,6 +35,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "avatar:add": "node scripts/add-avatar-item.mjs",
+    "avatar:check": "node scripts/check-avatar-assets.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
     "format": "prettier --write .",

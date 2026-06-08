@@ -1,7 +1,8 @@
-import { Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import type { CatalogItem } from '../../constants/items'
+import { getAvatarItemImage } from '../../lib/avatarAssets'
 
 const SCREEN_WIDTH = Dimensions.get('window').width
 const COLUMN_COUNT = 3
@@ -30,7 +31,7 @@ export default function ItemGrid({ items, onItemPress }: Props) {
           activeOpacity={0.8}
         >
           <View style={styles.itemCard}>
-            <View style={[styles.itemColorBox, { backgroundColor: item.color }]} />
+            <ItemPreview item={item} />
           </View>
           <Text style={styles.itemLabel} numberOfLines={1}>
             {item.name}
@@ -39,6 +40,16 @@ export default function ItemGrid({ items, onItemPress }: Props) {
       )}
     />
   )
+}
+
+function ItemPreview({ item }: { item: CatalogItem }) {
+  const source = getAvatarItemImage(item.id)
+
+  if (source == null) {
+    return <View style={[styles.itemColorBox, { backgroundColor: item.color }]} />
+  }
+
+  return <Image source={source} style={styles.itemAssetImage} resizeMode="contain" />
 }
 
 const styles = StyleSheet.create({
@@ -71,6 +82,12 @@ const styles = StyleSheet.create({
     width: '65%',
     height: '65%',
     borderRadius: radius.sm,
+  },
+  itemAssetImage: {
+    position: 'absolute',
+    width: CARD_SIZE * 2.2,
+    height: CARD_SIZE * 4.4,
+    top: -CARD_SIZE * 1.52,
   },
   itemLabel: {
     marginTop: spacing.xs,
