@@ -3,26 +3,39 @@ import { router } from 'expo-router'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../constants/colors'
 import { radius, spacing } from '../constants/spacing'
+import { MOCK_NOTIFICATIONS } from '../constants/notifications'
 
 interface Props {
   onMenuPress: () => void
 }
 
 export default function HomeHeader({ onMenuPress }: Props) {
+  const hasUnread = MOCK_NOTIFICATIONS.some((item) => !item.read)
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.iconButton} onPress={onMenuPress} hitSlop={8}>
         <Feather name="menu" size={22} color={colors.text} />
       </TouchableOpacity>
       <Text style={styles.title}>오늘의 코디</Text>
-      <TouchableOpacity
-        style={styles.challengeButton}
-        onPress={() => router.push('/challenge')}
-        hitSlop={8}
-      >
-        <Feather name="award" size={16} color={colors.text} />
-        <Text style={styles.challengeText}>챌린지</Text>
-      </TouchableOpacity>
+      <View style={styles.rightGroup}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => router.push('/notifications')}
+          hitSlop={8}
+        >
+          <Feather name="bell" size={20} color={colors.text} />
+          {hasUnread && <View style={styles.unreadDot} />}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.challengeButton}
+          onPress={() => router.push('/challenge')}
+          hitSlop={8}
+        >
+          <Feather name="award" size={16} color={colors.text} />
+          <Text style={styles.challengeText}>챌린지</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   )
 }
@@ -40,6 +53,20 @@ const styles = StyleSheet.create({
     height: 36,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  rightGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  unreadDot: {
+    position: 'absolute',
+    top: 6,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.danger,
   },
   challengeButton: {
     height: 34,
