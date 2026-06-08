@@ -7,7 +7,6 @@ import { radius, spacing } from '../../constants/spacing'
 
 export default function NotificationSettingsScreen() {
   const [dailyReminder, setDailyReminder] = useState(true)
-  const [challengeUpdates, setChallengeUpdates] = useState(true)
   const [sleepingWardrobe, setSleepingWardrobe] = useState(false)
 
   return (
@@ -19,12 +18,6 @@ export default function NotificationSettingsScreen() {
           description="매일 저녁 코디 기록을 잊지 않게 알려줘요."
           value={dailyReminder}
           onValueChange={setDailyReminder}
-        />
-        <SettingRow
-          title="챌린지 진행 알림"
-          description="챌린지 달성 및 배지 획득 소식을 알려줘요."
-          value={challengeUpdates}
-          onValueChange={setChallengeUpdates}
         />
         <SettingRow
           title="잠자는 옷장 알림"
