@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import * as WebBrowser from 'expo-web-browser'
 import * as Linking from 'expo-linking'
+import * as AppleAuthentication from 'expo-apple-authentication'
+import * as Crypto from 'expo-crypto'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { isOnboardingDone, setOnboardingDone } from '../lib/onboarding'
@@ -22,6 +24,7 @@ interface AuthState {
   signUpWithEmail: (email: string, password: string) => Promise<AuthResult>
   signInWithEmail: (email: string, password: string) => Promise<AuthResult>
   signInWithKakao: () => Promise<AuthResult>
+  signInWithApple: () => Promise<AuthResult>
   signOut: () => Promise<AuthResult>
   deleteAccount: () => Promise<AuthResult>
 }
@@ -99,6 +102,45 @@ export const useAuthStore = create<AuthState>((set) => ({
     // 세션 교환 성공 시 onAuthStateChange가 store의 session/user를 갱신한다.
     const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
     return { error: exchangeError?.message ?? null }
+  },
+
+  // Apple 네이티브 로그인(iOS): identityToken을 Supabase에 넘겨 세션을 만든다.
+  // 재생 공격 방지를 위해 raw nonce를 SHA256 해시해 Apple에 보내고,
+  // Supabase에는 raw nonce를 전달한다(Supabase가 토큰의 해시와 대조).
+  // 사전 설정 필요: Apple Developer "Sign in with Apple" + Supabase Apple provider.
+  signInWithApple: async () => {
+    try {
+      const rawNonce = Crypto.randomUUID()
+      const hashedNonce = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256,
+        rawNonce
+      )
+
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+        nonce: hashedNonce,
+      })
+      if (!credential.identityToken) {
+        return { error: 'Apple 인증 토큰을 받지 못했습니다.' }
+      }
+
+      // 세션 교환 성공 시 onAuthStateChange가 store의 session/user를 갱신한다.
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: 'apple',
+        token: credential.identityToken,
+        nonce: rawNonce,
+      })
+      return { error: error?.message ?? null }
+    } catch (e) {
+      // 사용자가 시트를 닫으면 취소 → 에러 없이 종료.
+      if (e && typeof e === 'object' && 'code' in e && e.code === 'ERR_REQUEST_CANCELED') {
+        return { error: null }
+      }
+      return { error: e instanceof Error ? e.message : 'Apple 로그인에 실패했습니다.' }
+    }
   },
 
   signOut: async () => {
