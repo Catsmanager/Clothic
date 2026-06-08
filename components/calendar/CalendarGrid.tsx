@@ -9,7 +9,6 @@ import type { Outfit } from '../../stores/outfitStore'
 
 const SCREEN_WIDTH = Dimensions.get('window').width
 const CELL_WIDTH = Math.floor(SCREEN_WIDTH / 7)
-const CELL_HEIGHT = Math.floor((Dimensions.get('window').height * 0.46) / 6)
 
 interface Props {
   cells: CalendarCell[]
@@ -76,7 +75,7 @@ export default function CalendarGrid({
                     </Text>
                   </View>
                   {outfit && cell.isCurrentMonth && (
-                    <OutfitAvatar items={outfitItems} compact style={styles.miniAvatar} />
+                    <OutfitAvatar items={outfitItems} style={styles.miniAvatar} />
                   )}
                 </TouchableOpacity>
               )
@@ -145,9 +144,13 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: '700',
   },
+  // 아바타(원본 1:2 portrait)를 셀의 남은 세로 공간에 맞춰 채운다.
+  // 박스를 portrait 비율로 두어 contain 렌더 시 아바타가 작게 보이지 않도록 한다.
   miniAvatar: {
-    width: CELL_WIDTH - 8,
-    height: CELL_HEIGHT - 28,
-    marginTop: 1,
+    flex: 1,
+    aspectRatio: 887 / 1774,
+    marginTop: 2,
+    marginBottom: 4,
+    alignSelf: 'center',
   },
 })

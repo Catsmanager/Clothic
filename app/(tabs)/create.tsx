@@ -43,7 +43,7 @@ export default function CreateScreen() {
           onCategoryPress={editor.selectCategory}
         />
         <View style={styles.previewSection}>
-          <AvatarPreview />
+          <AvatarPreview items={editor.equippedItems} />
           <EditorActionPanel
             canUndo={editor.canUndo}
             onRandom={editor.randomizeActiveCategory}

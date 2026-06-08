@@ -1,6 +1,7 @@
 import {
   Dimensions,
   FlatList,
+  Image,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -11,6 +12,7 @@ import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import { type CatalogItem, type Category } from '../../constants/items'
+import { getAvatarItemImage } from '../../lib/avatarAssets'
 
 const SCREEN_WIDTH = Dimensions.get('window').width
 const ITEM_SIZE = (SCREEN_WIDTH - spacing.md * 2 - spacing.sm * 3) / 4
@@ -81,11 +83,27 @@ export default function ItemPickerPanel({
             ]}
             onPress={() => onItemPress(item)}
           >
-            <View style={[styles.itemColorBox, { backgroundColor: item.color }]} />
+            <ItemPreview item={item} />
           </TouchableOpacity>
         )}
       />
     </View>
+  )
+}
+
+function ItemPreview({ item }: { item: CatalogItem }) {
+  const source = getAvatarItemImage(item.id)
+
+  if (source == null) {
+    return <View style={[styles.itemColorBox, { backgroundColor: item.color }]} />
+  }
+
+  return (
+    <Image
+      source={source}
+      style={styles.itemAssetImage}
+      resizeMode="contain"
+    />
   )
 }
 
@@ -159,5 +177,11 @@ const styles = StyleSheet.create({
     width: '70%',
     height: '70%',
     borderRadius: 4,
+  },
+  itemAssetImage: {
+    position: 'absolute',
+    width: ITEM_SIZE * 2.2,
+    height: ITEM_SIZE * 4.4,
+    top: -ITEM_SIZE * 1.52,
   },
 })

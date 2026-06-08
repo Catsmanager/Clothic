@@ -15,6 +15,8 @@ import { colors } from '../constants/colors'
 import { spacing, radius } from '../constants/spacing'
 import OutfitAvatar from '../components/OutfitAvatar'
 import { formatShortDateWithWeekday } from '../lib/date'
+import type { CatalogItem } from '../constants/items'
+import { buildCatalogItems, findCatalogItemById, useItemStore } from '../stores/itemStore'
 import { useOutfitStore, type Outfit } from '../stores/outfitStore'
 
 const SCREEN_WIDTH = Dimensions.get('window').width
@@ -30,12 +32,17 @@ export default function OutfitsScreen() {
   const error = useOutfitStore((s) => s.error)
   const fetchOutfits = useOutfitStore((s) => s.fetchOutfits)
   const toggleFavorite = useOutfitStore((s) => s.toggleFavorite)
+  const userItems = useItemStore((s) => s.items)
+  const fetchItems = useItemStore((s) => s.fetchItems)
 
   const [tab, setTab] = useState<Tab>('전체 코디')
 
   useEffect(() => {
     fetchOutfits()
-  }, [fetchOutfits])
+    fetchItems()
+  }, [fetchItems, fetchOutfits])
+
+  const catalogItems = useMemo(() => buildCatalogItems(userItems), [userItems])
 
   const visible = useMemo(
     () => (tab === '즐겨찾기' ? outfits.filter((o) => o.isFavorite) : outfits),
@@ -110,7 +117,11 @@ export default function OutfitsScreen() {
             </TouchableOpacity>
           }
           renderItem={({ item }) => (
-            <OutfitCard outfit={item} onToggleFav={() => onToggleFav(item)} />
+            <OutfitCard
+              catalogItems={catalogItems}
+              outfit={item}
+              onToggleFav={() => onToggleFav(item)}
+            />
           )}
         />
       )}
@@ -118,15 +129,27 @@ export default function OutfitsScreen() {
   )
 }
 
-function OutfitCard({ outfit, onToggleFav }: { outfit: Outfit; onToggleFav: () => void }) {
+function OutfitCard({
+  catalogItems,
+  outfit,
+  onToggleFav,
+}: {
+  catalogItems: CatalogItem[]
+  outfit: Outfit
+  onToggleFav: () => void
+}) {
+  const items = outfit.itemIds
+    .map((id) => findCatalogItemById(catalogItems, id))
+    .filter((item): item is CatalogItem => item != null)
+
   return (
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.9}
       onPress={() => router.push(`/outfit/${outfit.id}`)}
-    >
+      >
       <View style={styles.thumb}>
-        <OutfitAvatar style={styles.thumbAvatar} />
+        <OutfitAvatar items={items} style={styles.thumbAvatar} />
         <TouchableOpacity style={styles.starBtn} onPress={onToggleFav} hitSlop={8}>
           <Ionicons
             name={outfit.isFavorite ? 'star' : 'star-outline'}

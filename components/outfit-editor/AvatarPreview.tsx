@@ -1,12 +1,17 @@
 import { StyleSheet, View } from 'react-native'
+import type { CatalogItem } from '../../constants/items'
 import { colors } from '../../constants/colors'
 import { spacing } from '../../constants/spacing'
 import OutfitAvatar from '../OutfitAvatar'
 
-export default function AvatarPreview() {
+interface Props {
+  items: CatalogItem[]
+}
+
+export default function AvatarPreview({ items }: Props) {
   return (
     <View style={styles.avatarArea}>
-      <OutfitAvatar style={styles.avatarImage} />
+      <OutfitAvatar items={items} style={styles.avatarImage} />
     </View>
   )
 }
