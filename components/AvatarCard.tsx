@@ -1,15 +1,7 @@
-import { View, Image, StyleSheet, Dimensions } from 'react-native'
+import { View, Image, StyleSheet } from 'react-native'
 import { colors } from '../constants/colors'
 import { spacing, radius } from '../constants/spacing'
 import OutfitAvatar from './OutfitAvatar'
-
-// 방 배경 이미지 원본 크기 (가로 x 세로)
-const ROOM_IMAGE_WIDTH = 1023
-const ROOM_IMAGE_HEIGHT = 1537
-
-const CARD_WIDTH = Dimensions.get('window').width - spacing.md * 2
-// 카드 높이를 배경 이미지 비율에 맞춰 고정 → 배경 전체가 잘림 없이 보인다
-const CARD_HEIGHT = Math.round((CARD_WIDTH * ROOM_IMAGE_HEIGHT) / ROOM_IMAGE_WIDTH)
 
 // 아바타 뒤 방 배경 (오늘의 코디 카드)
 const ROOM_BACKGROUND = require('../assets/avatar/background/room_01.png')
@@ -17,7 +9,9 @@ const ROOM_BACKGROUND = require('../assets/avatar/background/room_01.png')
 export default function AvatarCard() {
   return (
     <View style={styles.card}>
-      <Image source={ROOM_BACKGROUND} style={styles.background} resizeMode="cover" />
+      {/* contain: 카드 높이가 화면에 맞춰 줄어도 방 배경 전체가 잘림 없이 보인다.
+          여백은 카드 배경색(secondary)과 같아 자연스럽게 묻힌다. */}
+      <Image source={ROOM_BACKGROUND} style={styles.background} resizeMode="contain" />
 
       <View style={styles.avatarArea}>
         <OutfitAvatar style={styles.avatarImage} />
@@ -28,11 +22,10 @@ export default function AvatarCard() {
 
 const styles = StyleSheet.create({
   card: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
+    flex: 1,
+    marginHorizontal: spacing.md,
     backgroundColor: colors.secondary,
     borderRadius: radius.lg,
-    marginHorizontal: spacing.md,
     overflow: 'hidden',
   },
   background: {
@@ -41,8 +34,8 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
+    width: '100%',
+    height: '100%',
   },
   avatarArea: {
     flex: 1,
