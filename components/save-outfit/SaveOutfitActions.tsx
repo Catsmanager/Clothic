@@ -11,13 +11,21 @@ interface Props {
 export default function SaveOutfitActions({ saving, onCancel, onSave }: Props) {
   return (
     <View style={styles.actions}>
-      <TouchableOpacity style={[styles.btn, styles.cancelBtn]} onPress={onCancel} disabled={saving}>
+      <TouchableOpacity
+        style={[styles.btn, styles.cancelBtn]}
+        onPress={onCancel}
+        disabled={saving}
+        accessibilityRole="button"
+        accessibilityLabel="코디 저장 취소"
+      >
         <Text style={styles.cancelText}>취소</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.btn, styles.saveBtn, saving && styles.btnDisabled]}
         onPress={onSave}
         disabled={saving}
+        accessibilityRole="button"
+        accessibilityLabel={saving ? '코디 저장 중' : '코디 저장하기'}
       >
         {saving ? (
           <ActivityIndicator color={colors.white} />

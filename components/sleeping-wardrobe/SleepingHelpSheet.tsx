@@ -27,11 +27,17 @@ export default function SleepingHelpSheet({ visible, onClose }: Props) {
       onRequestClose={onClose}
     >
       <View style={styles.root}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
+        <Pressable style={styles.backdrop} onPress={onClose} accessible={false} />
         <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
           <View style={styles.header}>
             <Text style={styles.title}>잠자는 옷장이란?</Text>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={onClose}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="잠자는 옷장 도움말 닫기"
+            >
               <Feather name="x" size={18} color={colors.textMuted} />
             </TouchableOpacity>
           </View>

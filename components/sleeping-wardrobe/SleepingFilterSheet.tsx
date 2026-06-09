@@ -46,14 +46,20 @@ export default function SleepingFilterSheet({
       onRequestClose={onClose}
     >
       <View style={styles.root}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
+        <Pressable style={styles.backdrop} onPress={onClose} accessible={false} />
         <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
           <View style={styles.header}>
             <View>
               <Text style={styles.title}>필터</Text>
               <Text style={styles.subtitle}>분류를 고른 뒤 세부 조건을 선택하세요.</Text>
             </View>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={onClose}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="필터 닫기"
+            >
               <Feather name="x" size={18} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
