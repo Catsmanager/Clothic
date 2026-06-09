@@ -30,6 +30,7 @@
     "eslint": "^9.39.4",
     "eslint-config-expo": "^56.0.4",
     "eslint-config-prettier": "^10.1.8",
+    "expo-doctor": "^1.19.9",
     "prettier": "^3.8.3",
     "typescript": "~6.0.3"
   },
@@ -42,6 +43,9 @@
     "avatar:check": "node scripts/check-avatar-assets.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
+    "doctor": "expo-doctor",
+    "expo:check": "expo install --check",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run expo:check && npm run doctor",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
