@@ -17,6 +17,9 @@ export default function NotificationItem({ notification, onPress }: Props) {
       style={[styles.row, !read && styles.rowUnread]}
       onPress={() => onPress(id)}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={`${title}, ${body}, ${time}`}
+      accessibilityState={{ selected: !read }}
     >
       <View style={styles.iconCircle}>
         <Feather name={icon} size={18} color={colors.text} />
