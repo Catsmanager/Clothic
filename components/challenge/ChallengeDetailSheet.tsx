@@ -20,7 +20,8 @@ const TIP_BY_ID: Record<string, string> = {
 
 export default function ChallengeDetailSheet({ challenge, visible, onClose }: Props) {
   const insets = useSafeAreaInsets()
-  const ratio = challenge && challenge.goal > 0 ? Math.min(challenge.current / challenge.goal, 1) : 0
+  const ratio =
+    challenge && challenge.goal > 0 ? Math.min(challenge.current / challenge.goal, 1) : 0
   const completed = challenge ? challenge.current >= challenge.goal : false
 
   return (

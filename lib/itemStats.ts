@@ -1,8 +1,4 @@
-import {
-  CATEGORY_LABELS,
-  ITEM_CATEGORIES,
-  type Category,
-} from '../constants/items'
+import { CATEGORY_LABELS, ITEM_CATEGORIES, type Category } from '../constants/items'
 import type { UserItem } from '../stores/itemStore'
 
 export interface ItemInventoryData {

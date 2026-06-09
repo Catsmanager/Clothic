@@ -98,13 +98,7 @@ function ItemPreview({ item }: { item: CatalogItem }) {
     return <View style={[styles.itemColorBox, { backgroundColor: item.color }]} />
   }
 
-  return (
-    <Image
-      source={source}
-      style={styles.itemAssetImage}
-      resizeMode="contain"
-    />
-  )
+  return <Image source={source} style={styles.itemAssetImage} resizeMode="contain" />
 }
 
 const styles = StyleSheet.create({

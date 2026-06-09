@@ -1,4 +1,12 @@
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'

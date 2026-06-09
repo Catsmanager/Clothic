@@ -147,7 +147,7 @@ function OutfitCard({
       style={styles.card}
       activeOpacity={0.9}
       onPress={() => router.push(`/outfit/${outfit.id}`)}
-      >
+    >
       <View style={styles.thumb}>
         <OutfitAvatar items={items} style={styles.thumbAvatar} />
         <TouchableOpacity style={styles.starBtn} onPress={onToggleFav} hitSlop={8}>

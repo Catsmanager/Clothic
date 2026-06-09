@@ -26,10 +26,7 @@ export function useWeather(): WeatherState {
         const position = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Low,
         })
-        const data = await fetchCurrentWeather(
-          position.coords.latitude,
-          position.coords.longitude
-        )
+        const data = await fetchCurrentWeather(position.coords.latitude, position.coords.longitude)
         if (!cancelled) setState({ status: 'success', data })
       } catch {
         if (!cancelled) setState({ status: 'error' })

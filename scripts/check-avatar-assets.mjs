@@ -8,15 +8,11 @@ const BASE_ASSET = path.join(ROOT, 'assets/avatar/base/base_female_01.png')
 const assetMapPath = path.join(ROOT, 'lib/avatarAssets.ts')
 
 function readImageInfo(filePath) {
-  const output = execFileSync('sips', [
-    '-g',
-    'pixelWidth',
-    '-g',
-    'pixelHeight',
-    '-g',
-    'hasAlpha',
-    filePath,
-  ], { encoding: 'utf8' })
+  const output = execFileSync(
+    'sips',
+    ['-g', 'pixelWidth', '-g', 'pixelHeight', '-g', 'hasAlpha', filePath],
+    { encoding: 'utf8' }
+  )
 
   return {
     width: Number(output.match(/pixelWidth:\s*(\d+)/)?.[1]),
@@ -47,7 +43,9 @@ function main() {
 
     const info = readImageInfo(absolutePath)
     if (info.width !== canvas.width || info.height !== canvas.height) {
-      errors.push(`${assetPath}: expected ${canvas.width}x${canvas.height}, got ${info.width}x${info.height}`)
+      errors.push(
+        `${assetPath}: expected ${canvas.width}x${canvas.height}, got ${info.width}x${info.height}`
+      )
     }
     if (!info.hasAlpha) {
       errors.push(`${assetPath}: missing alpha channel`)
@@ -59,7 +57,9 @@ function main() {
     process.exit(1)
   }
 
-  console.log(`Avatar asset check passed (${matches.length} mapped assets, ${canvas.width}x${canvas.height}).`)
+  console.log(
+    `Avatar asset check passed (${matches.length} mapped assets, ${canvas.width}x${canvas.height}).`
+  )
 }
 
 main()

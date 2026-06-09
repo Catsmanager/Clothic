@@ -143,17 +143,11 @@ export default function HomeMenuSheet({ visible, onClose }: Props) {
 
             <View style={styles.legalArea}>
               <View style={styles.legalLinks}>
-                <TouchableOpacity
-                  onPress={() => openRoute('/privacy')}
-                  hitSlop={8}
-                >
+                <TouchableOpacity onPress={() => openRoute('/privacy')} hitSlop={8}>
                   <Text style={styles.legalLink}>개인정보 처리방침</Text>
                 </TouchableOpacity>
                 <Text style={styles.legalDivider}>·</Text>
-                <TouchableOpacity
-                  onPress={() => openRoute('/terms')}
-                  hitSlop={8}
-                >
+                <TouchableOpacity onPress={() => openRoute('/terms')} hitSlop={8}>
                   <Text style={styles.legalLink}>서비스 이용약관</Text>
                 </TouchableOpacity>
               </View>
