@@ -20,6 +20,9 @@ export default function ItemSubCategoryTabs({
           key={subCategory}
           style={[styles.tab, activeSubCategory === subCategory && styles.tabActive]}
           onPress={() => onSubCategoryPress(subCategory)}
+          accessibilityRole="button"
+          accessibilityLabel={`${subCategory} 하위 분류`}
+          accessibilityState={{ selected: activeSubCategory === subCategory }}
         >
           <Text style={[styles.tabText, activeSubCategory === subCategory && styles.tabTextActive]}>
             {subCategory}

@@ -75,6 +75,9 @@ export default function SleepingFilterSheet({
                     key={category}
                     style={[styles.chip, active && styles.chipActive]}
                     onPress={() => onSelectCategory(category)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${category} 분류 필터`}
+                    accessibilityState={{ selected: active }}
                   >
                     <Text style={[styles.chipText, active && styles.chipTextActive]}>
                       {category}
@@ -94,6 +97,9 @@ export default function SleepingFilterSheet({
                     key={tag}
                     style={[styles.chip, active && styles.chipActive]}
                     onPress={() => onToggleTag(tag)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${tag} 세부 필터`}
+                    accessibilityState={{ selected: active }}
                   >
                     <Text style={[styles.chipText, active && styles.chipTextActive]}>{tag}</Text>
                   </TouchableOpacity>
@@ -107,12 +113,20 @@ export default function SleepingFilterSheet({
               style={[styles.clearButton, !hasActiveFilter && styles.clearButtonDisabled]}
               onPress={onClear}
               disabled={!hasActiveFilter}
+              accessibilityRole="button"
+              accessibilityLabel="필터 초기화"
+              accessibilityState={{ disabled: !hasActiveFilter }}
             >
               <Text style={[styles.clearText, !hasActiveFilter && styles.clearTextDisabled]}>
                 초기화
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.applyButton} onPress={onClose}>
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={onClose}
+              accessibilityRole="button"
+              accessibilityLabel="필터 적용하기"
+            >
               <Text style={styles.applyText}>적용하기</Text>
             </TouchableOpacity>
           </View>

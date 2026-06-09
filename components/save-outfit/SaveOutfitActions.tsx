@@ -17,6 +17,7 @@ export default function SaveOutfitActions({ saving, onCancel, onSave }: Props) {
         disabled={saving}
         accessibilityRole="button"
         accessibilityLabel="코디 저장 취소"
+        accessibilityState={{ disabled: saving }}
       >
         <Text style={styles.cancelText}>취소</Text>
       </TouchableOpacity>
@@ -26,6 +27,7 @@ export default function SaveOutfitActions({ saving, onCancel, onSave }: Props) {
         disabled={saving}
         accessibilityRole="button"
         accessibilityLabel={saving ? '코디 저장 중' : '코디 저장하기'}
+        accessibilityState={{ disabled: saving }}
       >
         {saving ? (
           <ActivityIndicator color={colors.white} />
