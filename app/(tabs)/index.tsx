@@ -60,7 +60,13 @@ export default function HomeScreen() {
                 <Feather name="plus" size={15} color={colors.white} />
               </View>
               <Text style={styles.createHintText}>아래 + 버튼으로 만들어요</Text>
-              <TouchableOpacity style={styles.createHintClose} onPress={dismissCreateHint}>
+              <TouchableOpacity
+                style={styles.createHintClose}
+                onPress={dismissCreateHint}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="코디 만들기 안내 닫기"
+              >
                 <Feather name="x" size={14} color={colors.textMuted} />
               </TouchableOpacity>
             </View>

@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { Image, StyleSheet, Text, View } from 'react-native'
 import { Feather, Ionicons } from '@expo/vector-icons'
-import OutfitAvatar from '../OutfitAvatar'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
+
+const CHALLENGE_FACE = require('../../assets/challenge/challenge_face.png')
 
 interface Props {
   activeCount: number
@@ -30,7 +31,12 @@ export default function ChallengeHeroCard({
             <Ionicons name="heart" size={14} color={colors.danger} />
           </View>
           <View style={styles.avatarCircle}>
-            <OutfitAvatar style={styles.avatar} />
+            <Image
+              source={CHALLENGE_FACE}
+              style={styles.avatar}
+              resizeMode="contain"
+              accessible={false}
+            />
           </View>
         </View>
       </View>
@@ -123,9 +129,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   avatar: {
-    width: 70,
-    height: 110,
-    marginTop: 18,
+    width: 124,
+    height: 124,
+    marginTop: -2,
   },
   statRow: {
     flexDirection: 'row',
