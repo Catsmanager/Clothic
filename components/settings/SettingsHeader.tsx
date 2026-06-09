@@ -11,11 +11,17 @@ interface Props {
 export default function SettingsHeader({ title }: Props) {
   return (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.headerButton} onPress={() => router.back()} hitSlop={8}>
+      <TouchableOpacity
+        style={styles.headerButton}
+        onPress={() => router.back()}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="뒤로 가기"
+      >
         <Feather name="arrow-left" size={22} color={colors.text} />
       </TouchableOpacity>
       <Text style={styles.title}>{title}</Text>
-      <View style={styles.headerButton} />
+      <View style={styles.headerButton} accessible={false} />
     </View>
   )
 }

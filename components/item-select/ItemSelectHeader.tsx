@@ -11,11 +11,17 @@ interface Props {
 export default function ItemSelectHeader({ categoryLabel, onBack }: Props) {
   return (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.headerBtn} onPress={onBack}>
+      <TouchableOpacity
+        style={styles.headerBtn}
+        onPress={onBack}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="뒤로 가기"
+      >
         <Feather name="arrow-left" size={22} color={colors.text} />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>아이템 선택 ({categoryLabel})</Text>
-      <View style={styles.headerBtn} />
+      <View style={styles.headerBtn} accessible={false} />
     </View>
   )
 }
