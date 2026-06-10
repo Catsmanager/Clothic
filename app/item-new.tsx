@@ -33,6 +33,17 @@ const COLOR_OPTIONS = [
   '#C0616B',
 ]
 
+const COLOR_LABELS: Record<string, string> = {
+  '#1C1C1C': '블랙',
+  '#F5F5F5': '화이트',
+  '#A0A0A0': '그레이',
+  '#6B8CAE': '블루',
+  '#C8B89A': '베이지',
+  '#8A6A4A': '브라운',
+  '#6F8A7A': '그린',
+  '#C0616B': '레드',
+}
+
 const STYLE_LABELS: Record<StyleTag, string> = {
   casual: '캐주얼',
   formal: '포멀',
@@ -80,7 +91,13 @@ export default function NewItemScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.headerButton}
+          onPress={() => router.back()}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="뒤로 가기"
+        >
           <Feather name="arrow-left" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>아이템 등록</Text>
@@ -88,6 +105,9 @@ export default function NewItemScreen() {
           style={[styles.saveButton, !canSave && styles.saveButtonDisabled]}
           onPress={handleSave}
           disabled={!canSave}
+          accessibilityRole="button"
+          accessibilityLabel={saving ? '아이템 저장 중' : '아이템 저장'}
+          accessibilityState={{ disabled: !canSave }}
         >
           <Text style={styles.saveButtonText}>{saving ? '저장중' : '저장'}</Text>
         </TouchableOpacity>
@@ -107,6 +127,7 @@ export default function NewItemScreen() {
             placeholder="아이템 이름"
             placeholderTextColor={colors.textMuted}
             returnKeyType="done"
+            accessibilityLabel="아이템 이름"
           />
         </View>
 
@@ -118,6 +139,9 @@ export default function NewItemScreen() {
                 key={item}
                 style={[styles.chip, category === item && styles.chipActive]}
                 onPress={() => setCategory(item)}
+                accessibilityRole="button"
+                accessibilityLabel={`${CATEGORY_LABELS[item]} 카테고리`}
+                accessibilityState={{ selected: category === item }}
               >
                 <Text style={[styles.chipText, category === item && styles.chipTextActive]}>
                   {CATEGORY_LABELS[item]}
@@ -135,6 +159,9 @@ export default function NewItemScreen() {
                 key={item}
                 style={[styles.colorButton, color === item && styles.colorButtonActive]}
                 onPress={() => setColor(item)}
+                accessibilityRole="button"
+                accessibilityLabel={`${COLOR_LABELS[item]} 색상`}
+                accessibilityState={{ selected: color === item }}
               >
                 <View style={[styles.colorSwatch, { backgroundColor: item }]} />
               </TouchableOpacity>
@@ -152,6 +179,9 @@ export default function NewItemScreen() {
                   key={tag}
                   style={[styles.chip, selected && styles.chipActive]}
                   onPress={() => toggleStyleTag(tag)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${STYLE_LABELS[tag]} 스타일`}
+                  accessibilityState={{ selected }}
                 >
                   <Text style={[styles.chipText, selected && styles.chipTextActive]}>
                     {STYLE_LABELS[tag]}
