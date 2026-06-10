@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import OutfitAvatar from '../OutfitAvatar'
@@ -6,9 +6,6 @@ import type { CatalogItem } from '../../constants/items'
 import type { CalendarCell } from '../../lib/calendar'
 import { WEEKDAY_LABELS } from '../../lib/date'
 import type { Outfit } from '../../stores/outfitStore'
-
-const SCREEN_WIDTH = Dimensions.get('window').width
-const CELL_WIDTH = Math.floor(SCREEN_WIDTH / 7)
 
 interface Props {
   cells: CalendarCell[]
@@ -27,14 +24,19 @@ export default function CalendarGrid({
   todayKey,
   onSelectDate,
 }: Props) {
+  const { width } = useWindowDimensions()
+  const cellWidth = Math.floor(width / 7)
+
   return (
     <>
       <View style={styles.dayLabelRow}>
         {WEEKDAY_LABELS.map((label, index) => (
           <Text
             key={label}
+            accessibilityRole="text"
             style={[
               styles.dayLabel,
+              { width: cellWidth },
               index === 0 && styles.dayLabelSun,
               index === 6 && styles.dayLabelSat,
             ]}
@@ -59,9 +61,18 @@ export default function CalendarGrid({
               return (
                 <TouchableOpacity
                   key={cell.key}
-                  style={[styles.cell, isSelected && !isToday && styles.cellSelected]}
+                  style={[
+                    styles.cell,
+                    { width: cellWidth },
+                    isSelected && !isToday && styles.cellSelected,
+                  ]}
                   onPress={() => onSelectDate(cell.key)}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${cell.date.getMonth() + 1}월 ${cell.date.getDate()}일${
+                    outfit ? ', 저장한 코디 있음' : ''
+                  }${isToday ? ', 오늘' : ''}`}
+                  accessibilityState={{ selected: isSelected }}
                 >
                   <View style={[styles.dateCircle, isToday && styles.dateCircleToday]}>
                     <Text
@@ -94,7 +105,6 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   dayLabel: {
-    width: CELL_WIDTH,
     textAlign: 'center',
     paddingVertical: spacing.xs,
     fontSize: 12,
@@ -113,7 +123,6 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   cell: {
-    width: CELL_WIDTH,
     borderRightWidth: StyleSheet.hairlineWidth,
     borderRightColor: colors.border,
     alignItems: 'center',

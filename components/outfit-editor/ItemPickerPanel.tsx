@@ -1,10 +1,10 @@
 import {
-  Dimensions,
   FlatList,
   Image,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
   View,
   Text,
 } from 'react-native'
@@ -14,8 +14,8 @@ import { radius, spacing } from '../../constants/spacing'
 import { type CatalogItem, type Category } from '../../constants/items'
 import { getAvatarItemImage } from '../../lib/avatarAssets'
 
-const SCREEN_WIDTH = Dimensions.get('window').width
-const ITEM_SIZE = (SCREEN_WIDTH - spacing.md * 2 - spacing.sm * 3) / 4
+const COLUMN_COUNT = 4
+const ITEM_GAP = spacing.sm
 
 type EquippedItems = Partial<Record<Category, string>>
 
@@ -38,6 +38,9 @@ export default function ItemPickerPanel({
   onItemPress,
   onSubCategoryPress,
 }: Props) {
+  const { width } = useWindowDimensions()
+  const itemSize = (width - spacing.md * 2 - ITEM_GAP * (COLUMN_COUNT - 1)) / COLUMN_COUNT
+
   return (
     <View style={styles.bottomPanel}>
       <View style={styles.subTabHeader}>
@@ -79,11 +82,12 @@ export default function ItemPickerPanel({
           <TouchableOpacity
             style={[
               styles.itemCard,
+              { width: itemSize, height: itemSize },
               equipped[item.category] === item.id && styles.itemCardSelected,
             ]}
             onPress={() => onItemPress(item)}
           >
-            <ItemPreview item={item} />
+            <ItemPreview item={item} itemSize={itemSize} />
           </TouchableOpacity>
         )}
       />
@@ -91,14 +95,27 @@ export default function ItemPickerPanel({
   )
 }
 
-function ItemPreview({ item }: { item: CatalogItem }) {
+function ItemPreview({ item, itemSize }: { item: CatalogItem; itemSize: number }) {
   const source = getAvatarItemImage(item.id)
 
   if (source == null) {
     return <View style={[styles.itemColorBox, { backgroundColor: item.color }]} />
   }
 
-  return <Image source={source} style={styles.itemAssetImage} resizeMode="contain" />
+  return (
+    <Image
+      source={source}
+      style={[
+        styles.itemAssetImage,
+        {
+          width: itemSize * 2.2,
+          height: itemSize * 4.4,
+          top: -itemSize * 1.52,
+        },
+      ]}
+      resizeMode="contain"
+    />
+  )
 }
 
 const styles = StyleSheet.create({
@@ -149,14 +166,12 @@ const styles = StyleSheet.create({
   gridContent: {
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
-    gap: spacing.sm,
+    gap: ITEM_GAP,
   },
   gridRow: {
-    gap: spacing.sm,
+    gap: ITEM_GAP,
   },
   itemCard: {
-    width: ITEM_SIZE,
-    height: ITEM_SIZE,
     backgroundColor: colors.secondary,
     borderRadius: radius.sm,
     alignItems: 'center',
@@ -174,8 +189,5 @@ const styles = StyleSheet.create({
   },
   itemAssetImage: {
     position: 'absolute',
-    width: ITEM_SIZE * 2.2,
-    height: ITEM_SIZE * 4.4,
-    top: -ITEM_SIZE * 1.52,
   },
 })

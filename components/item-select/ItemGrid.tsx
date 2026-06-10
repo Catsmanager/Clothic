@@ -1,15 +1,20 @@
-import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import type { CatalogItem } from '../../constants/items'
 import { getAvatarItemImage } from '../../lib/avatarAssets'
 
-const SCREEN_WIDTH = Dimensions.get('window').width
 const COLUMN_COUNT = 3
 const CARD_GAP = spacing.sm
 const HORIZONTAL_PADDING = spacing.md
-const CARD_SIZE =
-  (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - CARD_GAP * (COLUMN_COUNT - 1)) / COLUMN_COUNT
 
 interface Props {
   items: CatalogItem[]
@@ -17,6 +22,9 @@ interface Props {
 }
 
 export default function ItemGrid({ items, onItemPress }: Props) {
+  const { width } = useWindowDimensions()
+  const cardSize = (width - HORIZONTAL_PADDING * 2 - CARD_GAP * (COLUMN_COUNT - 1)) / COLUMN_COUNT
+
   return (
     <FlatList
       data={items}
@@ -26,12 +34,12 @@ export default function ItemGrid({ items, onItemPress }: Props) {
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => (
         <TouchableOpacity
-          style={styles.itemWrapper}
+          style={[styles.itemWrapper, { width: cardSize }]}
           onPress={() => onItemPress(item)}
           activeOpacity={0.8}
         >
-          <View style={styles.itemCard}>
-            <ItemPreview item={item} />
+          <View style={[styles.itemCard, { width: cardSize, height: cardSize }]}>
+            <ItemPreview item={item} itemSize={cardSize} />
           </View>
           <Text style={styles.itemLabel} numberOfLines={1}>
             {item.name}
@@ -42,14 +50,27 @@ export default function ItemGrid({ items, onItemPress }: Props) {
   )
 }
 
-function ItemPreview({ item }: { item: CatalogItem }) {
+function ItemPreview({ item, itemSize }: { item: CatalogItem; itemSize: number }) {
   const source = getAvatarItemImage(item.id)
 
   if (source == null) {
     return <View style={[styles.itemColorBox, { backgroundColor: item.color }]} />
   }
 
-  return <Image source={source} style={styles.itemAssetImage} resizeMode="contain" />
+  return (
+    <Image
+      source={source}
+      style={[
+        styles.itemAssetImage,
+        {
+          width: itemSize * 2.2,
+          height: itemSize * 4.4,
+          top: -itemSize * 1.52,
+        },
+      ]}
+      resizeMode="contain"
+    />
+  )
 }
 
 const styles = StyleSheet.create({
@@ -59,14 +80,11 @@ const styles = StyleSheet.create({
     gap: CARD_GAP,
   },
   itemWrapper: {
-    width: CARD_SIZE,
     marginRight: CARD_GAP,
     marginBottom: spacing.xs,
     alignItems: 'center',
   },
   itemCard: {
-    width: CARD_SIZE,
-    height: CARD_SIZE,
     backgroundColor: colors.white,
     borderRadius: radius.md,
     alignItems: 'center',
@@ -85,9 +103,6 @@ const styles = StyleSheet.create({
   },
   itemAssetImage: {
     position: 'absolute',
-    width: CARD_SIZE * 2.2,
-    height: CARD_SIZE * 4.4,
-    top: -CARD_SIZE * 1.52,
   },
   itemLabel: {
     marginTop: spacing.xs,
