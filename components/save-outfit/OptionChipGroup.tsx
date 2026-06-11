@@ -29,6 +29,9 @@ export default function OptionChipGroup<OptionValue extends string>({
               key={option}
               style={[styles.chip, isActive && styles.chipActive]}
               onPress={() => onSelect(option)}
+              accessibilityRole="button"
+              accessibilityLabel={`${label} ${labels[option]}`}
+              accessibilityState={{ selected: isActive }}
             >
               <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
                 {labels[option]}

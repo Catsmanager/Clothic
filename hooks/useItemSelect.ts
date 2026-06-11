@@ -1,10 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  type CatalogItem,
-  CATEGORY_LABELS,
-  SUB_CATEGORIES,
-  isCategory,
-} from '../constants/items'
+import { type CatalogItem, CATEGORY_LABELS, SUB_CATEGORIES, isCategory } from '../constants/items'
 import { buildCatalogItems, useItemStore } from '../stores/itemStore'
 
 interface Params {

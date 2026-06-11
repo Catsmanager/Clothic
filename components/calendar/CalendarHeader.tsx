@@ -12,13 +12,25 @@ interface Props {
 export default function CalendarHeader({ month, year, onNextMonth, onPrevMonth }: Props) {
   return (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.navBtn} onPress={onPrevMonth}>
+      <TouchableOpacity
+        style={styles.navBtn}
+        onPress={onPrevMonth}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="이전 달 보기"
+      >
         <Text style={styles.navArrow}>{'<'}</Text>
       </TouchableOpacity>
       <Text style={styles.headerTitle}>
         {year}년 {month + 1}월
       </Text>
-      <TouchableOpacity style={styles.navBtn} onPress={onNextMonth}>
+      <TouchableOpacity
+        style={styles.navBtn}
+        onPress={onNextMonth}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="다음 달 보기"
+      >
         <Text style={styles.navArrow}>{'>'}</Text>
       </TouchableOpacity>
     </View>

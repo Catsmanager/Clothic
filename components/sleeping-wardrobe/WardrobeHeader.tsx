@@ -16,10 +16,22 @@ export default function WardrobeHeader({ onAddPress, onHelpPress }: Props) {
         <Text style={styles.headerSubtitle}>오랫동안 입지 않은 옷을 확인하세요</Text>
       </View>
       <View style={styles.headerActions}>
-        <TouchableOpacity style={styles.helpButton} onPress={onHelpPress}>
+        <TouchableOpacity
+          style={styles.helpButton}
+          onPress={onHelpPress}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="잠자는 옷장 도움말 보기"
+        >
           <Feather name="help-circle" size={16} color={colors.textMuted} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.addButton} onPress={onAddPress}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={onAddPress}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="옷 추가하기"
+        >
           <Feather name="plus" size={18} color={colors.white} />
         </TouchableOpacity>
       </View>

@@ -27,6 +27,9 @@ export default function SleepingCategoryTabs({ selectedCategory, onCategoryPress
           key={category}
           style={[styles.categoryTab, selectedCategory === category && styles.categoryTabActive]}
           onPress={() => onCategoryPress(category)}
+          accessibilityRole="button"
+          accessibilityLabel={`${category} 카테고리, ${SLEEPING_CATEGORY_COUNT[category]}개`}
+          accessibilityState={{ selected: selectedCategory === category }}
         >
           <CategoryIcon category={category} active={selectedCategory === category} />
           <Text

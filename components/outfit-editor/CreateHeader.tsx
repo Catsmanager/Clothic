@@ -11,11 +11,22 @@ interface Props {
 export default function CreateHeader({ onBack, onSave }: Props) {
   return (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.headerBtn} onPress={onBack}>
+      <TouchableOpacity
+        style={styles.headerBtn}
+        onPress={onBack}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="뒤로 가기"
+      >
         <Feather name="arrow-left" size={22} color={colors.text} />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>코디 만들기</Text>
-      <TouchableOpacity style={styles.saveBtn} onPress={onSave}>
+      <TouchableOpacity
+        style={styles.saveBtn}
+        onPress={onSave}
+        accessibilityRole="button"
+        accessibilityLabel="코디 저장하기"
+      >
         <Text style={styles.saveBtnText}>저장</Text>
       </TouchableOpacity>
     </View>

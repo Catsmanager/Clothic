@@ -80,6 +80,9 @@ export default function OutfitDetailScreen() {
             style={styles.starBtn}
             onPress={() => toggleFavorite(outfit.id, !outfit.isFavorite)}
             hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={outfit.isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+            accessibilityState={{ selected: outfit.isFavorite }}
           >
             <Ionicons
               name={outfit.isFavorite ? 'star' : 'star-outline'}
@@ -135,7 +138,13 @@ export default function OutfitDetailScreen() {
 function Header({ onDelete }: { onDelete: (() => void) | undefined }) {
   return (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.headerBtn} onPress={() => router.back()} hitSlop={8}>
+      <TouchableOpacity
+        style={styles.headerBtn}
+        onPress={() => router.back()}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="뒤로 가기"
+      >
         <Feather name="arrow-left" size={22} color={colors.text} />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>코디 상세</Text>
@@ -144,6 +153,9 @@ function Header({ onDelete }: { onDelete: (() => void) | undefined }) {
         onPress={onDelete}
         disabled={onDelete == null}
         hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="코디 삭제하기"
+        accessibilityState={{ disabled: onDelete == null }}
       >
         <Feather name="trash-2" size={20} color={onDelete ? colors.danger : colors.border} />
       </TouchableOpacity>

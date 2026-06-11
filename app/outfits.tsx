@@ -60,17 +60,30 @@ export default function OutfitsScreen() {
     <SafeAreaView style={styles.screen} edges={['top']}>
       {/* 헤더 */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBtn} onPress={() => router.back()} hitSlop={8}>
+        <TouchableOpacity
+          style={styles.headerBtn}
+          onPress={() => router.back()}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="뒤로 가기"
+        >
           <Feather name="arrow-left" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>코디 저장</Text>
-        <View style={styles.headerBtn} />
+        <View style={styles.headerBtn} accessible={false} />
       </View>
 
       {/* 탭 */}
       <View style={styles.tabBar}>
         {(['전체 코디', '즐겨찾기'] as Tab[]).map((t) => (
-          <TouchableOpacity key={t} style={styles.tabItem} onPress={() => setTab(t)}>
+          <TouchableOpacity
+            key={t}
+            style={styles.tabItem}
+            onPress={() => setTab(t)}
+            accessibilityRole="button"
+            accessibilityLabel={`${t} 보기`}
+            accessibilityState={{ selected: tab === t }}
+          >
             <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>{t}</Text>
             {tab === t && <View style={styles.tabUnderline} />}
           </TouchableOpacity>
@@ -85,7 +98,12 @@ export default function OutfitsScreen() {
         <View style={styles.center}>
           <Text style={styles.emptyText}>코디를 불러오지 못했어요.</Text>
           <Text style={styles.emptySub}>{error}</Text>
-          <TouchableOpacity style={styles.retryBtn} onPress={() => fetchOutfits()}>
+          <TouchableOpacity
+            style={styles.retryBtn}
+            onPress={() => fetchOutfits()}
+            accessibilityRole="button"
+            accessibilityLabel="코디 다시 불러오기"
+          >
             <Text style={styles.retryText}>다시 시도</Text>
           </TouchableOpacity>
         </View>
@@ -111,6 +129,8 @@ export default function OutfitsScreen() {
               style={styles.newBtn}
               onPress={() => router.push('/(tabs)/create')}
               activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="새 코디 저장하기"
             >
               <Feather name="plus" size={18} color={colors.text} />
               <Text style={styles.newBtnText}>새 코디 저장하기</Text>
@@ -141,16 +161,27 @@ function OutfitCard({
   const items = outfit.itemIds
     .map((id) => findCatalogItemById(catalogItems, id))
     .filter((item): item is CatalogItem => item != null)
+  const dateLabel = formatShortDateWithWeekday(outfit.date)
+  const memoLabel = outfit.memo ?? '메모 없음'
 
   return (
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.9}
       onPress={() => router.push(`/outfit/${outfit.id}`)}
-      >
+      accessibilityRole="button"
+      accessibilityLabel={`${dateLabel} 코디 상세 보기, ${memoLabel}`}
+    >
       <View style={styles.thumb}>
         <OutfitAvatar items={items} style={styles.thumbAvatar} />
-        <TouchableOpacity style={styles.starBtn} onPress={onToggleFav} hitSlop={8}>
+        <TouchableOpacity
+          style={styles.starBtn}
+          onPress={onToggleFav}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={outfit.isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+          accessibilityState={{ selected: outfit.isFavorite }}
+        >
           <Ionicons
             name={outfit.isFavorite ? 'star' : 'star-outline'}
             size={18}
@@ -158,9 +189,9 @@ function OutfitCard({
           />
         </TouchableOpacity>
       </View>
-      <Text style={styles.cardDate}>{formatShortDateWithWeekday(outfit.date)}</Text>
+      <Text style={styles.cardDate}>{dateLabel}</Text>
       <Text style={styles.cardMemo} numberOfLines={1}>
-        {outfit.memo ?? '메모 없음'}
+        {memoLabel}
       </Text>
     </TouchableOpacity>
   )

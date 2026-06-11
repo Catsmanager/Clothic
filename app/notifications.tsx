@@ -28,7 +28,12 @@ export default function NotificationCenterScreen() {
       <SettingsHeader title="알림" />
 
       {hasUnread && (
-        <TouchableOpacity style={styles.markAllButton} onPress={markAllRead}>
+        <TouchableOpacity
+          style={styles.markAllButton}
+          onPress={markAllRead}
+          accessibilityRole="button"
+          accessibilityLabel="모든 알림 읽음 처리"
+        >
           <Text style={styles.markAllText}>모두 읽음 처리</Text>
         </TouchableOpacity>
       )}

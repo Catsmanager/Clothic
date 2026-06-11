@@ -59,15 +59,11 @@ function rel(filePath) {
 }
 
 function readImageInfo(filePath) {
-  const output = execFileSync('sips', [
-    '-g',
-    'pixelWidth',
-    '-g',
-    'pixelHeight',
-    '-g',
-    'hasAlpha',
-    filePath,
-  ], { encoding: 'utf8' })
+  const output = execFileSync(
+    'sips',
+    ['-g', 'pixelWidth', '-g', 'pixelHeight', '-g', 'hasAlpha', filePath],
+    { encoding: 'utf8' }
+  )
 
   return {
     width: Number(output.match(/pixelWidth:\s*(\d+)/)?.[1]),
@@ -118,10 +114,7 @@ function upsertCatalogItem(item) {
   const catalogPath = path.join(ROOT, 'constants/itemCatalog.ts')
   let source = readFileSync(catalogPath, 'utf8')
   const itemText = formatItem(item)
-  const existingPattern = new RegExp(
-    `  \\{\\n\\s+id: '${item.id}',[\\s\\S]*?\\n  \\}`,
-    'm'
-  )
+  const existingPattern = new RegExp(`  \\{\\n\\s+id: '${item.id}',[\\s\\S]*?\\n  \\}`, 'm')
 
   if (existingPattern.test(source)) {
     source = source.replace(existingPattern, itemText)

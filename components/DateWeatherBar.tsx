@@ -9,9 +9,7 @@ export default function DateWeatherBar() {
   const weather = useWeather()
 
   const weatherText =
-    weather.status === 'success'
-      ? `  |  ${weather.data.icon} ${weather.data.temperature}°C`
-      : ''
+    weather.status === 'success' ? `  |  ${weather.data.icon} ${weather.data.temperature}°C` : ''
 
   return (
     <View style={styles.container}>

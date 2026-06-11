@@ -121,6 +121,9 @@ export default function LoginScreen() {
           onPress={handleKakao}
           activeOpacity={0.85}
           disabled={busy}
+          accessibilityRole="button"
+          accessibilityLabel={kakaoLoading ? '카카오 로그인 처리 중' : '카카오로 시작하기'}
+          accessibilityState={{ disabled: busy }}
         >
           {kakaoLoading ? (
             <ActivityIndicator color={colors.text} />

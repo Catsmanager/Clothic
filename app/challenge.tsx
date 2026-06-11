@@ -55,7 +55,10 @@ export default function ChallengeScreen() {
           challenges={challengeData.challenges}
           onChallengePress={setSelectedChallenge}
         />
-        <BadgeShelf badges={challengeData.badges} onViewAllPress={() => setBadgeListVisible(true)} />
+        <BadgeShelf
+          badges={challengeData.badges}
+          onViewAllPress={() => setBadgeListVisible(true)}
+        />
         <ChallengeBottomBanner />
       </ScrollView>
       <ChallengeDetailSheet

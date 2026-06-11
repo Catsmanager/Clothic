@@ -16,6 +16,9 @@ export default function AuthSubmitButton({ disabled, label, loading, onPress }: 
       onPress={onPress}
       activeOpacity={0.85}
       disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={loading ? `${label} 처리 중` : label}
+      accessibilityState={{ disabled }}
     >
       {loading ? (
         <ActivityIndicator color={colors.white} />

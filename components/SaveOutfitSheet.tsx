@@ -57,7 +57,11 @@ export default function SaveOutfitSheet({ visible, itemIds, saving, onClose, onS
         style={styles.modalRoot}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Pressable style={styles.backdrop} onPress={saving ? undefined : onClose} />
+        <Pressable
+          style={styles.backdrop}
+          onPress={saving ? undefined : onClose}
+          accessible={false}
+        />
         <View
           style={[
             styles.sheet,

@@ -101,7 +101,7 @@ export default function HomeMenuSheet({ visible, onClose }: Props) {
       onRequestClose={onClose}
     >
       <View style={styles.root}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
+        <Pressable style={styles.backdrop} onPress={onClose} accessible={false} />
         <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
           <View style={styles.handle} />
           <View style={styles.header}>
@@ -109,7 +109,13 @@ export default function HomeMenuSheet({ visible, onClose }: Props) {
               <Text style={styles.title}>메뉴</Text>
               <Text style={styles.subtitle}>{email}</Text>
             </View>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={onClose}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="메뉴 닫기"
+            >
               <Feather name="x" size={18} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
@@ -143,17 +149,11 @@ export default function HomeMenuSheet({ visible, onClose }: Props) {
 
             <View style={styles.legalArea}>
               <View style={styles.legalLinks}>
-                <TouchableOpacity
-                  onPress={() => openRoute('/privacy')}
-                  hitSlop={8}
-                >
+                <TouchableOpacity onPress={() => openRoute('/privacy')} hitSlop={8}>
                   <Text style={styles.legalLink}>개인정보 처리방침</Text>
                 </TouchableOpacity>
                 <Text style={styles.legalDivider}>·</Text>
-                <TouchableOpacity
-                  onPress={() => openRoute('/terms')}
-                  hitSlop={8}
-                >
+                <TouchableOpacity onPress={() => openRoute('/terms')} hitSlop={8}>
                   <Text style={styles.legalLink}>서비스 이용약관</Text>
                 </TouchableOpacity>
               </View>

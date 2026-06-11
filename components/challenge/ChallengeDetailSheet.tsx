@@ -20,7 +20,8 @@ const TIP_BY_ID: Record<string, string> = {
 
 export default function ChallengeDetailSheet({ challenge, visible, onClose }: Props) {
   const insets = useSafeAreaInsets()
-  const ratio = challenge && challenge.goal > 0 ? Math.min(challenge.current / challenge.goal, 1) : 0
+  const ratio =
+    challenge && challenge.goal > 0 ? Math.min(challenge.current / challenge.goal, 1) : 0
   const completed = challenge ? challenge.current >= challenge.goal : false
 
   return (
@@ -32,11 +33,17 @@ export default function ChallengeDetailSheet({ challenge, visible, onClose }: Pr
       onRequestClose={onClose}
     >
       <View style={styles.root}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
+        <Pressable style={styles.backdrop} onPress={onClose} accessible={false} />
         <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
           <View style={styles.header}>
             <Text style={styles.title}>{challenge?.title ?? '챌린지'}</Text>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={onClose}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="챌린지 상세 닫기"
+            >
               <Feather name="x" size={18} color={colors.textMuted} />
             </TouchableOpacity>
           </View>

@@ -11,11 +11,23 @@ interface Props {
 export default function ChallengeHeader({ onHelpPress }: Props) {
   return (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} hitSlop={8}>
+      <TouchableOpacity
+        style={styles.iconButton}
+        onPress={() => router.back()}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="뒤로 가기"
+      >
         <Feather name="arrow-left" size={22} color={colors.text} />
       </TouchableOpacity>
       <Text style={styles.title}>챌린지</Text>
-      <TouchableOpacity style={styles.iconButton} onPress={onHelpPress} hitSlop={8}>
+      <TouchableOpacity
+        style={styles.iconButton}
+        onPress={onHelpPress}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="챌린지 도움말 보기"
+      >
         <Feather name="help-circle" size={20} color={colors.textMuted} />
       </TouchableOpacity>
     </View>

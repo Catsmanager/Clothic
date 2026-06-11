@@ -5,8 +5,7 @@ interface AvatarItemAsset {
   layerStyle?: ImageStyle
 }
 
-const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {
-}
+const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {}
 
 export function getAvatarItemImage(itemId: string): ImageSourcePropType | null {
   return AVATAR_ITEM_ASSETS[itemId]?.source ?? null

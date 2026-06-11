@@ -11,11 +11,23 @@ interface Props {
 export default function StatsHeader({ onBackPress, onSharePress }: Props) {
   return (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.headerBtn} onPress={onBackPress} hitSlop={8}>
+      <TouchableOpacity
+        style={styles.headerBtn}
+        onPress={onBackPress}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="뒤로 가기"
+      >
         <Feather name="arrow-left" size={22} color={colors.text} />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>월간 리포트</Text>
-      <TouchableOpacity style={styles.headerBtn} onPress={onSharePress} hitSlop={8}>
+      <TouchableOpacity
+        style={styles.headerBtn}
+        onPress={onSharePress}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="월간 리포트 공유하기"
+      >
         <Feather name="share" size={20} color={colors.text} />
       </TouchableOpacity>
     </View>

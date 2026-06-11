@@ -14,7 +14,13 @@ export default function HomeHeader({ onMenuPress }: Props) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.iconButton} onPress={onMenuPress} hitSlop={8}>
+      <TouchableOpacity
+        style={styles.iconButton}
+        onPress={onMenuPress}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="메뉴 열기"
+      >
         <Feather name="menu" size={22} color={colors.text} />
       </TouchableOpacity>
       <Text style={styles.title}>오늘의 코디</Text>
@@ -23,6 +29,8 @@ export default function HomeHeader({ onMenuPress }: Props) {
           style={styles.iconButton}
           onPress={() => router.push('/notifications')}
           hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={hasUnread ? '알림 보기, 읽지 않은 알림 있음' : '알림 보기'}
         >
           <Feather name="bell" size={20} color={colors.text} />
           {hasUnread && <View style={styles.unreadDot} />}
@@ -31,6 +39,8 @@ export default function HomeHeader({ onMenuPress }: Props) {
           style={styles.challengeButton}
           onPress={() => router.push('/challenge')}
           hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="챌린지 보기"
         >
           <Feather name="award" size={16} color={colors.text} />
           <Text style={styles.challengeText}>챌린지</Text>
