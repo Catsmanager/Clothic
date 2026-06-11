@@ -13,7 +13,7 @@ export default function TopItemsCard({ topItems }: Props) {
     <StatsCard label="가장 많이 입은 아이템 TOP 5">
       <View style={styles.itemList}>
         {topItems.map((item) => (
-          <View key={item.label} style={styles.itemRow}>
+          <View key={item.id} style={styles.itemRow}>
             <View style={[styles.itemIcon, { backgroundColor: item.color }]} />
             <Text style={styles.itemName}>{item.label}</Text>
             <Text style={styles.itemCount}>{item.count}회</Text>

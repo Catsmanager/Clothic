@@ -10,6 +10,17 @@ interface Props {
 }
 
 export default function TopColorsCard({ topColors }: Props) {
+  // 색상은 사용자가 등록한 아이템만 집계 — 이번 달 코디에 등록 아이템이 없으면 안내만 표시.
+  if (topColors.length === 0) {
+    return (
+      <StatsCard label="가장 많이 입은 색상">
+        <Text style={styles.emptyText}>
+          내가 등록한 아이템으로 코디하면{'\n'}색상 분석이 표시돼요.
+        </Text>
+      </StatsCard>
+    )
+  }
+
   return (
     <StatsCard label="가장 많이 입은 색상">
       <View style={styles.colorRow}>
@@ -61,5 +72,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textMuted,
     fontWeight: '500',
+  },
+  emptyText: {
+    fontSize: 13,
+    color: colors.textMuted,
+    lineHeight: 19,
   },
 })
