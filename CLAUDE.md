@@ -25,16 +25,27 @@ CRITICAL: 모든 작업은 작업별 GitHub 이슈를 먼저 만들고, 작업�
 CRITICAL: 작업 완료 후 커밋·푸시하고 Pull Request를 생성한다.
 CRITICAL: 작업 후 변경 파일 목록을 보고한다.
 CRITICAL: 작업 후 검증 결과를 보고한다.
-CRITICAL: TODO.md의 다음 미완료 항목 하나만 처리한다.
+CRITICAL: TODO 진행을 요청받으면 TODO.md의 다음 미완료 항목 하나만 처리한다. 별도로 요청받은 작업은 그 작업만 수행한다.
 CRITICAL: 작업 완료 후 LOG.md를 업데이트한다.
 
 ## 작업 방식
-1. 작업 전 관련 문서를 읽는다.
-2. 사용할 문서와 제외할 문서를 선언한다.
-3. 계획을 먼저 제시한다.
-4. 작은 단위로 수정한다.
-5. 수정 후 자체 검토한다.
-6. TODO.md와 LOG.md를 업데이트한다.
+모든 작업은 HARNESS 워크플로우를 따른다. 아래 파일이 자동 임포트된다.
+
+@HARNESS/router.md
+@HARNESS/context.md
+@HARNESS/loop.md
+@HARNESS/roles.md
+
+추가 규칙:
+- 작은 단위로 수정한다.
+- 작업 완료 후 TODO.md와 LOG.md를 업데이트한다.
+
+## 검증 명령어
+완료 선언 전 아래를 실행하고 결과를 보고한다.
+- `npx tsc --noEmit`
+- `npx expo lint`
+
+문서만 변경한 경우 생략할 수 있다. 이때 "코드 변경 없음"을 명시한다.
 
 # 절대규칙
 - TypeScript strict mode 사용
