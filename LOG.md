@@ -1,5 +1,26 @@
 # LOG
 
+## 2026-06-11 (월간 리포트 피드백 반영: 색상명 표시·집계 기준·레이아웃 정렬)
+
+### 처리 항목
+- 이슈 #71 / 작업 브랜치: feature/monthly-stats-feedback (base: fix/home-hint-bad-merge — develop 빌드 수정 PR #70 머지 대기 중이라 스택)
+- 월간 리포트 화면 검토 후 버그·UX 문제 반영
+
+### 신규/변경
+- constants/colorPalette.ts 신규 — 8색 공용 팔레트 + hex→팔레트 최근접 매칭(resolvePaletteColor). app/item-new.tsx의 로컬 COLOR_OPTIONS/COLOR_LABELS을 이 모듈 기반으로 교체(중복 제거)
+- lib/monthlyStats.ts — 색상 집계를 hex 원값 대신 팔레트 색상명 기준으로 그룹화(#1C1C1C·#2A2A2A → 블랙). **사용자 결정: 색상 통계는 사용자가 등록 시 직접 고른 아이템만 집계**(카탈로그 placeholder 색 제외 — 아바타 색상 선택 기능이 Post-MVP로 미뤄진 것과의 모순 해소). topItems에 id 포함, 0% 항목 필터
+- components/monthly-stats/TopColorsCard.tsx — 범례에 hex 대신 색상명 표시(집계 변경의 결과), 집계 대상 없을 때 안내 문구 빈 상태 추가
+- components/monthly-stats/TopItemsCard.tsx — React key를 label(중복 가능) → id로
+- components/monthly-stats/TopStylesCard.tsx — 태그/횟수가 좌우로 분리돼 대응을 알 수 없던 레이아웃을 행 단위(태그+횟수)로 재구성
+- components/monthly-stats/TotalOutfitsCard.tsx — diff 0일 때 "지난 달보다 0회 ↑" → "지난 달과 동일"(중립색)
+- components/monthly-stats/MonthNavigator.tsx — nextDisabled prop 추가(미래 달 이동 차단), 접근성 라벨 보강
+- app/(tabs)/stats.tsx — 월간 카드(월 의존)를 먼저, 옷장 현황 카드(월 무관)를 뒤로 재배치. 현재 달에서 다음 달 버튼 비활성화. 공유 메시지 색상도 색상명으로 표기(집계 변경의 결과)
+
+### 검증
+- npx tsc --noEmit → PASS
+- npx expo lint → PASS (exit 0)
+- Metro(8081) iOS 번들 200 정상
+
 ## 2026-06-11 (fix: homeHint.ts 병합 오류 수정 — develop 빌드 실패 해소)
 
 ### 처리 항목
