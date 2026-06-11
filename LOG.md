@@ -1,5 +1,21 @@
 # LOG
 
+## 2026-06-11 (HARNESS 문서 정비: CLAUDE.md 연결 및 중복·오타 정리)
+
+### 처리 항목
+- 이슈 #67 / 작업 브랜치: docs/harness-cleanup
+- HARNESS/*.md가 CLAUDE.md에서 참조되지 않아 Claude Code가 자동으로 읽지 않는 문제(죽은 설정) 및 문서 간 중복·충돌 정리
+
+### 신규/변경
+- CLAUDE.md — 작업 방식 섹션을 @HARNESS 임포트로 교체(router/context/loop/roles 자동 로드), 검증 명령어 섹션 신설(tsc/lint), TODO 규칙을 "TODO 진행 요청 시"로 범위 한정
+- HARNESS/router.md — 규칙 섹션의 의미 없는 "9" 한 줄 제거(오타)
+- HARNESS/context.md — 문서 우선순위 명시(PRD > ADR > 기타), 문서·코드 불일치 시 확인 후 수정 규칙 추가
+- HARNESS/roles.md — loop.md Report와 중복되던 최종 답변 형식 제거, loop.md Report로 일원화
+- HARNESS/loop.md — Report 항목에 "리뷰에서 발견·수정한 문제" 추가
+
+### 비고
+- 문서 변경만. 코드 변경 없음.
+
 ## 2026-06-07 (설정/프로필 + 계정 삭제 + 로고)
 
 ### 처리 항목
