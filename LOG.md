@@ -1,5 +1,19 @@
 # LOG
 
+## 2026-06-11 (fix: homeHint.ts 병합 오류 수정 — develop 빌드 실패 해소)
+
+### 처리 항목
+- 이슈 #69 / 작업 브랜치: fix/home-hint-bad-merge
+- origin/develop의 lib/homeHint.ts에 구버전(SecureStore 직접 사용)과 신버전(keyValueStore 사용)이 한 파일에 합쳐진 채 커밋되어 있어(잘못된 충돌 해결 추정) tsc·Metro 번들링이 모두 실패하던 문제
+
+### 신규/변경
+- lib/homeHint.ts — keyValueStore 기반 신버전(#63 리팩토링 의도)만 남기고 구버전 잔재 제거. 함수 시그니처 동일
+
+### 검증
+- npx tsc --noEmit → PASS
+- npx expo lint → PASS
+- npx expo start --port 8081 → packager-status:running, iOS 번들 200(약 9.3MB)·Web 번들 정상 (수정 전에는 양쪽 모두 SyntaxError)
+
 ## 2026-06-09 (PRD 스코프 정합: 알림 화면 추가)
 
 ### 처리 항목
