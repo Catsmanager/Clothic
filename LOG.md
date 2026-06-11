@@ -1,5 +1,28 @@
 # LOG
 
+## 2026-06-11 (잠자는 옷장 피드백 반영: 죽은 어포던스 제거·수면일수 배지·빈 상태 개선)
+
+### 처리 항목
+- 이슈 #74 / 작업 브랜치: feature/sleeping-wardrobe-ui-feedback
+- 잠자는 옷장 화면 검토 후 UI 문제 반영
+
+### 신규/변경
+- components/sleeping-wardrobe/SleepingItemList.tsx
+  - 아이템 카드가 onPress 없는 TouchableOpacity + chevron(>)이라 "탭하면 이동"처럼 보이던 죽은 어포던스 제거 (상세 화면이 없으므로 비인터랙티브 View로)
+  - 수면 일수를 텍스트("337일")에서 pill 배지("337일째")로 변경, 180일 이상 장기 수면은 danger 톤으로 강조
+  - 빈 상태에 "필터 초기화" 버튼 추가(기존 clearFilters 연결) — 안내문만 있고 복구 동선이 없던 문제
+- app/(tabs)/more.tsx — SleepingItemList에 hasActiveFilter/onClearFilters 전달
+
+### 피드백만 (이슈 #74에 기록, 별도 작업 제안)
+- 화면 전체가 mock 데이터(SLEEPING_ITEMS) — itemStore·outfitStore 실데이터로 "마지막 착용일" 계산 가능 (PRD 핵심 요구의 실구현)
+- 카테고리 체계가 앱 표준(top/bottom/shoes/bag/accessory)과 불일치 — 실데이터 전환 시 정리
+- 카테고리 탭·툴바 sticky 고정 검토
+
+### 검증
+- npx tsc --noEmit → PASS
+- npx expo lint → PASS
+- Metro(8081) iOS 번들 200 정상
+
 ## 2026-06-11 (fix: homeHint.ts 병합 오류 수정 — develop 빌드 실패 해소)
 
 ### 처리 항목

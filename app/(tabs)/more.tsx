@@ -56,7 +56,11 @@ export default function WardrobeScreen() {
           onFilterPress={() => setFilterVisible(true)}
           onSortPress={wardrobe.toggleSort}
         />
-        <SleepingItemList items={wardrobe.items} />
+        <SleepingItemList
+          items={wardrobe.items}
+          hasActiveFilter={wardrobe.activeFilterCount > 0}
+          onClearFilters={wardrobe.clearFilters}
+        />
         <SleepingBottomBanner />
       </ScrollView>
       <SleepingFilterSheet
