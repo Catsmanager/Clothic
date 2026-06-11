@@ -9,6 +9,20 @@
 ### 신규/변경
 - docs/PRD.md — MVP 범위에 "알림 화면 (인앱 알림 목록 — 푸시 알림 아님)" 추가
 - docs/PRD.md — 제외 범위의 "푸시 알림"에 단말 푸시 발송만 제외이며 인앱 알림 목록은 포함임을 명시
+## 2026-06-09 (안티패턴 정리: 타입 우회 + 스토리지 폴백 중복)
+
+### 처리 항목
+- 이슈 #63 / 작업 브랜치: refactor/storage-dedup-tabbar-typing
+
+### 신규/변경
+- app/(tabs)/_layout.tsx — webStickyTabBar의 `as never` 제거
+  - web 전용 값 `position: 'sticky'`만 `as ViewStyle['position']`로 캐스팅, 변수는 `ViewStyle | null`로 타입 지정 → bottom/zIndex 타입 체크 복구
+- lib/keyValueStore.ts 신규 — `isWeb ? localStorage : SecureStore` 폴백을 `getStoredValue`/`setStoredValue` 단일 모듈로 추출
+- lib/onboarding.ts, lib/homeHint.ts — 복붙된 폴백 로직을 keyValueStore 헬퍼 사용으로 교체(각 ~22줄 → ~11줄). 함수 시그니처 유지
+
+### 검증
+- npx tsc --noEmit → PASS
+- npx eslint (변경 4파일) → PASS
 ## 2026-06-11 (HARNESS 문서 정비: CLAUDE.md 연결 및 중복·오타 정리)
 
 ### 처리 항목
