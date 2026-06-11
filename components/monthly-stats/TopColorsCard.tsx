@@ -10,13 +10,11 @@ interface Props {
 }
 
 export default function TopColorsCard({ topColors }: Props) {
-  // 색상은 사용자가 등록한 아이템만 집계 — 이번 달 코디에 등록 아이템이 없으면 안내만 표시.
+  // 방어용 빈 상태: 코디가 있어도 아이템이 모두 삭제돼 색상을 못 구한 경우.
   if (topColors.length === 0) {
     return (
       <StatsCard label="가장 많이 입은 색상">
-        <Text style={styles.emptyText}>
-          내가 등록한 아이템으로 코디하면{'\n'}색상 분석이 표시돼요.
-        </Text>
+        <Text style={styles.emptyText}>아직 색상 데이터가 없어요.</Text>
       </StatsCard>
     )
   }

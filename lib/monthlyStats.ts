@@ -1,10 +1,7 @@
 import { resolvePaletteColor } from '../constants/colorPalette'
-import { ITEMS, type CatalogItem } from '../constants/items'
+import type { CatalogItem } from '../constants/items'
 import type { Outfit } from '../stores/outfitStore'
 import { getMonthKey } from './date'
-
-// 기본 카탈로그 아이템의 color는 사용자가 고른 값이 아닌 placeholder라 색상 통계에서 제외한다.
-const CATALOG_ITEM_IDS = new Set(ITEMS.map((item) => item.id))
 
 export interface MonthData {
   totalOutfits: number
@@ -45,17 +42,15 @@ export function buildMonthData(
         count: (itemCount?.count ?? 0) + 1,
       })
 
-      // 색상은 사용자가 등록 시 직접 고른 아이템만 집계하고,
+      // 색상은 옷이 가진 속성으로 본다. 카탈로그(개발자 큐레이션)·사용자 등록 아이템 모두 집계하고,
       // 비슷한 hex(#1C1C1C, #2A2A2A 등)는 팔레트 색상명 기준으로 묶는다.
-      if (!CATALOG_ITEM_IDS.has(item.id)) {
-        const palette = resolvePaletteColor(item.color)
-        const colorCount = colorCounts.get(palette.name)
-        colorCounts.set(palette.name, {
-          label: palette.name,
-          color: palette.hex,
-          count: (colorCount?.count ?? 0) + 1,
-        })
-      }
+      const palette = resolvePaletteColor(item.color)
+      const colorCount = colorCounts.get(palette.name)
+      colorCounts.set(palette.name, {
+        label: palette.name,
+        color: palette.hex,
+        count: (colorCount?.count ?? 0) + 1,
+      })
 
       item.styleTags.forEach((tag) => {
         const styleCount = styleCounts.get(tag)

@@ -3,18 +3,19 @@
 ## 2026-06-11 (월간 리포트 피드백 반영: 색상명 표시·집계 기준·레이아웃 정렬)
 
 ### 처리 항목
-- 이슈 #71 / 작업 브랜치: feature/monthly-stats-feedback (base: fix/home-hint-bad-merge — develop 빌드 수정 PR #70 머지 대기 중이라 스택)
-- 월간 리포트 화면 검토 후 버그·UX 문제 반영
+- 이슈 #71 / 작업 브랜치: feature/monthly-stats-feedback (PR #70 머지로 develop 정상화 → develop 위로 리베이스, PR #72 base를 develop으로 전환)
+- 월간 리포트 화면 검토 후 버그·UX 문제 반영 + 색상 방향 결정 반영
 
 ### 신규/변경
 - constants/colorPalette.ts 신규 — 8색 공용 팔레트 + hex→팔레트 최근접 매칭(resolvePaletteColor). app/item-new.tsx의 로컬 COLOR_OPTIONS/COLOR_LABELS을 이 모듈 기반으로 교체(중복 제거)
-- lib/monthlyStats.ts — 색상 집계를 hex 원값 대신 팔레트 색상명 기준으로 그룹화(#1C1C1C·#2A2A2A → 블랙). **사용자 결정: 색상 통계는 사용자가 등록 시 직접 고른 아이템만 집계**(카탈로그 placeholder 색 제외 — 아바타 색상 선택 기능이 Post-MVP로 미뤄진 것과의 모순 해소). topItems에 id 포함, 0% 항목 필터
-- components/monthly-stats/TopColorsCard.tsx — 범례에 hex 대신 색상명 표시(집계 변경의 결과), 집계 대상 없을 때 안내 문구 빈 상태 추가
+- lib/monthlyStats.ts — 색상 집계를 hex 원값 대신 팔레트 색상명 기준으로 그룹화(#1C1C1C·#2A2A2A → 블랙). **색상 방향 결정: 색은 옷이 가진 속성으로 보고 카탈로그(개발자 큐레이션)·사용자 아이템을 모두 집계**(어제 검토 중 논의된 "카탈로그 제외"안은, 개발자가 카탈로그 색을 의미 있게 등록하기로 하면서 철회). topItems에 id 포함, 0% 항목 필터
+- components/monthly-stats/TopColorsCard.tsx — 범례에 hex 대신 색상명 표시, 방어용 빈 상태(아이템 삭제로 색 못 구한 경우) 추가
 - components/monthly-stats/TopItemsCard.tsx — React key를 label(중복 가능) → id로
 - components/monthly-stats/TopStylesCard.tsx — 태그/횟수가 좌우로 분리돼 대응을 알 수 없던 레이아웃을 행 단위(태그+횟수)로 재구성
 - components/monthly-stats/TotalOutfitsCard.tsx — diff 0일 때 "지난 달보다 0회 ↑" → "지난 달과 동일"(중립색)
 - components/monthly-stats/MonthNavigator.tsx — nextDisabled prop 추가(미래 달 이동 차단), 접근성 라벨 보강
-- app/(tabs)/stats.tsx — 월간 카드(월 의존)를 먼저, 옷장 현황 카드(월 무관)를 뒤로 재배치. 현재 달에서 다음 달 버튼 비활성화. 공유 메시지 색상도 색상명으로 표기(집계 변경의 결과)
+- app/(tabs)/stats.tsx — 월간 카드(월 의존)를 먼저, 옷장 현황 카드(월 무관)를 뒤로 재배치. 현재 달에서 다음 달 버튼 비활성화. 공유 메시지 색상도 색상명으로 표기
+- TODO.md — "색상 방향(2026-06-11 결정)" 섹션 추가: 현재=색은 옷 속성·모두 집계, 확장=방향 3(확장 B, 기본색+선택 시 색 변경 옵션, 피로감 최소화). Post-MVP 항목을 확장 B 기준으로 갱신
 
 ### 검증
 - npx tsc --noEmit → PASS
