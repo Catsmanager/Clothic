@@ -1,10 +1,22 @@
 import type { ReactNode } from 'react'
 import { Tabs } from 'expo-router'
 import { View, StyleSheet, Platform } from 'react-native'
+import type { ViewStyle } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Feather, Ionicons } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { radius } from '../../constants/spacing'
+
+// react-native-web은 CSS `position: 'sticky'`를 지원하지만 RN의 ViewStyle 타입은
+// 'absolute' | 'relative'만 허용한다 → web 전용 값 하나만 캐스팅하고 나머지는 타입 체크.
+const webStickyTabBar: ViewStyle | null =
+  Platform.OS === 'web'
+    ? {
+        position: 'sticky' as ViewStyle['position'],
+        bottom: 0,
+        zIndex: 10,
+      }
+    : null
 
 function TabIcon({ children, focused }: { children: ReactNode; focused: boolean }) {
   return <View style={[styles.iconShell, focused && styles.iconShellActive]}>{children}</View>
@@ -28,6 +40,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: [
           styles.tabBar,
+          webStickyTabBar,
           {
             height: 58 + tabBarBottomPadding,
             paddingBottom: tabBarBottomPadding,
