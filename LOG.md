@@ -21,6 +21,48 @@
 ### 검증
 - npx tsc --noEmit → PASS
 - npx expo lint → PASS (error/warning 없음)
+## 2026-06-11 (잠자는 옷장 피드백 반영: 죽은 어포던스 제거·수면일수 배지·빈 상태 개선)
+
+### 처리 항목
+- 이슈 #74 / 작업 브랜치: feature/sleeping-wardrobe-ui-feedback
+- 잠자는 옷장 화면 검토 후 UI 문제 반영
+
+### 신규/변경
+- components/sleeping-wardrobe/SleepingItemList.tsx
+  - 아이템 카드가 onPress 없는 TouchableOpacity + chevron(>)이라 "탭하면 이동"처럼 보이던 죽은 어포던스 제거 (상세 화면이 없으므로 비인터랙티브 View로)
+  - 수면 일수를 텍스트("337일")에서 pill 배지("337일째")로 변경, 180일 이상 장기 수면은 danger 톤으로 강조
+  - 빈 상태에 "필터 초기화" 버튼 추가(기존 clearFilters 연결) — 안내문만 있고 복구 동선이 없던 문제
+- app/(tabs)/more.tsx — SleepingItemList에 hasActiveFilter/onClearFilters 전달
+
+### 피드백만 (이슈 #74에 기록, 별도 작업 제안)
+- 화면 전체가 mock 데이터(SLEEPING_ITEMS) — itemStore·outfitStore 실데이터로 "마지막 착용일" 계산 가능 (PRD 핵심 요구의 실구현)
+- 카테고리 체계가 앱 표준(top/bottom/shoes/bag/accessory)과 불일치 — 실데이터 전환 시 정리
+- 카테고리 탭·툴바 sticky 고정 검토
+
+### 검증
+- npx tsc --noEmit → PASS
+- npx expo lint → PASS
+## 2026-06-11 (월간 리포트 피드백 반영: 색상명 표시·집계 기준·레이아웃 정렬)
+
+### 처리 항목
+- 이슈 #71 / 작업 브랜치: feature/monthly-stats-feedback (PR #70 머지로 develop 정상화 → develop 위로 리베이스, PR #72 base를 develop으로 전환)
+- 월간 리포트 화면 검토 후 버그·UX 문제 반영 + 색상 방향 결정 반영
+
+### 신규/변경
+- constants/colorPalette.ts 신규 — 8색 공용 팔레트 + hex→팔레트 최근접 매칭(resolvePaletteColor). app/item-new.tsx의 로컬 COLOR_OPTIONS/COLOR_LABELS을 이 모듈 기반으로 교체(중복 제거)
+- lib/monthlyStats.ts — 색상 집계를 hex 원값 대신 팔레트 색상명 기준으로 그룹화(#1C1C1C·#2A2A2A → 블랙). **색상 방향 결정: 색은 옷이 가진 속성으로 보고 카탈로그(개발자 큐레이션)·사용자 아이템을 모두 집계**(어제 검토 중 논의된 "카탈로그 제외"안은, 개발자가 카탈로그 색을 의미 있게 등록하기로 하면서 철회). topItems에 id 포함, 0% 항목 필터
+- components/monthly-stats/TopColorsCard.tsx — 범례에 hex 대신 색상명 표시, 방어용 빈 상태(아이템 삭제로 색 못 구한 경우) 추가
+- components/monthly-stats/TopItemsCard.tsx — React key를 label(중복 가능) → id로
+- components/monthly-stats/TopStylesCard.tsx — 태그/횟수가 좌우로 분리돼 대응을 알 수 없던 레이아웃을 행 단위(태그+횟수)로 재구성
+- components/monthly-stats/TotalOutfitsCard.tsx — diff 0일 때 "지난 달보다 0회 ↑" → "지난 달과 동일"(중립색)
+- components/monthly-stats/MonthNavigator.tsx — nextDisabled prop 추가(미래 달 이동 차단), 접근성 라벨 보강
+- app/(tabs)/stats.tsx — 월간 카드(월 의존)를 먼저, 옷장 현황 카드(월 무관)를 뒤로 재배치. 현재 달에서 다음 달 버튼 비활성화. 공유 메시지 색상도 색상명으로 표기
+- TODO.md — "색상 방향(2026-06-11 결정)" 섹션 추가: 현재=색은 옷 속성·모두 집계, 확장=방향 3(확장 B, 기본색+선택 시 색 변경 옵션, 피로감 최소화). Post-MVP 항목을 확장 B 기준으로 갱신
+
+### 검증
+- npx tsc --noEmit → PASS
+- npx expo lint → PASS (exit 0)
+- Metro(8081) iOS 번들 200 정상
 
 ## 2026-06-11 (fix: homeHint.ts 병합 오류 수정 — develop 빌드 실패 해소)
 
