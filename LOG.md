@@ -11,7 +11,7 @@
 - stores/outfitStore.ts — NewOutfit/Outfit에 itemColors(Record<itemId,hex>) 추가, mapRow 폴백(`?? {}`), insert payload에 item_colors
 - lib/database.types.ts — outfits Row/Insert/Update에 item_colors 추가
 - hooks/useSaveOutfitForm.ts — itemIds→items 입력 변경, 아이템별 색상 상태/기본값/setItemColor 추가
-- components/save-outfit/ItemColorPicker.tsx — 신규. 착용 아이템별 8색 팔레트 선택 UI
+- components/save-outfit/ItemColorPicker.tsx — 신규. 착용 아이템별 색상 선택 UI. **접이식(아코디언)**: 기본은 현재 색만 표시, 탭한 아이템만 팔레트 펼침, 선택 시 접힘 (선택 피로도 최소화 — TODO 색상 방향 노트 반영)
 - components/SaveOutfitSheet.tsx — items prop 수신 + 색상 섹션 렌더
 - app/(tabs)/create.tsx — SaveOutfitSheet에 equippedItems 전달
 - lib/monthlyStats.ts — `outfit.itemColors[itemId] ?? item.color`로 집계
