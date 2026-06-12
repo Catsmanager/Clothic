@@ -1,8 +1,9 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
-import type { SleepingItem } from '../../constants/sleepingWardrobe'
+import { SLEEPING_THRESHOLD_DAYS, type SleepingItem } from '../../constants/sleepingWardrobe'
 import { radius, spacing } from '../../constants/spacing'
+import { getSleepingDays } from '../../lib/sleepingWardrobe'
 
 // 이 일수 이상 잠든 아이템은 배지를 강조색으로 표시한다.
 const LONG_SLEEP_DAYS = 180
@@ -17,9 +18,15 @@ export default function SleepingItemList({ items, hasActiveFilter = false, onCle
   if (items.length === 0) {
     return (
       <View style={styles.emptyCard}>
-        <Feather name="search" size={22} color={colors.textMuted} />
-        <Text style={styles.emptyTitle}>조건에 맞는 옷이 없어요</Text>
-        <Text style={styles.emptyDesc}>필터를 줄이거나 다른 카테고리를 선택해보세요.</Text>
+        <Feather name={hasActiveFilter ? 'search' : 'moon'} size={22} color={colors.textMuted} />
+        <Text style={styles.emptyTitle}>
+          {hasActiveFilter ? '조건에 맞는 옷이 없어요' : '아직 잠자는 옷이 없어요'}
+        </Text>
+        <Text style={styles.emptyDesc}>
+          {hasActiveFilter
+            ? '필터를 줄이거나 다른 카테고리를 선택해보세요.'
+            : `마지막 착용 후 ${SLEEPING_THRESHOLD_DAYS}일이 지난 아이템이 생기면 여기에 모아드려요.`}
+        </Text>
         {hasActiveFilter && onClearFilters != null && (
           <TouchableOpacity
             style={styles.clearButton}
@@ -65,14 +72,6 @@ export default function SleepingItemList({ items, hasActiveFilter = false, onCle
       })}
     </View>
   )
-}
-
-function getSleepingDays(lastWorn: string): number {
-  const [year, month, day] = lastWorn.split('.').map(Number)
-  const lastWornDate = new Date(year, month - 1, day)
-  const today = new Date()
-  const diffTime = today.getTime() - lastWornDate.getTime()
-  return Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)))
 }
 
 const styles = StyleSheet.create({

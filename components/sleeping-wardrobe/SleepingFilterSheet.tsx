@@ -9,7 +9,11 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons'
-import { SLEEPING_CATEGORIES, type SleepingCategory } from '../../constants/sleepingWardrobe'
+import {
+  SLEEPING_CATEGORIES,
+  sleepingCategoryLabel,
+  type SleepingCategory,
+} from '../../constants/sleepingWardrobe'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 
@@ -76,11 +80,11 @@ export default function SleepingFilterSheet({
                     style={[styles.chip, active && styles.chipActive]}
                     onPress={() => onSelectCategory(category)}
                     accessibilityRole="button"
-                    accessibilityLabel={`${category} 분류 필터`}
+                    accessibilityLabel={`${sleepingCategoryLabel(category)} 분류 필터`}
                     accessibilityState={{ selected: active }}
                   >
                     <Text style={[styles.chipText, active && styles.chipTextActive]}>
-                      {category}
+                      {sleepingCategoryLabel(category)}
                     </Text>
                   </TouchableOpacity>
                 )

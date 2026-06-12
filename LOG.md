@@ -1,5 +1,34 @@
 # LOG
 
+## 2026-06-12 (feat: 잠자는 옷장 실데이터 전환 — mock 제거, outfits 기반 역산)
+
+### 처리 항목
+- 이슈 #80 / 작업 브랜치: feature/sleeping-wardrobe-real-data
+- 잠자는 옷장 화면의 mock 데이터(SLEEPING_ITEMS 18종)를 제거하고 DATA_MODEL.md 계산 규칙(outfits에서 마지막 착용일 역산 → 30일 이상)을 실구현
+
+### 신규/변경
+- constants/sleepingWardrobe.ts — mock 18종·고정 카운트 제거. SleepingCategory를 앱 표준(top/bottom/shoes/hair/accessory)으로 통일(#74 피드백), SLEEPING_THRESHOLD_DAYS(30)·라벨 헬퍼 추가
+- lib/sleepingWardrobe.ts 신규 — buildSleepingItems(outfits, items): 아이템별 마지막 착용일 역산 후 30일 이상만 반환. getSleepingDays 공용화(SleepingItemList의 중복 구현 제거)
+- hooks/useSleepingWardrobe.ts — itemStore(카탈로그+사용자 아이템)·outfitStore 실데이터 연결, fetch on mount, 카테고리별 counts·totalCount 노출. 필터/정렬 로직은 유지
+- components/sleeping-wardrobe/SleepingCategoryTabs.tsx — counts prop화, 새 카테고리 라벨·아이콘(신발 footsteps, 헤어 cut, 악세서리 glasses)
+- components/sleeping-wardrobe/SleepingFilterSheet.tsx — 분류 칩 한글 라벨 매핑 (세부 필터는 styleTags 기반)
+- components/sleeping-wardrobe/SleepingItemList.tsx — "데이터 없음"(아직 잠자는 옷이 없어요)과 "필터 결과 없음" 빈 상태 구분
+- app/(tabs)/more.tsx — 훅의 totalCount/counts 연결
+
+### 리뷰에서 확인한 사항
+- 착용 기록이 없는 아이템은 판정 기준일이 없어 제외(DATA_MODEL 규칙 그대로). "등록만 하고 한 번도 안 입은 사용자 아이템"을 포함할지는 정책 결정 필요 — 후속 검토
+- 카탈로그 아이템의 잠자는 판정은 outfits.item_ids 마이그레이션(#78) 적용 후부터 동작 (현재 DB는 uuid[]라 카탈로그 id가 코디에 저장되지 못함)
+
+### 검증 (실기동, Expo web + Playwright + Supabase 픽스처)
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+- 픽스처(사용자 아이템 3종 + 코디 3건: 63일 전·42일 전·2일 전)로 확인:
+  - 잠자는 옷 2개 집계 (2일 전 착용 아이템은 제외) / 카테고리 카운트 전체2·상의1·신발1·나머지0
+  - 수면일수 배지 63일째·42일째, 마지막 착용일 표기 정확
+  - 정렬 토글(오래된 순↔최신 순) 순서 반전 확인
+  - 빈 카테고리 탭 → "조건에 맞는 옷이 없어요" + 필터 초기화 동작
+  - 필터 시트: 분류 한글 라벨, styleTags 세부 필터(vintage → 부츠만) 동작
+  - 픽스처 삭제 후 기본 빈 상태 "아직 잠자는 옷이 없어요" 표시 확인 (검증 데이터 정리 완료)
+
 ## 2026-06-12 (fix: 코디 저장 실패 원인 규명 — outfits.item_ids uuid[]→text[] 마이그레이션)
 
 ### 처리 항목

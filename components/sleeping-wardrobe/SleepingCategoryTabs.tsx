@@ -4,17 +4,18 @@ import { Feather, Ionicons } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import {
   SLEEPING_CATEGORIES,
-  SLEEPING_CATEGORY_COUNT,
+  sleepingCategoryLabel,
   type SleepingCategory,
 } from '../../constants/sleepingWardrobe'
 import { radius, spacing } from '../../constants/spacing'
 
 interface Props {
+  counts: Record<SleepingCategory, number>
   selectedCategory: SleepingCategory
   onCategoryPress: (category: SleepingCategory) => void
 }
 
-export default function SleepingCategoryTabs({ selectedCategory, onCategoryPress }: Props) {
+export default function SleepingCategoryTabs({ counts, selectedCategory, onCategoryPress }: Props) {
   return (
     <ScrollView
       horizontal
@@ -28,7 +29,7 @@ export default function SleepingCategoryTabs({ selectedCategory, onCategoryPress
           style={[styles.categoryTab, selectedCategory === category && styles.categoryTabActive]}
           onPress={() => onCategoryPress(category)}
           accessibilityRole="button"
-          accessibilityLabel={`${category} 카테고리, ${SLEEPING_CATEGORY_COUNT[category]}개`}
+          accessibilityLabel={`${sleepingCategoryLabel(category)} 카테고리, ${counts[category]}개`}
           accessibilityState={{ selected: selectedCategory === category }}
         >
           <CategoryIcon category={category} active={selectedCategory === category} />
@@ -38,7 +39,7 @@ export default function SleepingCategoryTabs({ selectedCategory, onCategoryPress
               selectedCategory === category && styles.categoryTabTextActive,
             ]}
           >
-            {category}
+            {sleepingCategoryLabel(category)}
           </Text>
           <View
             style={[styles.countBadge, selectedCategory === category && styles.countBadgeActive]}
@@ -46,7 +47,7 @@ export default function SleepingCategoryTabs({ selectedCategory, onCategoryPress
             <Text
               style={[styles.countText, selectedCategory === category && styles.countTextActive]}
             >
-              {SLEEPING_CATEGORY_COUNT[category]}
+              {counts[category]}
             </Text>
           </View>
         </TouchableOpacity>
@@ -59,11 +60,11 @@ function CategoryIcon({ active, category }: { active: boolean; category: Sleepin
   const color = active ? colors.white : colors.textMuted
   const iconMap: Record<SleepingCategory, ReactNode> = {
     전체: <Feather name="grid" size={14} color={color} />,
-    상의: <Ionicons name="shirt-outline" size={18} color={color} />,
-    하의: <Feather name="align-justify" size={18} color={color} />,
-    원피스: <Ionicons name="body-outline" size={18} color={color} />,
-    아우터: <Ionicons name="layers-outline" size={18} color={color} />,
-    '신발/가방': <Ionicons name="bag-outline" size={18} color={color} />,
+    top: <Ionicons name="shirt-outline" size={18} color={color} />,
+    bottom: <Feather name="align-justify" size={18} color={color} />,
+    shoes: <Ionicons name="footsteps-outline" size={18} color={color} />,
+    hair: <Ionicons name="cut-outline" size={18} color={color} />,
+    accessory: <Ionicons name="glasses-outline" size={18} color={color} />,
   }
   return <>{iconMap[category]}</>
 }
