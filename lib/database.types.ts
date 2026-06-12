@@ -9,16 +9,22 @@ export interface Database {
           id: string
           username: string | null
           created_at: string
+          daily_reminder_enabled: boolean
+          sleeping_wardrobe_enabled: boolean
         }
         Insert: {
           id: string
           username?: string | null
           created_at?: string
+          daily_reminder_enabled?: boolean
+          sleeping_wardrobe_enabled?: boolean
         }
         Update: {
           id?: string
           username?: string | null
           created_at?: string
+          daily_reminder_enabled?: boolean
+          sleeping_wardrobe_enabled?: boolean
         }
         Relationships: []
       }
