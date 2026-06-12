@@ -1,19 +1,26 @@
-import { ScrollView, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import {
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  type ImageSourcePropType,
+} from 'react-native'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import { CATEGORY_LABELS, ITEM_CATEGORIES, type Category } from '../../constants/items'
 
-const CATEGORY_EMOJI: Record<Category, string> = {
-  top: '👕',
-  bottom: '👖',
-  shoes: '👟',
-  hair: '💇',
-  accessory: '⭐',
+const CATEGORY_ICONS: Record<Category, ImageSourcePropType> = {
+  top: require('../../assets/category-icons/rail/top.png'),
+  bottom: require('../../assets/category-icons/rail/bottom.png'),
+  shoes: require('../../assets/category-icons/rail/shoes.png'),
+  hair: require('../../assets/category-icons/rail/hair.png'),
+  accessory: require('../../assets/category-icons/rail/accessory.png'),
 }
 
 const BACKGROUND_OPTION = {
   key: 'background',
-  emoji: '🖼️',
+  icon: require('../../assets/category-icons/rail/background.png'),
   label: '배경',
 }
 
@@ -35,7 +42,7 @@ export default function CategoryRail({ activeCategory, onCategoryPress }: Props)
           style={[styles.categoryItem, activeCategory === category && styles.categoryItemActive]}
           onPress={() => onCategoryPress(category)}
         >
-          <Text style={styles.categoryEmoji}>{CATEGORY_EMOJI[category]}</Text>
+          <CategoryIcon source={CATEGORY_ICONS[category]} />
           <Text
             style={[
               styles.categoryLabel,
@@ -47,10 +54,21 @@ export default function CategoryRail({ activeCategory, onCategoryPress }: Props)
         </TouchableOpacity>
       ))}
       <TouchableOpacity style={styles.categoryItem}>
-        <Text style={styles.categoryEmoji}>{BACKGROUND_OPTION.emoji}</Text>
+        <CategoryIcon source={BACKGROUND_OPTION.icon} />
         <Text style={styles.categoryLabel}>{BACKGROUND_OPTION.label}</Text>
       </TouchableOpacity>
     </ScrollView>
+  )
+}
+
+function CategoryIcon({ source }: { source: ImageSourcePropType }) {
+  return (
+    <Image
+      source={source}
+      style={styles.categoryIcon}
+      resizeMode="contain"
+      accessibilityIgnoresInvertColors
+    />
   )
 }
 
@@ -82,9 +100,9 @@ const styles = StyleSheet.create({
   categoryItemActive: {
     backgroundColor: colors.primary,
   },
-  categoryEmoji: {
-    fontSize: 16,
-    lineHeight: 18,
+  categoryIcon: {
+    width: 30,
+    height: 24,
   },
   categoryLabel: {
     fontSize: 10,

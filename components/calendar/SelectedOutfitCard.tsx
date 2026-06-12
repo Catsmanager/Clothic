@@ -1,9 +1,10 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import { CATEGORY_LABELS, type CatalogItem } from '../../constants/items'
 import { formatKoreanMonthDayWithWeekday } from '../../lib/date'
+import { getAvatarItemAsset, getAvatarItemPreviewStyle } from '../../lib/avatarAssets'
 import { MOOD_LABELS, WEATHER_LABELS, type Outfit } from '../../stores/outfitStore'
 
 interface Props {
@@ -31,14 +32,17 @@ export default function SelectedOutfitCard({ dateKey, items, outfit, onPress }: 
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.itemRow}
       >
-        {items.map((item) => (
-          <View key={item.id} style={styles.itemThumb}>
-            <View style={[styles.itemColor, { backgroundColor: item.color }]} />
-            <Text style={styles.itemCategory} numberOfLines={1}>
-              {CATEGORY_LABELS[item.category]}
+        {items.length > 0 ? (
+          items.map((item) => <SelectedItemThumb key={item.id} item={item} />)
+        ) : (
+          <View style={styles.emptyItems}>
+            <Text style={styles.emptyItemsText}>
+              {outfit.itemIds.length > 0
+                ? '아이템 정보를 불러오는 중입니다'
+                : '저장된 아이템이 없습니다'}
             </Text>
           </View>
-        ))}
+        )}
       </ScrollView>
 
       <View style={styles.memoRow}>
@@ -49,6 +53,29 @@ export default function SelectedOutfitCard({ dateKey, items, outfit, onPress }: 
         </Text>
       </View>
     </Pressable>
+  )
+}
+
+function SelectedItemThumb({ item }: { item: CatalogItem }) {
+  const asset = getAvatarItemAsset(item.id)
+
+  return (
+    <View style={styles.itemThumb}>
+      <View style={styles.itemPreview}>
+        {asset ? (
+          <Image
+            source={asset.source}
+            style={[styles.itemAssetImage, getAvatarItemPreviewStyle(item.id, 56)]}
+            resizeMode="contain"
+          />
+        ) : (
+          <View style={[styles.itemColor, { backgroundColor: item.color }]} />
+        )}
+      </View>
+      <Text style={styles.itemCategory} numberOfLines={1}>
+        {CATEGORY_LABELS[item.category]}
+      </Text>
+    </View>
   )
 }
 
@@ -102,6 +129,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 5,
   },
+  itemPreview: {
+    width: 56,
+    height: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  itemAssetImage: {
+    position: 'absolute',
+    alignSelf: 'center',
+  },
   itemColor: {
     width: 34,
     height: 34,
@@ -113,6 +151,15 @@ const styles = StyleSheet.create({
     maxWidth: 58,
     fontSize: 10,
     fontWeight: '600',
+    color: colors.textMuted,
+  },
+  emptyItems: {
+    minHeight: 66,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.sm,
+  },
+  emptyItemsText: {
+    fontSize: 13,
     color: colors.textMuted,
   },
   memoRow: {
