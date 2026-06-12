@@ -1,6 +1,5 @@
 import {
   FlatList,
-  Image,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -12,7 +11,7 @@ import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import { type CatalogItem, type Category } from '../../constants/items'
-import { getAvatarItemAsset, getAvatarItemPreviewStyle } from '../../lib/avatarAssets'
+import ItemPreviewThumb from '../ItemPreviewThumb'
 
 const COLUMN_COUNT = 4
 const ITEM_GAP = spacing.sm
@@ -103,19 +102,7 @@ export default function ItemPickerPanel({
 }
 
 function ItemPreview({ item, itemSize }: { item: CatalogItem; itemSize: number }) {
-  const asset = getAvatarItemAsset(item.id)
-
-  if (asset == null) {
-    return <View style={[styles.itemColorBox, { backgroundColor: item.color }]} />
-  }
-
-  return (
-    <Image
-      source={asset.source}
-      style={[styles.itemAssetImage, getAvatarItemPreviewStyle(item.id, itemSize)]}
-      resizeMode="contain"
-    />
-  )
+  return <ItemPreviewThumb item={item} size={itemSize} />
 }
 
 const styles = StyleSheet.create({
@@ -181,15 +168,6 @@ const styles = StyleSheet.create({
   itemCardSelected: {
     borderWidth: 2,
     borderColor: colors.accent,
-  },
-  itemColorBox: {
-    width: '70%',
-    height: '70%',
-    borderRadius: 4,
-  },
-  itemAssetImage: {
-    position: 'absolute',
-    alignSelf: 'center',
   },
   emptyState: {
     flex: 1,

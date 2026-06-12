@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import type { MonthData } from '../../lib/monthlyStats'
+import ItemPreviewThumb from '../ItemPreviewThumb'
 import StatsCard from './StatsCard'
 
 interface Props {
@@ -14,7 +15,9 @@ export default function TopItemsCard({ topItems }: Props) {
       <View style={styles.itemList}>
         {topItems.map((item) => (
           <View key={item.id} style={styles.itemRow}>
-            <View style={[styles.itemIcon, { backgroundColor: item.color }]} />
+            <View style={styles.itemIcon}>
+              <ItemPreviewThumb item={item} size={36} />
+            </View>
             <Text style={styles.itemName}>{item.label}</Text>
             <Text style={styles.itemCount}>{item.count}회</Text>
           </View>
@@ -37,6 +40,10 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: radius.sm,
+    backgroundColor: colors.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   itemName: {
     flex: 1,

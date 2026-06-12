@@ -4,6 +4,7 @@ import { colors } from '../../constants/colors'
 import { SLEEPING_THRESHOLD_DAYS, type SleepingItem } from '../../constants/sleepingWardrobe'
 import { radius, spacing } from '../../constants/spacing'
 import { getSleepingDays } from '../../lib/sleepingWardrobe'
+import ItemPreviewThumb from '../ItemPreviewThumb'
 
 // 이 일수 이상 잠든 아이템은 배지를 강조색으로 표시한다.
 const LONG_SLEEP_DAYS = 180
@@ -14,7 +15,11 @@ interface Props {
   onClearFilters?: () => void
 }
 
-export default function SleepingItemList({ items, hasActiveFilter = false, onClearFilters }: Props) {
+export default function SleepingItemList({
+  items,
+  hasActiveFilter = false,
+  onClearFilters,
+}: Props) {
   if (items.length === 0) {
     return (
       <View style={styles.emptyCard}>
@@ -51,7 +56,7 @@ export default function SleepingItemList({ items, hasActiveFilter = false, onCle
         return (
           <View key={item.id} style={styles.itemCard}>
             <View style={styles.thumbnailWrap}>
-              <View style={[styles.itemThumbnail, { backgroundColor: item.color }]} />
+              <ItemPreviewThumb item={item} size={58} />
             </View>
             <View style={styles.itemInfo}>
               <Text style={styles.itemName} numberOfLines={1}>
@@ -99,11 +104,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  itemThumbnail: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.sm,
   },
   itemInfo: {
     flex: 1,

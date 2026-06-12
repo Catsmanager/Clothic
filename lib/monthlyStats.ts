@@ -7,7 +7,7 @@ export interface MonthData {
   totalOutfits: number
   diffFromLastMonth: number
   topColors: { label: string; color: string; percent: number }[]
-  topItems: { id: string; label: string; color: string; count: number }[]
+  topItems: { id: string; label: string; color: string; imagePath?: string; count: number }[]
   topStyles: { tag: string; count: number }[]
 }
 
@@ -25,7 +25,10 @@ export function buildMonthData(
 
   if (currentOutfits.length === 0) return null
 
-  const itemCounts = new Map<string, { id: string; label: string; color: string; count: number }>()
+  const itemCounts = new Map<
+    string,
+    { id: string; label: string; color: string; imagePath?: string; count: number }
+  >()
   const colorCounts = new Map<string, { label: string; color: string; count: number }>()
   const styleCounts = new Map<string, { tag: string; count: number }>()
 
@@ -39,6 +42,7 @@ export function buildMonthData(
         id: item.id,
         label: item.name,
         color: item.color,
+        imagePath: item.imagePath,
         count: (itemCount?.count ?? 0) + 1,
       })
 

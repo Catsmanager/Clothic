@@ -12,6 +12,7 @@ export interface SleepingItem {
   tags: string[]
   lastWorn: string // YYYY.MM.DD
   color: string
+  imagePath?: string
   category: Category
 }
 

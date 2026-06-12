@@ -1,6 +1,6 @@
 import { Image, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 import { RENDER_ORDER, type CatalogItem } from '../constants/items'
-import { getAvatarItemAsset } from '../lib/avatarAssets'
+import { getItemImageSource, getItemLayerStyle } from '../lib/itemVisuals'
 
 const BASE_AVATAR = require('../assets/avatar/base/base_female_01.png')
 
@@ -18,14 +18,14 @@ export default function OutfitAvatar({ style, items = [] }: Props) {
     <View style={[styles.root, style]}>
       <Image source={BASE_AVATAR} style={styles.layerImage} resizeMode="contain" />
       {layeredItems.map((item) => {
-        const asset = getAvatarItemAsset(item.id)
-        if (asset == null) return null
+        const source = getItemImageSource(item)
+        if (source == null) return null
 
         return (
           <Image
             key={item.id}
-            source={asset.source}
-            style={[styles.layerImage, asset.layerStyle]}
+            source={source}
+            style={[styles.layerImage, getItemLayerStyle(item)]}
             resizeMode="contain"
           />
         )
