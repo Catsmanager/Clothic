@@ -1,5 +1,27 @@
 # LOG
 
+## 2026-06-12 (feat: 빈 코디 저장 차단 + 통계 색상/스타일 실데이터 검증)
+
+### 처리 항목
+- 이슈 #82 / 작업 브랜치: feature/empty-outfit-save-guard
+- ① 아이템 0개로 코디 저장이 가능하던 문제 → 저장 버튼 비활성으로 차단·유도
+- ② 사용자 등록 아이템의 월간 리포트 색상 집계 실기동 검증
+- ③ "많이 입은 스타일" 카드 구현 가능성 판단 → **유지 결정** (PRD 핵심 기능 "스타일 분석" 명시 + 아이템 등록 시 스타일 태그 선택 + monthlyStats 집계 이미 동작. 비어 보였던 건 코디 저장 실패(#78)로 데이터가 없었기 때문)
+
+### 신규/변경
+- components/outfit-editor/CreateHeader.tsx — saveDisabled prop 추가 (item-new 저장 버튼의 disabled 관례와 동일: opacity 0.35 + accessibilityState + 접근성 힌트)
+- app/(tabs)/create.tsx — 장착 아이템 0개면 저장 버튼 비활성
+
+### 검증 (실기동, Expo web + Playwright)
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+- 저장 가드: 빈 코디에서 aria-disabled=true·강제 클릭에도 시트 안 열림 / 장착 시 활성·시트 열림 / 해제 시 다시 비활성
+- 아이템 등록(UI) → 코디 저장(사용자 아이템 2종) → /outfits 정상 (사용자 아이템은 uuid라 마이그레이션 없이도 저장 가능)
+- 통계: 색상 "레드 50% / 블루 50%" 팔레트 이름으로 정확 집계, 아이템 TOP 5 정상, **스타일 #feminine/#chic/#casual 각 1회 정상 집계** — 검증 데이터 정리 완료
+
+### 남은 문제
+- outfits.item_ids 마이그레이션(#78)은 여전히 미적용 — 카탈로그 아이템(top_002 등) 코디 저장은 계속 실패 상태 (사용자 작업 필요)
+- 스타일 카드 표기가 영문 태그(#feminine)인데 아이템 등록 화면은 한글(페미닌) — 한글 라벨 통일을 후속 작업으로 제안
+
 ## 2026-06-12 (fix: 코디 저장 실패 원인 규명 — outfits.item_ids uuid[]→text[] 마이그레이션)
 
 ### 처리 항목
