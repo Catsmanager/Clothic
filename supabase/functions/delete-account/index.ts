@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
     // 2) service_role로 사용자 데이터 삭제 (RLS 우회)
     const admin = createClient(supabaseUrl, serviceRoleKey)
 
-    const tables = ['outfits', 'items'] as const
+    const tables = ['notifications', 'outfits', 'items'] as const
     for (const table of tables) {
       const { error } = await admin.from(table).delete().eq('user_id', uid)
       if (error) {

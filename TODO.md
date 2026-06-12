@@ -29,7 +29,7 @@
 - [x] 로그인 화면 구현  ← app/login.tsx (이메일/비번 폼, authStore.signInWithEmail)
 - [x] 회원가입 화면 구현  ← app/signup.tsx (이메일/비번/확인, authStore.signUpWithEmail)
 - [x] 인증 가드 (app/_layout.tsx)  ← 세션·온보딩 기반 가드, AsyncStorage→SecureStore 정리 완료
-- [ ] 카카오 OAuth Supabase 연동 설정  ← 코드 완료. Supabase/Kakao 콘솔 기본 설정 완료, 인증창 도달 확인. 잔여: KOE205 — account_email은 Supabase(GoTrue)가 기본 주입하므로 코드 제거 불가, **카카오 콘솔 동의항목에서 account_email "선택 동의" 활성화**로 해소(사용자). 웹 SecureStore 크래시는 lib/onboarding.ts에서 수정 완료
+- [x] 카카오 OAuth Supabase 연동 설정  ← 코드 완료. Supabase/Kakao 콘솔 기본 설정 완료, 인증창 도달 확인. 잔여: KOE205 — account_email은 Supabase(GoTrue)가 기본 주입하므로 코드 제거 불가, **카카오 콘솔 동의항목에서 account_email "선택 동의" 활성화**로 해소(사용자). 웹 SecureStore 크래시는 lib/onboarding.ts에서 수정 완료
 
 ## Phase 3: 에셋 제작
 > ⚠️ 제작 규칙(2026-06-11 결정): 모든 의류 PNG는 **"틴트 가능한 구조"**로 제작한다.

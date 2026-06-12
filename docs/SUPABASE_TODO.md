@@ -47,6 +47,20 @@ create table if not exists outfits (
   is_favorite boolean not null default false,
   created_at timestamptz default now()
 );
+
+create table if not exists notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users not null,
+  type text not null,
+  icon text not null,
+  title text not null,
+  body text not null,
+  read boolean not null default false,
+  created_at timestamptz default now()
+);
+
+create index if not exists notifications_user_created_at_idx
+  on notifications (user_id, created_at desc);
 ```
 
 ## 3. 기존 테이블 마이그레이션
@@ -79,6 +93,7 @@ Supabase Dashboard → Authentication을 사용하는 사용자별 데이터이�
 alter table profiles enable row level security;
 alter table items enable row level security;
 alter table outfits enable row level security;
+alter table notifications enable row level security;
 
 drop policy if exists "own profile" on profiles;
 create policy "own profile" on profiles
@@ -94,6 +109,12 @@ create policy "own items" on items
 
 drop policy if exists "own outfits" on outfits;
 create policy "own outfits" on outfits
+  for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop policy if exists "own notifications" on notifications;
+create policy "own notifications" on notifications
   for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
@@ -165,6 +186,6 @@ Supabase Edge Function 런타임에서 아래 값은 기본 제공됩니다.
 - [ ] 저장한 코디 목록/상세 조회 성공
 - [ ] 즐겨찾기 토글 성공: `outfits.is_favorite` 업데이트
 - [ ] 아이템 등록 성공: `items` insert
+- [ ] 알림센터 조회/읽음/삭제 성공: `notifications` select/update/delete
 - [ ] 다른 계정 데이터가 보이지 않음 (RLS 확인)
-- [ ] 계정 삭제 성공: `profiles`, `items`, `outfits`, `auth.users` 삭제
-
+- [ ] 계정 삭제 성공: `profiles`, `items`, `outfits`, `notifications`, `auth.users` 삭제

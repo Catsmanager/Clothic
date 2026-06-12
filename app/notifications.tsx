@@ -1,31 +1,34 @@
-import { useState } from 'react'
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useEffect } from 'react'
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons'
 import SettingsHeader from '../components/settings/SettingsHeader'
 import NotificationItem from '../components/notifications/NotificationItem'
-import { MOCK_NOTIFICATIONS, type AppNotification } from '../constants/notifications'
 import { colors } from '../constants/colors'
 import { spacing } from '../constants/spacing'
+import { useNotificationStore } from '../stores/notificationStore'
 
 export default function NotificationCenterScreen() {
-  const [notifications, setNotifications] = useState<AppNotification[]>(MOCK_NOTIFICATIONS)
+  const notifications = useNotificationStore((s) => s.notifications)
+  const loading = useNotificationStore((s) => s.loading)
+  const error = useNotificationStore((s) => s.error)
+  const fetchNotifications = useNotificationStore((s) => s.fetchNotifications)
+  const markRead = useNotificationStore((s) => s.markRead)
+  const markAllRead = useNotificationStore((s) => s.markAllRead)
+  const removeNotification = useNotificationStore((s) => s.removeNotification)
+
+  useEffect(() => {
+    fetchNotifications()
+  }, [fetchNotifications])
 
   const hasUnread = notifications.some((item) => !item.read)
-
-  function markRead(id: string) {
-    setNotifications((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, read: true } : item))
-    )
-  }
-
-  function markAllRead() {
-    setNotifications((prev) => prev.map((item) => ({ ...item, read: true })))
-  }
-
-  function removeNotification(id: string) {
-    setNotifications((prev) => prev.filter((item) => item.id !== id))
-  }
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -42,7 +45,18 @@ export default function NotificationCenterScreen() {
         </TouchableOpacity>
       )}
 
-      {notifications.length === 0 ? (
+      {loading ? (
+        <View style={styles.empty}>
+          <ActivityIndicator color={colors.text} />
+          <Text style={styles.emptyText}>알림을 불러오고 있어요</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.empty}>
+          <Feather name="alert-circle" size={32} color={colors.textMuted} />
+          <Text style={styles.emptyText}>알림을 불러오지 못했어요</Text>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : notifications.length === 0 ? (
         <View style={styles.empty}>
           <Feather name="bell-off" size={32} color={colors.textMuted} />
           <Text style={styles.emptyText}>새로운 알림이 없어요</Text>
@@ -91,5 +105,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: colors.textMuted,
+  },
+  errorText: {
+    maxWidth: 280,
+    fontSize: 12,
+    lineHeight: 18,
+    color: colors.textMuted,
+    textAlign: 'center',
   },
 })

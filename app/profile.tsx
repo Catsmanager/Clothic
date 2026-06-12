@@ -13,6 +13,7 @@ export default function ProfileScreen() {
   const signOut = useAuthStore((s) => s.signOut)
   const deleteAccount = useAuthStore((s) => s.deleteAccount)
   const [deleting, setDeleting] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const email = user?.email ?? '로그인 정보 없음'
   const joinedAt = user?.created_at ? new Date(user.created_at).toLocaleDateString('ko-KR') : '-'
 
@@ -26,17 +27,12 @@ export default function ProfileScreen() {
   }
 
   function handleDeleteAccount() {
-    Alert.alert(
-      '계정 삭제',
-      '계정과 모든 코디 기록이 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.',
-      [
-        { text: '취소', style: 'cancel' },
-        { text: '삭제', style: 'destructive', onPress: confirmDeleteAccount },
-      ]
-    )
+    setDeleteConfirmOpen(true)
   }
 
   async function confirmDeleteAccount() {
+    if (deleting) return
+
     setDeleting(true)
     const { error } = await deleteAccount()
     setDeleting(false)
@@ -71,10 +67,37 @@ export default function ProfileScreen() {
         <TouchableOpacity
           style={[styles.deleteButton, deleting && styles.deleteButtonDisabled]}
           onPress={handleDeleteAccount}
-          disabled={deleting}
+          disabled={deleting || deleteConfirmOpen}
         >
           <Text style={styles.deleteText}>{deleting ? '삭제 중...' : '계정 삭제'}</Text>
         </TouchableOpacity>
+
+        {deleteConfirmOpen && (
+          <View style={styles.deleteConfirmCard}>
+            <Text style={styles.deleteConfirmTitle}>정말 계정을 삭제할까요?</Text>
+            <Text style={styles.deleteConfirmDesc}>
+              계정, 저장한 코디, 등록한 아이템이 모두 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+            </Text>
+            <View style={styles.deleteConfirmActions}>
+              <TouchableOpacity
+                style={styles.cancelDeleteButton}
+                onPress={() => setDeleteConfirmOpen(false)}
+                disabled={deleting}
+              >
+                <Text style={styles.cancelDeleteText}>취소</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.confirmDeleteButton, deleting && styles.deleteButtonDisabled]}
+                onPress={confirmDeleteAccount}
+                disabled={deleting}
+              >
+                <Text style={styles.confirmDeleteText}>
+                  {deleting ? '삭제 중...' : '영구 삭제'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   )
@@ -171,6 +194,55 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     fontSize: 15,
+    fontWeight: '700',
+    color: colors.white,
+  },
+  deleteConfirmCard: {
+    backgroundColor: colors.white,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.danger,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  deleteConfirmTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.danger,
+  },
+  deleteConfirmDesc: {
+    fontSize: 13,
+    lineHeight: 19,
+    color: colors.textMuted,
+  },
+  deleteConfirmActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  cancelDeleteButton: {
+    flex: 1,
+    height: 44,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelDeleteText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  confirmDeleteButton: {
+    flex: 1,
+    height: 44,
+    borderRadius: radius.full,
+    backgroundColor: colors.danger,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  confirmDeleteText: {
+    fontSize: 14,
     fontWeight: '700',
     color: colors.white,
   },

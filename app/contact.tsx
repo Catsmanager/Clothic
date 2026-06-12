@@ -5,7 +5,7 @@ import SettingsHeader from '../components/settings/SettingsHeader'
 import { colors } from '../constants/colors'
 import { radius, spacing } from '../constants/spacing'
 
-const SUPPORT_EMAIL = 'support@clothic.app'
+const SUPPORT_EMAIL = 'hyeonjij450@gmail.com'
 
 export default function ContactScreen() {
   return (
