@@ -43,7 +43,11 @@ export default function CreateScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <CreateHeader onBack={handleBack} onSave={() => setSheetVisible(true)} />
+      <CreateHeader
+        saveDisabled={editor.equippedItemIds.length === 0}
+        onBack={handleBack}
+        onSave={() => setSheetVisible(true)}
+      />
 
       <View style={styles.editorBody}>
         <CategoryRail

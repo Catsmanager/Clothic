@@ -4,11 +4,12 @@ import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 
 interface Props {
+  saveDisabled?: boolean
   onBack: () => void
   onSave: () => void
 }
 
-export default function CreateHeader({ onBack, onSave }: Props) {
+export default function CreateHeader({ saveDisabled = false, onBack, onSave }: Props) {
   return (
     <View style={styles.header}>
       <TouchableOpacity
@@ -22,10 +23,13 @@ export default function CreateHeader({ onBack, onSave }: Props) {
       </TouchableOpacity>
       <Text style={styles.headerTitle}>코디 만들기</Text>
       <TouchableOpacity
-        style={styles.saveBtn}
+        style={[styles.saveBtn, saveDisabled && styles.saveBtnDisabled]}
         onPress={onSave}
+        disabled={saveDisabled}
         accessibilityRole="button"
         accessibilityLabel="코디 저장하기"
+        accessibilityHint={saveDisabled ? '아이템을 하나 이상 착용하면 저장할 수 있어요' : undefined}
+        accessibilityState={{ disabled: saveDisabled }}
       >
         <Text style={styles.saveBtnText}>저장</Text>
       </TouchableOpacity>
@@ -57,6 +61,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs + 2,
+  },
+  saveBtnDisabled: {
+    opacity: 0.35,
   },
   saveBtnText: {
     color: colors.white,
