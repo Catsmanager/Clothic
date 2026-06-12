@@ -148,3 +148,4 @@ export const WEATHER_LABELS: Record<Weather, string> = {
   cold: '🥶 추움',
   windy: '💨 바람',
 }
+

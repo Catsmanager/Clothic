@@ -10,7 +10,7 @@ import {
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import type { CatalogItem } from '../../constants/items'
-import { getAvatarItemImage } from '../../lib/avatarAssets'
+import { getAvatarItemAsset, getAvatarItemPreviewStyle } from '../../lib/avatarAssets'
 
 const COLUMN_COUNT = 3
 const CARD_GAP = spacing.sm
@@ -32,6 +32,13 @@ export default function ItemGrid({ items, onItemPress }: Props) {
       numColumns={COLUMN_COUNT}
       contentContainerStyle={styles.gridContent}
       showsVerticalScrollIndicator={false}
+      ListEmptyComponent={
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyStateText}>
+            추후 업데이트될 예정입니다{'\n'}조금만 기다려주세요
+          </Text>
+        </View>
+      }
       renderItem={({ item }) => (
         <TouchableOpacity
           style={[styles.itemWrapper, { width: cardSize }]}
@@ -51,23 +58,16 @@ export default function ItemGrid({ items, onItemPress }: Props) {
 }
 
 function ItemPreview({ item, itemSize }: { item: CatalogItem; itemSize: number }) {
-  const source = getAvatarItemImage(item.id)
+  const asset = getAvatarItemAsset(item.id)
 
-  if (source == null) {
+  if (asset == null) {
     return <View style={[styles.itemColorBox, { backgroundColor: item.color }]} />
   }
 
   return (
     <Image
-      source={source}
-      style={[
-        styles.itemAssetImage,
-        {
-          width: itemSize * 2.2,
-          height: itemSize * 4.4,
-          top: -itemSize * 1.52,
-        },
-      ]}
+      source={asset.source}
+      style={[styles.itemAssetImage, getAvatarItemPreviewStyle(item.id, itemSize)]}
       resizeMode="contain"
     />
   )
@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
   },
   itemAssetImage: {
     position: 'absolute',
+    alignSelf: 'center',
   },
   itemLabel: {
     marginTop: spacing.xs,
@@ -110,5 +111,16 @@ const styles = StyleSheet.create({
     color: colors.text,
     textAlign: 'center',
     fontWeight: '400',
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xxl,
+  },
+  emptyStateText: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: colors.textMuted,
+    textAlign: 'center',
   },
 })

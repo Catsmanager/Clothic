@@ -12,7 +12,7 @@ import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import { type CatalogItem, type Category } from '../../constants/items'
-import { getAvatarItemImage } from '../../lib/avatarAssets'
+import { getAvatarItemAsset, getAvatarItemPreviewStyle } from '../../lib/avatarAssets'
 
 const COLUMN_COUNT = 4
 const ITEM_GAP = spacing.sm
@@ -78,6 +78,13 @@ export default function ItemPickerPanel({
         columnWrapperStyle={styles.gridRow}
         contentContainerStyle={styles.gridContent}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>
+              추후 업데이트될 예정입니다{'\n'}조금만 기다려주세요
+            </Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <TouchableOpacity
             style={[
@@ -96,23 +103,16 @@ export default function ItemPickerPanel({
 }
 
 function ItemPreview({ item, itemSize }: { item: CatalogItem; itemSize: number }) {
-  const source = getAvatarItemImage(item.id)
+  const asset = getAvatarItemAsset(item.id)
 
-  if (source == null) {
+  if (asset == null) {
     return <View style={[styles.itemColorBox, { backgroundColor: item.color }]} />
   }
 
   return (
     <Image
-      source={source}
-      style={[
-        styles.itemAssetImage,
-        {
-          width: itemSize * 2.2,
-          height: itemSize * 4.4,
-          top: -itemSize * 1.52,
-        },
-      ]}
+      source={asset.source}
+      style={[styles.itemAssetImage, getAvatarItemPreviewStyle(item.id, itemSize)]}
       resizeMode="contain"
     />
   )
@@ -189,5 +189,18 @@ const styles = StyleSheet.create({
   },
   itemAssetImage: {
     position: 'absolute',
+    alignSelf: 'center',
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xl,
+  },
+  emptyStateText: {
+    fontSize: 13,
+    lineHeight: 20,
+    color: colors.textMuted,
+    textAlign: 'center',
   },
 })

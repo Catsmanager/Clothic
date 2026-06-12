@@ -1,5 +1,26 @@
 # LOG
 
+## 2026-06-12 (feat: 목데이터 제거 + 가방→헤어 카테고리 교체 + 빈 카테고리 안내 문구)
+
+### 처리 항목
+- 이슈 #76 / 작업 브랜치: feature/real-assets-catalog-cleanup
+- 실제 아바타 PNG 에셋 추가(사용자 제작: top_002, bottom_009~011, shoes_001/002/007, base 갱신)에 맞춰 카탈로그를 실물 기준으로 정리
+
+### 신규/변경
+- constants/itemCatalog.ts — 실제 에셋 보유 7종만 남기고 목데이터 26종 제거 (accessory '없음' 포함)
+- constants/items.ts — Category에서 'bag' → 'hair' 교체. 헤어는 RENDER_ORDER에서 상의 위 레이어. 가방은 accessory 서브카테고리('가방')로 이동
+- components/outfit-editor/CategoryRail.tsx — 카테고리 이모지 👜 → 💇
+- components/outfit-editor/ItemPickerPanel.tsx, components/item-select/ItemGrid.tsx — 빈 카테고리/서브카테고리에 "추후 업데이트될 예정입니다 / 조금만 기다려주세요" 빈 상태 문구 추가
+- lib/avatarAssets.ts — 실제 PNG require 매핑 + 미리보기 스케일(사용자 선행 작업 포함)
+
+### 리뷰에서 확인한 사항
+- 'bag'/'accessory_004' 참조는 constants/items.ts 외에 없음 — 컴포넌트들은 ITEM_CATEGORIES/CATEGORY_LABELS를 동적으로 참조하므로 타입 교체만으로 전파됨
+- 잠자는 옷장의 '신발/가방'은 자체 SleepingCategory 타입(별개 기능)이라 영향 없음
+- 주의: DB(items.category='bag')에 저장된 사용자 아이템이 있다면 isCategory 가드에 걸려 화면에서 제외됨. 과거 코디의 삭제된 목 아이템 id는 렌더 시 자동 무시됨(크래시 없음)
+
+### 검증
+- npx tsc --noEmit → PASS
+- npx expo lint → PASS (error/warning 없음)
 ## 2026-06-11 (잠자는 옷장 피드백 반영: 죽은 어포던스 제거·수면일수 배지·빈 상태 개선)
 
 ### 처리 항목

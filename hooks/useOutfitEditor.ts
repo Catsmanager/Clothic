@@ -46,7 +46,13 @@ export function useOutfitEditor() {
 
   const equipItem = useCallback(
     (item: CatalogItem) => {
-      const next = { ...equipped, [item.category]: item.id }
+      const next = { ...equipped }
+      if (next[item.category] === item.id) {
+        delete next[item.category]
+      } else {
+        next[item.category] = item.id
+      }
+
       const nextHistory = history.slice(0, historyIndex + 1)
       setHistory([...nextHistory, next])
       setHistoryIndex(nextHistory.length)
