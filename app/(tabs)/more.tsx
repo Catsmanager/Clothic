@@ -12,7 +12,6 @@ import SleepingSummaryBanner from '../../components/sleeping-wardrobe/SleepingSu
 import SleepingToolbar from '../../components/sleeping-wardrobe/SleepingToolbar'
 import WardrobeHeader from '../../components/sleeping-wardrobe/WardrobeHeader'
 import { colors } from '../../constants/colors'
-import { SLEEPING_CATEGORY_COUNT } from '../../constants/sleepingWardrobe'
 import { radius, spacing } from '../../constants/spacing'
 import { useSleepingWardrobe } from '../../hooks/useSleepingWardrobe'
 
@@ -45,8 +44,9 @@ export default function WardrobeScreen() {
           </View>
           <Feather name="chevron-right" size={20} color={colors.textMuted} />
         </Pressable>
-        <SleepingSummaryBanner totalCount={SLEEPING_CATEGORY_COUNT['전체']} />
+        <SleepingSummaryBanner totalCount={wardrobe.totalCount} />
         <SleepingCategoryTabs
+          counts={wardrobe.counts}
           selectedCategory={wardrobe.selectedCategory}
           onCategoryPress={wardrobe.setSelectedCategory}
         />
