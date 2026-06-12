@@ -56,13 +56,21 @@ export default function OutfitsScreen() {
     [toggleFavorite]
   )
 
+  const handleBack = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back()
+      return
+    }
+    router.replace('/(tabs)/more')
+  }, [])
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       {/* 헤더 */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.headerBtn}
-          onPress={() => router.back()}
+          onPress={handleBack}
           hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel="뒤로 가기"

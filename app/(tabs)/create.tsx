@@ -18,6 +18,14 @@ export default function CreateScreen() {
   const addOutfit = useOutfitStore((s) => s.addOutfit)
   const editor = useOutfitEditor()
 
+  const handleBack = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back()
+      return
+    }
+    router.replace('/(tabs)')
+  }, [])
+
   const handleSave = useCallback(
     async (input: NewOutfit) => {
       setSaving(true)
@@ -35,7 +43,7 @@ export default function CreateScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <CreateHeader onBack={() => router.back()} onSave={() => setSheetVisible(true)} />
+      <CreateHeader onBack={handleBack} onSave={() => setSheetVisible(true)} />
 
       <View style={styles.editorBody}>
         <CategoryRail
