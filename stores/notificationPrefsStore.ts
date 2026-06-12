@@ -19,8 +19,13 @@ export const useNotificationPrefsStore = create<NotificationPrefsState>((set, ge
 
   fetchPrefs: async () => {
     set({ loading: true })
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { set({ loading: false }); return }
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      set({ loading: false })
+      return
+    }
 
     const { data } = await supabase
       .from('profiles')
@@ -43,18 +48,20 @@ export const useNotificationPrefsStore = create<NotificationPrefsState>((set, ge
     // optimistic update
     set({ [key]: value })
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { set(prev); return }
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      set(prev)
+      return
+    }
 
     const updateData =
       key === 'dailyReminder'
         ? { daily_reminder_enabled: value }
         : { sleeping_wardrobe_enabled: value }
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(updateData)
-      .eq('id', user.id)
+    const { error } = await supabase.from('profiles').update(updateData).eq('id', user.id)
 
     if (error) set(prev)
   },

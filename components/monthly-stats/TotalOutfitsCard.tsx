@@ -9,7 +9,11 @@ interface Props {
 
 export default function TotalOutfitsCard({ diffFromLastMonth, totalOutfits }: Props) {
   const diffStyle =
-    diffFromLastMonth === 0 ? styles.diffSame : diffFromLastMonth > 0 ? styles.diffUp : styles.diffDown
+    diffFromLastMonth === 0
+      ? styles.diffSame
+      : diffFromLastMonth > 0
+        ? styles.diffUp
+        : styles.diffDown
   const diffText =
     diffFromLastMonth === 0
       ? '지난 달과 동일'

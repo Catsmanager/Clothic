@@ -28,7 +28,9 @@ export default function CreateHeader({ saveDisabled = false, onBack, onSave }: P
         disabled={saveDisabled}
         accessibilityRole="button"
         accessibilityLabel="코디 저장하기"
-        accessibilityHint={saveDisabled ? '아이템을 하나 이상 착용하면 저장할 수 있어요' : undefined}
+        accessibilityHint={
+          saveDisabled ? '아이템을 하나 이상 착용하면 저장할 수 있어요' : undefined
+        }
         accessibilityState={{ disabled: saveDisabled }}
       >
         <Text style={styles.saveBtnText}>저장</Text>

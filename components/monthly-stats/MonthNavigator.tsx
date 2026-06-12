@@ -10,10 +10,21 @@ interface Props {
   onPrev: () => void
 }
 
-export default function MonthNavigator({ month, year, nextDisabled = false, onNext, onPrev }: Props) {
+export default function MonthNavigator({
+  month,
+  year,
+  nextDisabled = false,
+  onNext,
+  onPrev,
+}: Props) {
   return (
     <View style={styles.monthNav}>
-      <TouchableOpacity onPress={onPrev} style={styles.navBtn} accessibilityRole="button" accessibilityLabel="이전 달">
+      <TouchableOpacity
+        onPress={onPrev}
+        style={styles.navBtn}
+        accessibilityRole="button"
+        accessibilityLabel="이전 달"
+      >
         <Text style={styles.navArrow}>{'<'}</Text>
       </TouchableOpacity>
       <Text style={styles.monthLabel}>
