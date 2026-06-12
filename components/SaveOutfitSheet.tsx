@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   KeyboardAvoidingView,
   Modal,
@@ -38,8 +39,26 @@ const WEATHERS = Object.keys(WEATHER_LABELS) as Weather[]
 
 export default function SaveOutfitSheet({ visible, items, saving, onClose, onSave }: Props) {
   const insets = useSafeAreaInsets()
-  const { buildInput, itemColors, memo, mood, setItemColor, setMemo, toggleMood, toggleWeather, weather } =
-    useSaveOutfitForm({ items, visible })
+  const {
+    buildInput,
+    itemColors,
+    memo,
+    mood,
+    setItemColor,
+    setMemo,
+    toggleMood,
+    toggleWeather,
+    weather,
+  } = useSaveOutfitForm({ items, visible })
+
+  // 1: 아이템 색상, 2: 날씨/기분/메모. 시트가 열릴 때 1단계로 초기화한다.
+  // (effect 대신 prop 변화 시 렌더 중 보정 — React 권장 패턴)
+  const [step, setStep] = useState<1 | 2>(1)
+  const [wasVisible, setWasVisible] = useState(visible)
+  if (visible !== wasVisible) {
+    setWasVisible(visible)
+    if (visible) setStep(1)
+  }
 
   function handleSave() {
     onSave(buildInput())
@@ -72,35 +91,70 @@ export default function SaveOutfitSheet({ visible, items, saving, onClose, onSav
           <View style={styles.handle} />
           <Text style={styles.title}>코디 저장</Text>
 
+          <View style={styles.steps}>
+            <View style={[styles.stepDot, step === 1 && styles.stepDotActive]}>
+              <Text style={[styles.stepNum, step === 1 && styles.stepNumActive]}>1</Text>
+            </View>
+            <View style={styles.stepLine} />
+            <View style={[styles.stepDot, step === 2 && styles.stepDotActive]}>
+              <Text style={[styles.stepNum, step === 2 && styles.stepNumActive]}>2</Text>
+            </View>
+          </View>
+
           <ScrollView
             style={styles.content}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <OptionChipGroup
-              label="날씨"
-              labels={WEATHER_LABELS}
-              options={WEATHERS}
-              selected={weather}
-              onSelect={toggleWeather}
-            />
-            <OptionChipGroup
-              label="오늘 기분"
-              labels={MOOD_LABELS}
-              options={MOODS}
-              selected={mood}
-              onSelect={toggleMood}
-            />
-            <ItemColorPicker
-              items={items}
-              itemColors={itemColors}
-              onSelectColor={setItemColor}
-            />
-            <SaveOutfitMemoField value={memo} onChangeText={setMemo} />
+            {step === 1 ? (
+              <>
+                <Text style={styles.stepHint}>입은 색을 골라주세요 (안 바꿔도 돼요)</Text>
+                <ItemColorPicker
+                  items={items}
+                  itemColors={itemColors}
+                  onSelectColor={setItemColor}
+                />
+              </>
+            ) : (
+              <>
+                <Text style={styles.stepHint}>날씨와 기분을 기록해요</Text>
+                <OptionChipGroup
+                  label="날씨"
+                  labels={WEATHER_LABELS}
+                  options={WEATHERS}
+                  selected={weather}
+                  onSelect={toggleWeather}
+                />
+                <OptionChipGroup
+                  label="오늘 기분"
+                  labels={MOOD_LABELS}
+                  options={MOODS}
+                  selected={mood}
+                  onSelect={toggleMood}
+                />
+                <SaveOutfitMemoField value={memo} onChangeText={setMemo} />
+              </>
+            )}
           </ScrollView>
 
-          <SaveOutfitActions saving={saving} onCancel={onClose} onSave={handleSave} />
+          {step === 1 ? (
+            <SaveOutfitActions
+              loading={false}
+              secondaryLabel="취소"
+              primaryLabel="다음"
+              onSecondary={onClose}
+              onPrimary={() => setStep(2)}
+            />
+          ) : (
+            <SaveOutfitActions
+              loading={saving}
+              secondaryLabel="이전"
+              primaryLabel="저장하기"
+              onSecondary={() => setStep(1)}
+              onPrimary={handleSave}
+            />
+          )}
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -141,6 +195,40 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
     marginBottom: spacing.sm,
+  },
+  steps: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  stepDot: {
+    width: 24,
+    height: 24,
+    borderRadius: radius.full,
+    backgroundColor: colors.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepDotActive: {
+    backgroundColor: colors.text,
+  },
+  stepNum: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  stepNumActive: {
+    color: colors.white,
+  },
+  stepLine: {
+    width: 24,
+    height: 2,
+    backgroundColor: colors.border,
+  },
+  stepHint: {
+    fontSize: 13,
+    color: colors.textMuted,
   },
   content: {
     flexGrow: 0,

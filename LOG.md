@@ -12,7 +12,8 @@
 - lib/database.types.ts — outfits Row/Insert/Update에 item_colors 추가
 - hooks/useSaveOutfitForm.ts — itemIds→items 입력 변경, 아이템별 색상 상태/기본값/setItemColor 추가
 - components/save-outfit/ItemColorPicker.tsx — 신규. 착용 아이템별 색상 선택 UI. **접이식(아코디언)**: 기본은 현재 색만 표시, 탭한 아이템만 팔레트 펼침, 선택 시 접힘 (선택 피로도 최소화 — TODO 색상 방향 노트 반영)
-- components/SaveOutfitSheet.tsx — items prop 수신 + 색상 섹션 렌더
+- components/SaveOutfitSheet.tsx — **2단계 마법사**: 1단계 아이템 색상 → 2단계 날씨/기분/메모. 단계 인디케이터·이전/다음 네비. 화면당 항목을 줄여 저장 피로도 감소. (열릴 때 1단계 초기화는 effect 대신 prop 변화 시 렌더 중 보정 — react-hooks set-state-in-effect 회피)
+- components/save-outfit/SaveOutfitActions.tsx — 단계별 재사용 위해 라벨/핸들러(secondary·primary) 받도록 일반화
 - app/(tabs)/create.tsx — SaveOutfitSheet에 equippedItems 전달
 - lib/monthlyStats.ts — `outfit.itemColors[itemId] ?? item.color`로 집계
 
