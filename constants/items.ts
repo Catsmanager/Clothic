@@ -62,8 +62,9 @@ export const SUB_CATEGORIES: Record<Category, string[]> = {
   accessory: ['전체', '모자', '선글라스', '스카프', '가방', '기타'],
 }
 
-// 레이어 z-order (아래 → 위). base는 별도로 가장 아래에 렌더. hair는 상의 위에 위치한다.
-export const RENDER_ORDER: Category[] = ['bottom', 'shoes', 'top', 'hair', 'accessory']
+// 레이어 z-order (아래 → 위). base는 별도로 가장 아래에 렌더.
+// 신발은 항상 제일 아래(모델 위, 하의 아래)에 둔다. hair는 상의 위에 위치한다.
+export const RENDER_ORDER: Category[] = ['shoes', 'bottom', 'top', 'hair', 'accessory']
 
 export const ITEMS: CatalogItem[] = ITEM_CATALOG
 

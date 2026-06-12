@@ -1,31 +1,43 @@
-import { useState } from 'react'
-import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native'
+import { useEffect } from 'react'
+import { ActivityIndicator, ScrollView, StyleSheet, Switch, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import SettingsHeader from '../../components/settings/SettingsHeader'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
+import { useNotificationPrefsStore } from '../../stores/notificationPrefsStore'
 
 export default function NotificationSettingsScreen() {
-  const [dailyReminder, setDailyReminder] = useState(true)
-  const [sleepingWardrobe, setSleepingWardrobe] = useState(false)
+  const dailyReminder = useNotificationPrefsStore((s) => s.dailyReminder)
+  const sleepingWardrobe = useNotificationPrefsStore((s) => s.sleepingWardrobe)
+  const loading = useNotificationPrefsStore((s) => s.loading)
+  const fetchPrefs = useNotificationPrefsStore((s) => s.fetchPrefs)
+  const updatePref = useNotificationPrefsStore((s) => s.updatePref)
+
+  useEffect(() => {
+    fetchPrefs()
+  }, [fetchPrefs])
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <SettingsHeader title="알림 설정" />
-      <ScrollView contentContainerStyle={styles.content}>
-        <SettingRow
-          title="오늘의 코디 기록 알림"
-          description="매일 저녁 코디 기록을 잊지 않게 알려줘요."
-          value={dailyReminder}
-          onValueChange={setDailyReminder}
-        />
-        <SettingRow
-          title="잠자는 옷장 알림"
-          description="오래 입지 않은 아이템이 많아지면 알려줘요."
-          value={sleepingWardrobe}
-          onValueChange={setSleepingWardrobe}
-        />
-      </ScrollView>
+      {loading ? (
+        <ActivityIndicator style={styles.loader} color={colors.primary} />
+      ) : (
+        <ScrollView contentContainerStyle={styles.content}>
+          <SettingRow
+            title="오늘의 코디 기록 알림"
+            description="매일 저녁 코디 기록을 잊지 않게 알려줘요."
+            value={dailyReminder}
+            onValueChange={(v) => updatePref('dailyReminder', v)}
+          />
+          <SettingRow
+            title="잠자는 옷장 알림"
+            description="오래 입지 않은 아이템이 많아지면 알려줘요."
+            value={sleepingWardrobe}
+            onValueChange={(v) => updatePref('sleepingWardrobe', v)}
+          />
+        </ScrollView>
+      )}
     </SafeAreaView>
   )
 }
@@ -61,6 +73,9 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.secondary,
+  },
+  loader: {
+    marginTop: spacing.xl,
   },
   content: {
     padding: spacing.md,
