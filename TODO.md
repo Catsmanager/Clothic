@@ -62,7 +62,7 @@
 - [x] 코디 목록 / 상세 조회  ← app/outfits.tsx·app/outfit/[id].tsx·stores/outfitStore.ts (Supabase 연동, 즐겨찾기 포함). 잔여: is_favorite 컬럼 마이그레이션(사용자), 저장 기능 미구현이라 실데이터 빈 상태
 - [x] 캘린더 화면  (Supabase outfits 기반)
 - [x] 월간 통계 화면  (Supabase outfits 기반 클라이언트 계산)
-- [x] 잠자는 옷장 화면  (mock 데이터)
+- [x] 잠자는 옷장 화면  ← 2026-06-12 mock 제거, outfits 실데이터 역산으로 전환 (이슈 #80)
 - [x] 챌린지 화면  (mock 데이터)  ← app/challenge.tsx + components/challenge/* (히어로/진행 챌린지/획득 배지/안내 배너). 홈 헤더 award 아이콘으로 진입
 
 ## 색상 방향 (2026-06-11 결정)
