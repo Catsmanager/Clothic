@@ -1,5 +1,27 @@
 # LOG
 
+## 2026-06-12 (fix: 코디 저장 실패 원인 규명 — outfits.item_ids uuid[]→text[] 마이그레이션)
+
+### 처리 항목
+- 이슈 #78 / 작업 브랜치: fix/outfit-item-ids-text-array
+- 코디저장→통계 flow 실기동 검증(Expo web + Playwright) 중 발견: 아이템을 장착한 코디 저장이 실패 (`invalid input syntax for type uuid: "top_002"`, 22P02)
+
+### 원인
+- DB `outfits.item_ids`가 `uuid[]`(DATA_MODEL.md 설계)인데, 앱 전체(에디터→아바타 렌더→캘린더→통계)는 카탈로그 스프라이트 id(문자열)를 item id로 사용
+- lib/database.types.ts는 이미 `string[]`이라 타입체크로는 잡히지 않음. 빈 배열은 통과해서 "빈 코디만 저장되는" 형태로 증상이 가려짐
+- 웹에서는 Alert.alert가 no-op이라 저장 실패가 무피드백으로 삼켜짐 (모바일에서는 Alert 표시됨)
+
+### 신규/변경
+- docs/DATA_MODEL.md — outfits 스키마 `item_ids text[]`로 정정, 2026-06-12 마이그레이션 블록 추가, itemIds 주석을 "카탈로그 id 또는 Item.id 혼합"으로 명확화. 코드 변경 없음
+- **사용자 작업 필요**: Supabase SQL Editor에서 `alter table outfits alter column item_ids type text[] using item_ids::text[];` 실행
+
+### 검증 (실기동, Expo web + Playwright)
+- 로그인 → 코디만들기 → top_002/bottom_010/shoes_001 장착 → 저장 시트(날씨/기분/메모) → 저장: **실패 재현** (시트 유지, 통계 미반영)
+- 필드별 분리 insert 진단: mood/weather/memo 단독 OK, item_ids에 'top_002' 포함 시에만 22P02 → 원인 확정
+- 헤어/악세서리 빈 카테고리 "추후 업데이트될 예정입니다" 문구 정상 표시 확인
+- 빈 코디 저장은 성공: /outfits 목록 표시, 통계 "총 코디 수 1회" 집계 정상 (검증 데이터는 삭제 완료)
+- 마이그레이션 적용 후 풀 플로우 재검증 필요
+
 ## 2026-06-12 (feat: 목데이터 제거 + 가방→헤어 카테고리 교체 + 빈 카테고리 안내 문구)
 
 ### 처리 항목
