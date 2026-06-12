@@ -23,6 +23,10 @@ export default function NotificationCenterScreen() {
     setNotifications((prev) => prev.map((item) => ({ ...item, read: true })))
   }
 
+  function removeNotification(id: string) {
+    setNotifications((prev) => prev.filter((item) => item.id !== id))
+  }
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <SettingsHeader title="알림" />
@@ -46,7 +50,12 @@ export default function NotificationCenterScreen() {
       ) : (
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           {notifications.map((item) => (
-            <NotificationItem key={item.id} notification={item} onPress={markRead} />
+            <NotificationItem
+              key={item.id}
+              notification={item}
+              onDelete={removeNotification}
+              onPress={markRead}
+            />
           ))}
         </ScrollView>
       )}

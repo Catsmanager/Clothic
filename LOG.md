@@ -1,5 +1,25 @@
 # LOG
 
+## 2026-06-12 (fix: 즐겨찾기 토글 실패 시 Alert 피드백 추가)
+
+### 처리 항목
+- 이슈 #84 / 작업 브랜치: fix/favorite-toggle-error-feedback
+- "즐겨찾기 버튼이 동작하지 않는다" 제보 진단: 근본 원인은 DB에 is_favorite 컬럼 미존재(사용자 마이그레이션 필요). 토글은 낙관적 업데이트 후 update 실패 시 조용히 롤백만 되어 사용자에게 무피드백이던 문제를 보완
+
+### 신규/변경
+- app/outfits.tsx — onToggleFav를 async로 바꿔 toggleFavorite 반환 에러를 Alert로 안내 (Alert import 추가)
+- app/outfit/[id].tsx — 상세 화면 별 버튼도 동일하게 onToggleFav 콜백 추출 + 실패 시 Alert (Alert는 기존 import 활용)
+- 코드베이스 관례 준수: create.tsx·item-new.tsx의 Alert.alert('...실패', error)와 동일 패턴
+
+### 검증 (실기동, Expo web + Playwright)
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+- 별 탭 시: 낙관적 flip(@80ms '즐겨찾기 해제'=켜짐) → PATCH /outfits 400(is_favorite 컬럼 없음) → 롤백('즐겨찾기 추가'=꺼짐). **에러 분기 도달 확정** → 이 시점에 Alert 실행
+- Alert 다이얼로그 자체는 react-native-web에서 no-op이라 web에선 미표시 — 네이티브(모바일)에서만 시각 확인 가능. 코드 경로와 표시될 에러 문자열은 검증됨
+
+### 남은 문제 (사용자 작업)
+- 근본 해결은 DB 마이그레이션: `alter table outfits add column if not exists is_favorite boolean not null default false;` 실행 시 즐겨찾기 정상 동작
+- #78(item_ids text[]) 마이그레이션도 함께 미적용 상태
+
 ## 2026-06-12 (feat: 빈 코디 저장 차단 + 통계 색상/스타일 실데이터 검증)
 
 ### 처리 항목

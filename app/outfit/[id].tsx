@@ -34,6 +34,14 @@ export default function OutfitDetailScreen() {
     [catalogItems, outfit]
   )
 
+  const onToggleFav = useCallback(async () => {
+    if (!outfit) return
+    const { error } = await toggleFavorite(outfit.id, !outfit.isFavorite)
+    if (error) {
+      Alert.alert('즐겨찾기 실패', error)
+    }
+  }, [outfit, toggleFavorite])
+
   const onDelete = useCallback(() => {
     if (!outfit) return
     Alert.alert('코디 삭제', '이 코디를 삭제할까요?', [
@@ -78,7 +86,7 @@ export default function OutfitDetailScreen() {
           <OutfitAvatar items={items} style={styles.avatar} />
           <TouchableOpacity
             style={styles.starBtn}
-            onPress={() => toggleFavorite(outfit.id, !outfit.isFavorite)}
+            onPress={onToggleFav}
             hitSlop={8}
             accessibilityRole="button"
             accessibilityLabel={outfit.isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}

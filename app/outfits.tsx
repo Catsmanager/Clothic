@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   Dimensions,
+  Alert,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
@@ -50,8 +51,11 @@ export default function OutfitsScreen() {
   )
 
   const onToggleFav = useCallback(
-    (o: Outfit) => {
-      toggleFavorite(o.id, !o.isFavorite)
+    async (o: Outfit) => {
+      const { error } = await toggleFavorite(o.id, !o.isFavorite)
+      if (error) {
+        Alert.alert('즐겨찾기 실패', error)
+      }
     },
     [toggleFavorite]
   )

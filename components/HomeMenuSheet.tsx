@@ -75,11 +75,6 @@ export default function HomeMenuSheet({ visible, onClose }: Props) {
       onPress: () => openRoute('/settings/notifications'),
     },
     {
-      icon: 'settings',
-      label: '앱 설정',
-      onPress: () => openRoute('/settings/app'),
-    },
-    {
       icon: 'mail',
       label: '문의하기',
       onPress: () => openRoute('/contact'),
