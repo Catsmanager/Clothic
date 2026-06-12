@@ -8,15 +8,20 @@ interface Props {
 }
 
 export default function TotalOutfitsCard({ diffFromLastMonth, totalOutfits }: Props) {
+  const diffStyle =
+    diffFromLastMonth === 0 ? styles.diffSame : diffFromLastMonth > 0 ? styles.diffUp : styles.diffDown
+  const diffText =
+    diffFromLastMonth === 0
+      ? '지난 달과 동일'
+      : `지난 달보다 ${Math.abs(diffFromLastMonth)}회 ${diffFromLastMonth > 0 ? '↑' : '↓'}`
+
   return (
     <StatsCard label="총 코디 수">
       <View style={styles.totalRow}>
         <Text style={styles.totalCount}>{totalOutfits}</Text>
         <Text style={styles.totalUnit}> 회</Text>
         <View style={styles.spacer} />
-        <Text style={[styles.diff, diffFromLastMonth >= 0 ? styles.diffUp : styles.diffDown]}>
-          지난 달보다 {Math.abs(diffFromLastMonth)}회 {diffFromLastMonth >= 0 ? '↑' : '↓'}
-        </Text>
+        <Text style={[styles.diff, diffStyle]}>{diffText}</Text>
       </View>
     </StatsCard>
   )
@@ -46,6 +51,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
     paddingBottom: 6,
+  },
+  diffSame: {
+    color: colors.textMuted,
   },
   diffUp: {
     color: '#3DB87A',

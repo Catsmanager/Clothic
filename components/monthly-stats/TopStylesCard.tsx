@@ -11,37 +11,28 @@ interface Props {
 export default function TopStylesCard({ topStyles }: Props) {
   return (
     <StatsCard label="많이 입은 스타일">
-      <View style={styles.styleGrid}>
-        <View style={styles.styleTags}>
-          {topStyles.map((style) => (
-            <View key={style.tag} style={styles.styleTag}>
+      <View style={styles.styleList}>
+        {topStyles.map((style) => (
+          <View key={style.tag} style={styles.styleRow}>
+            <View style={styles.styleTag}>
               <Text style={styles.styleTagText}>{style.tag}</Text>
             </View>
-          ))}
-        </View>
-        <View style={styles.styleCounts}>
-          {topStyles.map((style) => (
-            <Text key={style.tag} style={styles.styleCount}>
-              {style.count}회
-            </Text>
-          ))}
-        </View>
+            <Text style={styles.styleCount}>{style.count}회</Text>
+          </View>
+        ))}
       </View>
     </StatsCard>
   )
 }
 
 const styles = StyleSheet.create({
-  styleGrid: {
-    flexDirection: 'row',
-    gap: spacing.md,
+  styleList: {
+    gap: spacing.sm,
   },
-  styleTags: {
-    flex: 1,
+  styleRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-    alignContent: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   styleTag: {
     backgroundColor: colors.secondary,
@@ -53,11 +44,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.text,
     fontWeight: '500',
-  },
-  styleCounts: {
-    alignItems: 'flex-end',
-    justifyContent: 'space-around',
-    gap: spacing.sm,
   },
   styleCount: {
     fontSize: 13,

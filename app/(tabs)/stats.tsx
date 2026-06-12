@@ -40,6 +40,10 @@ export default function StatsScreen() {
   )
   const inventoryData = useMemo(() => buildItemInventoryData(items), [items])
 
+  const today = new Date()
+  const isCurrentMonth =
+    monthNav.year === today.getFullYear() && monthNav.month === today.getMonth()
+
   async function handleShare() {
     const monthLabel = `${monthNav.year}년 ${monthNav.month + 1}월`
     const monthlySummary =
@@ -72,6 +76,7 @@ export default function StatsScreen() {
       <MonthNavigator
         month={monthNav.month}
         year={monthNav.year}
+        nextDisabled={isCurrentMonth}
         onNext={monthNav.nextMonth}
         onPrev={monthNav.prevMonth}
       />
@@ -81,13 +86,6 @@ export default function StatsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {inventoryData.totalItems > 0 && (
-          <>
-            <ItemCategoryCard data={inventoryData} />
-            <UploadTrendCard monthlyUploads={inventoryData.monthlyUploads} />
-          </>
-        )}
-
         {data == null ? (
           <EmptyStatsCard />
         ) : (
@@ -100,6 +98,13 @@ export default function StatsScreen() {
             <TopItemsCard topItems={data.topItems} />
             <TopStylesCard topStyles={data.topStyles} />
             <StatsTipCard />
+          </>
+        )}
+
+        {inventoryData.totalItems > 0 && (
+          <>
+            <ItemCategoryCard data={inventoryData} />
+            <UploadTrendCard monthlyUploads={inventoryData.monthlyUploads} />
           </>
         )}
       </ScrollView>
