@@ -33,6 +33,7 @@ export function buildSleepingItems(
       tags: item.styleTags,
       lastWorn: lastWorn.replace(/-/g, '.'),
       color: item.color,
+      imagePath: item.imagePath,
       category: item.category,
     })
   })

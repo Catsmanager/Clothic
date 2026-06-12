@@ -28,6 +28,7 @@ CRITICAL: 작업 후 변경 파일 목록을 보고한다.
 CRITICAL: 작업 후 검증 결과를 보고한다.
 CRITICAL: TODO 진행을 요청받으면 TODO.md의 다음 미완료 항목 하나만 처리한다. 별도로 요청받은 작업은 그 작업만 수행한다.
 CRITICAL: 작업 완료 후 LOG.md를 업데이트한다.
+CRITICAL: 옷/신발/하의/상의 에셋 추가 또는 아이템 미리보기 수정 전에는 docs/ITEM_ASSET_FLOW.md를 먼저 읽고 따른다.
 
 ## 작업 방식
 모든 작업은 HARNESS 워크플로우를 따른다. 아래 파일이 자동 임포트된다.

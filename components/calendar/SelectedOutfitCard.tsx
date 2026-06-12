@@ -1,11 +1,11 @@
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import { CATEGORY_LABELS, type CatalogItem } from '../../constants/items'
 import { formatKoreanMonthDayWithWeekday } from '../../lib/date'
-import { getAvatarItemAsset, getAvatarItemPreviewStyle } from '../../lib/avatarAssets'
 import { MOOD_LABELS, WEATHER_LABELS, type Outfit } from '../../stores/outfitStore'
+import ItemPreviewThumb from '../ItemPreviewThumb'
 
 interface Props {
   dateKey: string
@@ -57,20 +57,10 @@ export default function SelectedOutfitCard({ dateKey, items, outfit, onPress }: 
 }
 
 function SelectedItemThumb({ item }: { item: CatalogItem }) {
-  const asset = getAvatarItemAsset(item.id)
-
   return (
     <View style={styles.itemThumb}>
       <View style={styles.itemPreview}>
-        {asset ? (
-          <Image
-            source={asset.source}
-            style={[styles.itemAssetImage, getAvatarItemPreviewStyle(item.id, 56)]}
-            resizeMode="contain"
-          />
-        ) : (
-          <View style={[styles.itemColor, { backgroundColor: item.color }]} />
-        )}
+        <ItemPreviewThumb item={item} size={56} />
       </View>
       <Text style={styles.itemCategory} numberOfLines={1}>
         {CATEGORY_LABELS[item.category]}
@@ -135,17 +125,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-  },
-  itemAssetImage: {
-    position: 'absolute',
-    alignSelf: 'center',
-  },
-  itemColor: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   itemCategory: {
     maxWidth: 58,

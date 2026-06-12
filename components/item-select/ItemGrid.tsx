@@ -1,6 +1,5 @@
 import {
   FlatList,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,7 +9,7 @@ import {
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 import type { CatalogItem } from '../../constants/items'
-import { getAvatarItemAsset, getAvatarItemPreviewStyle } from '../../lib/avatarAssets'
+import ItemPreviewThumb from '../ItemPreviewThumb'
 
 const COLUMN_COUNT = 3
 const CARD_GAP = spacing.sm
@@ -58,19 +57,7 @@ export default function ItemGrid({ items, onItemPress }: Props) {
 }
 
 function ItemPreview({ item, itemSize }: { item: CatalogItem; itemSize: number }) {
-  const asset = getAvatarItemAsset(item.id)
-
-  if (asset == null) {
-    return <View style={[styles.itemColorBox, { backgroundColor: item.color }]} />
-  }
-
-  return (
-    <Image
-      source={asset.source}
-      style={[styles.itemAssetImage, getAvatarItemPreviewStyle(item.id, itemSize)]}
-      resizeMode="contain"
-    />
-  )
+  return <ItemPreviewThumb item={item} size={itemSize} />
 }
 
 const styles = StyleSheet.create({
@@ -95,15 +82,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
     elevation: 1,
-  },
-  itemColorBox: {
-    width: '65%',
-    height: '65%',
-    borderRadius: radius.sm,
-  },
-  itemAssetImage: {
-    position: 'absolute',
-    alignSelf: 'center',
   },
   itemLabel: {
     marginTop: spacing.xs,
