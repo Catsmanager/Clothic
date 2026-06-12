@@ -7,7 +7,7 @@ const CATEGORY_EMOJI: Record<Category, string> = {
   top: '👕',
   bottom: '👖',
   shoes: '👟',
-  bag: '👜',
+  hair: '💇',
   accessory: '⭐',
 }
 
