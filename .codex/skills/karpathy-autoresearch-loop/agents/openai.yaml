@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Karpathy AutoResearch Loop'
+  short_description: 'Evidence-driven self-improvement loops'
+  default_prompt: 'Use $karpathy-autoresearch-loop to improve this repo through measured A/B iterations.'

@@ -1,12 +1,33 @@
 import { create } from 'zustand'
 import * as WebBrowser from 'expo-web-browser'
 import * as Linking from 'expo-linking'
+import * as AppleAuthentication from 'expo-apple-authentication'
+import * as Crypto from 'expo-crypto'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { isOnboardingDone, setOnboardingDone } from '../lib/onboarding'
 
 // 인증 액션 결과: 화면에서 에러 메시지 표시에 사용한다.
 type AuthResult = { error: string | null }
+type SignUpResult = AuthResult & { needsEmailConfirmation?: boolean }
+
+function getUrlParam(url: string, key: string): string | null {
+  const sections = [url.split('?')[1]?.split('#')[0], url.split('#')[1]].filter(
+    (section): section is string => Boolean(section)
+  )
+
+  for (const section of sections) {
+    const pairs = section.split('&')
+    for (const pair of pairs) {
+      const [rawKey, rawValue] = pair.split('=')
+      if (decodeURIComponent(rawKey ?? '') === key) {
+        return decodeURIComponent((rawValue ?? '').replace(/\+/g, ' '))
+      }
+    }
+  }
+
+  return null
+}
 
 interface AuthState {
   session: Session | null
@@ -19,11 +40,16 @@ interface AuthState {
 
   initialize: () => Promise<void>
   completeOnboarding: () => Promise<void>
-  signUpWithEmail: (email: string, password: string) => Promise<AuthResult>
+  signUpWithEmail: (email: string, password: string) => Promise<SignUpResult>
   signInWithEmail: (email: string, password: string) => Promise<AuthResult>
   signInWithKakao: () => Promise<AuthResult>
+  signInWithApple: () => Promise<AuthResult>
+  handleAuthCallback: (url: string) => Promise<AuthResult>
   signOut: () => Promise<AuthResult>
+  deleteAccount: () => Promise<AuthResult>
 }
+
+let authSubscription: { unsubscribe: () => void } | null = null
 
 export const useAuthStore = create<AuthState>((set) => ({
   session: null,
@@ -34,20 +60,27 @@ export const useAuthStore = create<AuthState>((set) => ({
   // 저장된 세션·온보딩 플래그를 복원하고 이후 인증 상태 변화를 구독한다.
   // root layout에서 1회만 호출한다.
   initialize: async () => {
-    const [{ data }, onboardingDone] = await Promise.all([
-      supabase.auth.getSession(),
-      isOnboardingDone(),
-    ])
-    set({
-      session: data.session,
-      user: data.session?.user ?? null,
-      onboardingDone,
-      initialized: true,
-    })
+    try {
+      const [{ data }, onboardingDone] = await Promise.all([
+        supabase.auth.getSession(),
+        isOnboardingDone(),
+      ])
+      set({
+        session: data.session,
+        user: data.session?.user ?? null,
+        onboardingDone,
+        initialized: true,
+      })
+    } catch {
+      set({ initialized: true })
+    }
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    if (authSubscription) return
+
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       set({ session, user: session?.user ?? null })
     })
+    authSubscription = data.subscription
   },
 
   // 온보딩 완료 처리: SecureStore에 저장하고 메모리 상태도 갱신한다.
@@ -57,13 +90,27 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   signUpWithEmail: async (email, password) => {
-    const { error } = await supabase.auth.signUp({ email, password })
-    return { error: error?.message ?? null }
+    const redirectTo = Linking.createURL('auth/callback')
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: redirectTo },
+    })
+    if (error) return { error: error.message }
+
+    if (data.session) {
+      set({ session: data.session, user: data.session.user })
+      return { error: null, needsEmailConfirmation: false }
+    }
+
+    return { error: null, needsEmailConfirmation: true }
   },
 
   signInWithEmail: async (email, password) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    return { error: error?.message ?? null }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) return { error: error.message }
+    if (data.session) set({ session: data.session, user: data.session.user })
+    return { error: null }
   },
 
   // 카카오 OAuth: 외부 브라우저에서 인증 후 리다이렉트된 code를 세션으로 교환한다.
@@ -91,8 +138,86 @@ export const useAuthStore = create<AuthState>((set) => ({
     return { error: exchangeError?.message ?? null }
   },
 
+  // Apple 네이티브 로그인(iOS): identityToken을 Supabase에 넘겨 세션을 만든다.
+  // 재생 공격 방지를 위해 raw nonce를 SHA256 해시해 Apple에 보내고,
+  // Supabase에는 raw nonce를 전달한다(Supabase가 토큰의 해시와 대조).
+  // 사전 설정 필요: Apple Developer "Sign in with Apple" + Supabase Apple provider.
+  signInWithApple: async () => {
+    try {
+      const rawNonce = Crypto.randomUUID()
+      const hashedNonce = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256,
+        rawNonce
+      )
+
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+        nonce: hashedNonce,
+      })
+      if (!credential.identityToken) {
+        return { error: 'Apple 인증 토큰을 받지 못했습니다.' }
+      }
+
+      // 세션 교환 성공 시 onAuthStateChange가 store의 session/user를 갱신한다.
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: 'apple',
+        token: credential.identityToken,
+        nonce: rawNonce,
+      })
+      return { error: error?.message ?? null }
+    } catch (e) {
+      // 사용자가 시트를 닫으면 취소 → 에러 없이 종료.
+      if (e && typeof e === 'object' && 'code' in e && e.code === 'ERR_REQUEST_CANCELED') {
+        return { error: null }
+      }
+      return { error: e instanceof Error ? e.message : 'Apple 로그인에 실패했습니다.' }
+    }
+  },
+
+  handleAuthCallback: async (url) => {
+    const callbackError = getUrlParam(url, 'error_description') ?? getUrlParam(url, 'error')
+    if (callbackError) return { error: callbackError }
+
+    const code = getUrlParam(url, 'code')
+    if (code) {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+      if (error) return { error: error.message }
+      set({ session: data.session, user: data.session?.user ?? null })
+      return { error: null }
+    }
+
+    const accessToken = getUrlParam(url, 'access_token')
+    const refreshToken = getUrlParam(url, 'refresh_token')
+    if (accessToken && refreshToken) {
+      const { data, error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      })
+      if (error) return { error: error.message }
+      set({ session: data.session, user: data.session?.user ?? null })
+      return { error: null }
+    }
+
+    return { error: '이메일 인증 정보를 앱에서 확인하지 못했습니다.' }
+  },
+
   signOut: async () => {
-    const { error } = await supabase.auth.signOut()
+    set({ session: null, user: null })
+
+    const { error } = await supabase.auth.signOut({ scope: 'local' })
     return { error: error?.message ?? null }
+  },
+
+  // 계정 영구 삭제: Edge Function(delete-account)이 데이터+auth 계정을 삭제한다.
+  // 성공 시 무효해진 로컬 세션을 정리한다(scope: 'local' — 서버 재호출 없이 토큰 제거).
+  deleteAccount: async () => {
+    const { error } = await supabase.functions.invoke('delete-account')
+    if (error) return { error: error.message }
+    await supabase.auth.signOut({ scope: 'local' })
+    set({ session: null, user: null })
+    return { error: null }
   },
 }))

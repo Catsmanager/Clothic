@@ -1,0 +1,106 @@
+import { useEffect } from 'react'
+import { ActivityIndicator, ScrollView, StyleSheet, Switch, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import SettingsHeader from '../../components/settings/SettingsHeader'
+import { colors } from '../../constants/colors'
+import { radius, spacing } from '../../constants/spacing'
+import { useNotificationPrefsStore } from '../../stores/notificationPrefsStore'
+
+export default function NotificationSettingsScreen() {
+  const dailyReminder = useNotificationPrefsStore((s) => s.dailyReminder)
+  const sleepingWardrobe = useNotificationPrefsStore((s) => s.sleepingWardrobe)
+  const loading = useNotificationPrefsStore((s) => s.loading)
+  const fetchPrefs = useNotificationPrefsStore((s) => s.fetchPrefs)
+  const updatePref = useNotificationPrefsStore((s) => s.updatePref)
+
+  useEffect(() => {
+    fetchPrefs()
+  }, [fetchPrefs])
+
+  return (
+    <SafeAreaView style={styles.screen} edges={['top']}>
+      <SettingsHeader title="알림 설정" />
+      {loading ? (
+        <ActivityIndicator style={styles.loader} color={colors.primary} />
+      ) : (
+        <ScrollView contentContainerStyle={styles.content}>
+          <SettingRow
+            title="오늘의 코디 기록 알림"
+            description="매일 저녁 코디 기록을 잊지 않게 알려줘요."
+            value={dailyReminder}
+            onValueChange={(v) => updatePref('dailyReminder', v)}
+          />
+          <SettingRow
+            title="잠자는 옷장 알림"
+            description="오래 입지 않은 아이템이 많아지면 알려줘요."
+            value={sleepingWardrobe}
+            onValueChange={(v) => updatePref('sleepingWardrobe', v)}
+          />
+        </ScrollView>
+      )}
+    </SafeAreaView>
+  )
+}
+
+function SettingRow({
+  description,
+  onValueChange,
+  title,
+  value,
+}: {
+  description: string
+  onValueChange: (value: boolean) => void
+  title: string
+  value: boolean
+}) {
+  return (
+    <View style={styles.row}>
+      <View style={styles.rowText}>
+        <Text style={styles.rowTitle}>{title}</Text>
+        <Text style={styles.rowDesc}>{description}</Text>
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onValueChange}
+        trackColor={{ false: colors.border, true: colors.primary }}
+        thumbColor={value ? colors.text : colors.white}
+      />
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.secondary,
+  },
+  loader: {
+    marginTop: spacing.xl,
+  },
+  content: {
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    gap: spacing.md,
+  },
+  rowText: {
+    flex: 1,
+  },
+  rowTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  rowDesc: {
+    fontSize: 12,
+    lineHeight: 18,
+    color: colors.textMuted,
+    marginTop: 4,
+  },
+})

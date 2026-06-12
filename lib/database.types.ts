@@ -9,17 +9,24 @@ export interface Database {
           id: string
           username: string | null
           created_at: string
+          daily_reminder_enabled: boolean
+          sleeping_wardrobe_enabled: boolean
         }
         Insert: {
           id: string
           username?: string | null
           created_at?: string
+          daily_reminder_enabled?: boolean
+          sleeping_wardrobe_enabled?: boolean
         }
         Update: {
           id?: string
           username?: string | null
           created_at?: string
+          daily_reminder_enabled?: boolean
+          sleeping_wardrobe_enabled?: boolean
         }
+        Relationships: []
       }
       items: {
         Row: {
@@ -52,6 +59,7 @@ export interface Database {
           style_tags?: string[]
           created_at?: string
         }
+        Relationships: []
       }
       outfits: {
         Row: {
@@ -62,6 +70,8 @@ export interface Database {
           weather: string | null
           memo: string | null
           item_ids: string[]
+          item_colors: Record<string, string>
+          is_favorite: boolean
           created_at: string
         }
         Insert: {
@@ -72,6 +82,8 @@ export interface Database {
           weather?: string | null
           memo?: string | null
           item_ids?: string[]
+          item_colors?: Record<string, string>
+          is_favorite?: boolean
           created_at?: string
         }
         Update: {
@@ -82,8 +94,44 @@ export interface Database {
           weather?: string | null
           memo?: string | null
           item_ids?: string[]
+          item_colors?: Record<string, string>
+          is_favorite?: boolean
           created_at?: string
         }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          type: string
+          icon: string
+          title: string
+          body: string
+          read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: string
+          icon: string
+          title: string
+          body: string
+          read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: string
+          icon?: string
+          title?: string
+          body?: string
+          read?: boolean
+          created_at?: string
+        }
+        Relationships: []
       }
     }
     Views: Record<string, never>

@@ -1,18 +1,15 @@
 import { useState } from 'react'
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
+import AuthErrorText from '../components/auth/AuthErrorText'
+import AuthFooterLink from '../components/auth/AuthFooterLink'
+import AuthHeader from '../components/auth/AuthHeader'
+import AuthLegalLinks from '../components/auth/AuthLegalLinks'
+import AuthScreen from '../components/auth/AuthScreen'
+import AuthSubmitButton from '../components/auth/AuthSubmitButton'
+import AuthTextField from '../components/auth/AuthTextField'
 import { colors } from '../constants/colors'
-import { spacing, radius } from '../constants/spacing'
+import { spacing } from '../constants/spacing'
 import { useAuthStore } from '../stores/authStore'
 
 // Supabase 기본 비밀번호 최소 길이.
@@ -25,6 +22,7 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const canSubmit =
@@ -44,187 +42,98 @@ export default function SignupScreen() {
 
     setLoading(true)
     setError(null)
-    const { error: signUpError } = await signUpWithEmail(email.trim(), password)
+    setNotice(null)
+    const { error: signUpError, needsEmailConfirmation } = await signUpWithEmail(
+      email.trim(),
+      password
+    )
     setLoading(false)
     if (signUpError) {
       setError(signUpError)
+      return
+    }
+    if (needsEmailConfirmation) {
+      setNotice('인증 메일을 보냈어요. 메일의 확인 버튼을 누르면 앱에 로그인 상태가 반영됩니다.')
       return
     }
     router.replace('/(tabs)')
   }
 
   return (
-    <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.title}>처음 오셨네요</Text>
-            <Text style={styles.subtitle}>
-              이메일로 가입하고{'\n'}나만의 코디 다이어리를 시작해보세요.
-            </Text>
-          </View>
-
-          <View style={styles.form}>
-            <View style={styles.field}>
-              <Text style={styles.label}>이메일</Text>
-              <TextInput
-                style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                placeholder="example@email.com"
-                placeholderTextColor={colors.textMuted}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete="email"
-                editable={!loading}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>비밀번호</Text>
-              <TextInput
-                style={styles.input}
-                value={password}
-                onChangeText={setPassword}
-                placeholder={`${MIN_PASSWORD_LENGTH}자 이상 입력하세요`}
-                placeholderTextColor={colors.textMuted}
-                secureTextEntry
-                autoCapitalize="none"
-                autoComplete="password-new"
-                editable={!loading}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>비밀번호 확인</Text>
-              <TextInput
-                style={styles.input}
-                value={passwordConfirm}
-                onChangeText={setPasswordConfirm}
-                placeholder="비밀번호를 다시 입력하세요"
-                placeholderTextColor={colors.textMuted}
-                secureTextEntry
-                autoCapitalize="none"
-                autoComplete="password-new"
-                editable={!loading}
-              />
-            </View>
-
-            {error && <Text style={styles.error}>{error}</Text>}
-
-            <TouchableOpacity
-              style={[styles.submitBtn, !canSubmit && styles.submitBtnDisabled]}
-              onPress={handleSignUp}
-              activeOpacity={0.85}
-              disabled={!canSubmit}
-            >
-              {loading ? (
-                <ActivityIndicator color={colors.white} />
-              ) : (
-                <Text style={styles.submitBtnText}>회원가입</Text>
-              )}
-            </TouchableOpacity>
-          </View>
+    <AuthScreen
+      footer={
+        <View>
+          <AuthFooterLink
+            disabled={loading}
+            prompt="이미 계정이 있으신가요?"
+            linkLabel="로그인"
+            onPress={() => router.back()}
+          />
+          <AuthLegalLinks />
         </View>
+      }
+    >
+      <AuthHeader
+        title="처음 오셨네요"
+        subtitle={`이메일로 가입하고\n나만의 코디 다이어리를 시작해보세요.`}
+      />
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>이미 계정이 있으신가요?</Text>
-          <TouchableOpacity onPress={() => router.back()} disabled={loading}>
-            <Text style={styles.footerLink}>로그인</Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      <View style={styles.form}>
+        <AuthTextField
+          label="이메일"
+          value={email}
+          onChangeText={setEmail}
+          placeholder="example@email.com"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete="email"
+          editable={!loading}
+        />
+
+        <AuthTextField
+          label="비밀번호"
+          value={password}
+          onChangeText={setPassword}
+          placeholder={`${MIN_PASSWORD_LENGTH}자 이상 입력하세요`}
+          secureTextEntry
+          autoCapitalize="none"
+          autoComplete="password-new"
+          editable={!loading}
+        />
+
+        <AuthTextField
+          label="비밀번호 확인"
+          value={passwordConfirm}
+          onChangeText={setPasswordConfirm}
+          placeholder="비밀번호를 다시 입력하세요"
+          secureTextEntry
+          autoCapitalize="none"
+          autoComplete="password-new"
+          editable={!loading}
+        />
+
+        <AuthErrorText message={error} />
+        {notice && <Text style={styles.notice}>{notice}</Text>}
+
+        <AuthSubmitButton
+          label="회원가입"
+          loading={loading}
+          disabled={!canSubmit}
+          onPress={handleSignUp}
+        />
+      </View>
+    </AuthScreen>
   )
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.secondary,
-  },
-  flex: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: spacing.xl,
-    justifyContent: 'center',
-    gap: spacing.xxl,
-  },
-  header: {
-    gap: spacing.sm,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: colors.text,
-    lineHeight: 36,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: colors.textMuted,
-    lineHeight: 22,
-  },
   form: {
     gap: spacing.md,
   },
-  field: {
-    gap: spacing.xs,
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: '500',
+  notice: {
+    fontSize: 13,
+    lineHeight: 19,
     color: colors.textMuted,
-  },
-  input: {
-    height: 52,
-    backgroundColor: colors.white,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    fontSize: 15,
-    color: colors.text,
-  },
-  error: {
-    fontSize: 13,
-    color: colors.danger,
-  },
-  submitBtn: {
-    marginTop: spacing.sm,
-    backgroundColor: colors.text,
-    borderRadius: radius.full,
-    height: 54,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  submitBtnDisabled: {
-    opacity: 0.4,
-  },
-  submitBtnText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingBottom: spacing.lg,
-  },
-  footerText: {
-    fontSize: 13,
-    color: colors.textMuted,
-  },
-  footerLink: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.text,
   },
 })
