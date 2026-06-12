@@ -18,31 +18,16 @@ import {
   type Category,
   type StyleTag,
 } from '../constants/items'
+import { COLOR_PALETTE } from '../constants/colorPalette'
 import { colors } from '../constants/colors'
 import { radius, spacing } from '../constants/spacing'
 import { useItemStore } from '../stores/itemStore'
 
-const COLOR_OPTIONS = [
-  '#1C1C1C',
-  '#F5F5F5',
-  '#A0A0A0',
-  '#6B8CAE',
-  '#C8B89A',
-  '#8A6A4A',
-  '#6F8A7A',
-  '#C0616B',
-]
+const COLOR_OPTIONS = COLOR_PALETTE.map((palette) => palette.hex)
 
-const COLOR_LABELS: Record<string, string> = {
-  '#1C1C1C': '블랙',
-  '#F5F5F5': '화이트',
-  '#A0A0A0': '그레이',
-  '#6B8CAE': '블루',
-  '#C8B89A': '베이지',
-  '#8A6A4A': '브라운',
-  '#6F8A7A': '그린',
-  '#C0616B': '레드',
-}
+const COLOR_LABELS: Record<string, string> = Object.fromEntries(
+  COLOR_PALETTE.map((palette) => [palette.hex, palette.name])
+)
 
 const STYLE_LABELS: Record<StyleTag, string> = {
   casual: '캐주얼',
