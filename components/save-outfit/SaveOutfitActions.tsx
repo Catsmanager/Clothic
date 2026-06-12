@@ -3,36 +3,46 @@ import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 
 interface Props {
-  saving: boolean
-  onCancel: () => void
-  onSave: () => void
+  // primary 버튼이 로딩(저장 중)인지. 로딩 중엔 두 버튼 모두 비활성.
+  loading: boolean
+  secondaryLabel: string
+  primaryLabel: string
+  onSecondary: () => void
+  onPrimary: () => void
 }
 
-export default function SaveOutfitActions({ saving, onCancel, onSave }: Props) {
+// 시트 하단 2버튼 푸터. 단계별로 라벨/동작을 받아 재사용한다(취소·다음 / 이전·저장).
+export default function SaveOutfitActions({
+  loading,
+  secondaryLabel,
+  primaryLabel,
+  onSecondary,
+  onPrimary,
+}: Props) {
   return (
     <View style={styles.actions}>
       <TouchableOpacity
         style={[styles.btn, styles.cancelBtn]}
-        onPress={onCancel}
-        disabled={saving}
+        onPress={onSecondary}
+        disabled={loading}
         accessibilityRole="button"
-        accessibilityLabel="코디 저장 취소"
-        accessibilityState={{ disabled: saving }}
+        accessibilityLabel={secondaryLabel}
+        accessibilityState={{ disabled: loading }}
       >
-        <Text style={styles.cancelText}>취소</Text>
+        <Text style={styles.cancelText}>{secondaryLabel}</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.btn, styles.saveBtn, saving && styles.btnDisabled]}
-        onPress={onSave}
-        disabled={saving}
+        style={[styles.btn, styles.saveBtn, loading && styles.btnDisabled]}
+        onPress={onPrimary}
+        disabled={loading}
         accessibilityRole="button"
-        accessibilityLabel={saving ? '코디 저장 중' : '코디 저장하기'}
-        accessibilityState={{ disabled: saving }}
+        accessibilityLabel={loading ? '코디 저장 중' : primaryLabel}
+        accessibilityState={{ disabled: loading }}
       >
-        {saving ? (
+        {loading ? (
           <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={styles.saveText}>저장하기</Text>
+          <Text style={styles.saveText}>{primaryLabel}</Text>
         )}
       </TouchableOpacity>
     </View>

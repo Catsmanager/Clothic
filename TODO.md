@@ -74,11 +74,11 @@
 > 사용 피로감 최소화가 핵심 원칙.
 
 ## Post-MVP (MVP 이후 검토)
-- [ ] 옷 색 변경(확장 B) — 선택 시 색 override + 아바타 틴트 렌더링  ← MVP 범위 밖
-  - 렌더링: OutfitAvatar에 `tintColor` 적용 (에셋이 틴트 구조로 제작된 전제, Phase 3 규칙 참조)
-  - 데이터: 코디 내 아이템별 override 색 저장 → Supabase 스키마 변경 필요(현재는 items.color 기본값만)
-  - UI: 아이템 선택 시 기본색 그대로 두되, "다른 색" 선택 시에만 팔레트 노출 (강제 선택 금지)
-  - 통계: override가 있으면 override 색, 없으면 기본색으로 집계 (현 집계 로직 위에 분기만 추가)
+- [~] 옷 색 변경(확장 B) — 코디 저장 시 색 override + 통계 집계  ← 이슈 #87 (사용자 요청, 2026-06-12)
+  - [x] 데이터: 코디 저장 시 아이템별 색 저장 (Outfit.itemColors, outfits.item_colors jsonb) — 스키마 변경 필요(사용자)
+  - [x] UI: 저장 시트에 아이템별 8색 팔레트(기본값=아이템 원래 색, 강제 선택 없음)
+  - [x] 통계: itemColors 있으면 우선, 없으면 기본색으로 집계
+  - [ ] 렌더링: 아바타 틴트(`tintColor`)는 미적용 — 통계용 메타데이터로만 반영(A안). 틴트 에셋 완료 후 itemColors로 구동 가능
 
 ## Phase 5: 검증 및 출시
 - [ ] TEST_PLAN.md 기준 전체 검증
