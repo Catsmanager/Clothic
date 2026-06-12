@@ -64,6 +64,7 @@ export interface Database {
           weather: string | null
           memo: string | null
           item_ids: string[]
+          item_colors: Record<string, string>
           is_favorite: boolean
           created_at: string
         }
@@ -75,6 +76,7 @@ export interface Database {
           weather?: string | null
           memo?: string | null
           item_ids?: string[]
+          item_colors?: Record<string, string>
           is_favorite?: boolean
           created_at?: string
         }
@@ -86,6 +88,7 @@ export interface Database {
           weather?: string | null
           memo?: string | null
           item_ids?: string[]
+          item_colors?: Record<string, string>
           is_favorite?: boolean
           created_at?: string
         }

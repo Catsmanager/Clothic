@@ -78,7 +78,7 @@ export default function CreateScreen() {
 
       <SaveOutfitSheet
         visible={sheetVisible}
-        itemIds={editor.equippedItemIds}
+        items={editor.equippedItems}
         saving={saving}
         onClose={() => setSheetVisible(false)}
         onSave={handleSave}

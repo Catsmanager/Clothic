@@ -42,9 +42,9 @@ export function buildMonthData(
         count: (itemCount?.count ?? 0) + 1,
       })
 
-      // 색상은 옷이 가진 속성으로 본다. 카탈로그(개발자 큐레이션)·사용자 등록 아이템 모두 집계하고,
-      // 비슷한 hex(#1C1C1C, #2A2A2A 등)는 팔레트 색상명 기준으로 묶는다.
-      const palette = resolvePaletteColor(item.color)
+      // 색상은 옷이 가진 속성으로 본다. 코디 저장 시 사용자가 고른 색(itemColors)을 우선 쓰고,
+      // 없으면 아이템 원래 색으로 폴백한다. 비슷한 hex(#1C1C1C, #2A2A2A 등)는 팔레트 색상명으로 묶는다.
+      const palette = resolvePaletteColor(outfit.itemColors[itemId] ?? item.color)
       const colorCount = colorCounts.get(palette.name)
       colorCounts.set(palette.name, {
         label: palette.name,

@@ -14,6 +14,8 @@ export interface NewOutfit {
   weather: Weather | null
   memo: string | null
   itemIds: string[]
+  // 코디 저장 시 사용자가 고른 아이템별 색상 (itemId → hex). 미선택 아이템은 키 없음.
+  itemColors: Record<string, string>
 }
 
 export type Mood = 'happy' | 'confident' | 'cozy' | 'tired' | 'excited' | 'calm'
@@ -27,6 +29,7 @@ export interface Outfit {
   weather: Weather | null
   memo: string | null
   itemIds: string[]
+  itemColors: Record<string, string>
   isFavorite: boolean
   createdAt: string
 }
@@ -40,6 +43,8 @@ function mapRow(row: OutfitRow): Outfit {
     weather: (row.weather as Weather | null) ?? null,
     memo: row.memo,
     itemIds: row.item_ids ?? [],
+    // item_colors 컬럼이 없거나 비어 있는 DB/과거 코디도 깨지지 않도록 방어한다(undefined → {}).
+    itemColors: row.item_colors ?? {},
     // is_favorite 컬럼이 아직 없는 DB도 깨지지 않도록 방어한다(undefined → false).
     isFavorite: row.is_favorite ?? false,
     createdAt: row.created_at,
@@ -92,6 +97,7 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
       weather: input.weather,
       memo: input.memo,
       item_ids: input.itemIds,
+      item_colors: input.itemColors,
     }
 
     const { data, error } = await supabase.from('outfits').insert(payload).select().single()

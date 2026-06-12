@@ -19,13 +19,15 @@ import {
   type NewOutfit,
 } from '../stores/outfitStore'
 import { useSaveOutfitForm } from '../hooks/useSaveOutfitForm'
+import type { CatalogItem } from '../constants/items'
+import ItemColorPicker from './save-outfit/ItemColorPicker'
 import OptionChipGroup from './save-outfit/OptionChipGroup'
 import SaveOutfitActions from './save-outfit/SaveOutfitActions'
 import SaveOutfitMemoField from './save-outfit/SaveOutfitMemoField'
 
 interface Props {
   visible: boolean
-  itemIds: string[]
+  items: CatalogItem[]
   saving: boolean
   onClose: () => void
   onSave: (input: NewOutfit) => void
@@ -34,11 +36,10 @@ interface Props {
 const MOODS = Object.keys(MOOD_LABELS) as Mood[]
 const WEATHERS = Object.keys(WEATHER_LABELS) as Weather[]
 
-export default function SaveOutfitSheet({ visible, itemIds, saving, onClose, onSave }: Props) {
+export default function SaveOutfitSheet({ visible, items, saving, onClose, onSave }: Props) {
   const insets = useSafeAreaInsets()
-  const { buildInput, memo, mood, setMemo, toggleMood, toggleWeather, weather } = useSaveOutfitForm(
-    { itemIds, visible }
-  )
+  const { buildInput, itemColors, memo, mood, setItemColor, setMemo, toggleMood, toggleWeather, weather } =
+    useSaveOutfitForm({ items, visible })
 
   function handleSave() {
     onSave(buildInput())
@@ -90,6 +91,11 @@ export default function SaveOutfitSheet({ visible, itemIds, saving, onClose, onS
               options={MOODS}
               selected={mood}
               onSelect={toggleMood}
+            />
+            <ItemColorPicker
+              items={items}
+              itemColors={itemColors}
+              onSelectColor={setItemColor}
             />
             <SaveOutfitMemoField value={memo} onChangeText={setMemo} />
           </ScrollView>

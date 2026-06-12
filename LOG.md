@@ -1,5 +1,31 @@
 # LOG
 
+## 2026-06-12 (feat: 코디 저장 시 아이템 색상 선택 — 통계 색상 정확도)
+
+### 처리 항목
+- 이슈 #87 / 작업 브랜치: feature/outfit-item-color-87
+- 문제: 통계 '가장 많이 입은 색상'이 아이템 고정 색(`item.color`)만 집계 → 같은 아이템은 항상 같은 색으로만 카운트되어 실제 착용 색을 반영 못 함(색이 아이템에 1:1로 묶인 구조적 한계)
+- 해결: 코디 저장 시 공통 8색 팔레트로 아이템별 색을 고를 수 있게 하고(기본값=원래 색, 강제 선택 없음), 선택 색을 `Outfit.itemColors`로 저장해 통계가 우선 집계. 아바타 그림은 그대로(A안: 통계용 메타데이터). TODO Post-MVP '옷 색 변경(확장 B)'의 데이터+통계+UI 부분 구현
+
+### 신규/변경
+- stores/outfitStore.ts — NewOutfit/Outfit에 itemColors(Record<itemId,hex>) 추가, mapRow 폴백(`?? {}`), insert payload에 item_colors
+- lib/database.types.ts — outfits Row/Insert/Update에 item_colors 추가
+- hooks/useSaveOutfitForm.ts — itemIds→items 입력 변경, 아이템별 색상 상태/기본값/setItemColor 추가
+- components/save-outfit/ItemColorPicker.tsx — 신규. 착용 아이템별 8색 팔레트 선택 UI
+- components/SaveOutfitSheet.tsx — items prop 수신 + 색상 섹션 렌더
+- app/(tabs)/create.tsx — SaveOutfitSheet에 equippedItems 전달
+- lib/monthlyStats.ts — `outfit.itemColors[itemId] ?? item.color`로 집계
+
+### 리뷰에서 발견·반영
+- 아바타 색/통계 색 불일치 가능성(픽셀 스프라이트는 고정색) → 사용자 합의로 A안(메타데이터만) 채택, 향후 틴트 에셋 완료 시 동일 itemColors로 아바타 구동 가능
+- 기존 코디/구 DB 호환: itemColors 옵셔널 폴백으로 마이그레이션 없이 읽기 안전
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+
+### 남은 문제 (사용자 작업)
+- DB 마이그레이션 필요: `alter table outfits add column if not exists item_colors jsonb not null default '{}'::jsonb;` (미적용 시 저장 insert가 실패)
+
 ## 2026-06-12 (fix: 즐겨찾기 토글 실패 시 Alert 피드백 추가)
 
 ### 처리 항목
