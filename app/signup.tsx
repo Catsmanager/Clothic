@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import AuthErrorText from '../components/auth/AuthErrorText'
 import AuthFooterLink from '../components/auth/AuthFooterLink'
@@ -8,6 +8,7 @@ import AuthLegalLinks from '../components/auth/AuthLegalLinks'
 import AuthScreen from '../components/auth/AuthScreen'
 import AuthSubmitButton from '../components/auth/AuthSubmitButton'
 import AuthTextField from '../components/auth/AuthTextField'
+import { colors } from '../constants/colors'
 import { spacing } from '../constants/spacing'
 import { useAuthStore } from '../stores/authStore'
 
@@ -21,6 +22,7 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const canSubmit =
@@ -40,10 +42,18 @@ export default function SignupScreen() {
 
     setLoading(true)
     setError(null)
-    const { error: signUpError } = await signUpWithEmail(email.trim(), password)
+    setNotice(null)
+    const { error: signUpError, needsEmailConfirmation } = await signUpWithEmail(
+      email.trim(),
+      password
+    )
     setLoading(false)
     if (signUpError) {
       setError(signUpError)
+      return
+    }
+    if (needsEmailConfirmation) {
+      setNotice('인증 메일을 보냈어요. 메일의 확인 버튼을 누르면 앱에 로그인 상태가 반영됩니다.')
       return
     }
     router.replace('/(tabs)')
@@ -104,6 +114,7 @@ export default function SignupScreen() {
         />
 
         <AuthErrorText message={error} />
+        {notice && <Text style={styles.notice}>{notice}</Text>}
 
         <AuthSubmitButton
           label="회원가입"
@@ -119,5 +130,10 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   form: {
     gap: spacing.md,
+  },
+  notice: {
+    fontSize: 13,
+    lineHeight: 19,
+    color: colors.textMuted,
   },
 })

@@ -39,23 +39,17 @@ export default function HomeMenuSheet({ visible, onClose }: Props) {
   const email = user?.email ?? '로그인 정보 없음'
 
   async function handleSignOut() {
-    Alert.alert('로그아웃', '현재 계정에서 로그아웃할까요?', [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '로그아웃',
-        style: 'destructive',
-        onPress: async () => {
-          setSigningOut(true)
-          const { error } = await signOut()
-          setSigningOut(false)
-          if (error) {
-            Alert.alert('로그아웃 실패', error)
-            return
-          }
-          onClose()
-        },
-      },
-    ])
+    if (signingOut) return
+
+    setSigningOut(true)
+    const { error } = await signOut()
+    setSigningOut(false)
+    if (error) {
+      Alert.alert('로그아웃 실패', error)
+      return
+    }
+    onClose()
+    router.replace('/login')
   }
 
   function openRoute(path: string) {

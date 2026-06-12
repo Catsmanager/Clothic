@@ -9,6 +9,25 @@ import { isOnboardingDone, setOnboardingDone } from '../lib/onboarding'
 
 // 인증 액션 결과: 화면에서 에러 메시지 표시에 사용한다.
 type AuthResult = { error: string | null }
+type SignUpResult = AuthResult & { needsEmailConfirmation?: boolean }
+
+function getUrlParam(url: string, key: string): string | null {
+  const sections = [url.split('?')[1]?.split('#')[0], url.split('#')[1]].filter(
+    (section): section is string => Boolean(section)
+  )
+
+  for (const section of sections) {
+    const pairs = section.split('&')
+    for (const pair of pairs) {
+      const [rawKey, rawValue] = pair.split('=')
+      if (decodeURIComponent(rawKey ?? '') === key) {
+        return decodeURIComponent((rawValue ?? '').replace(/\+/g, ' '))
+      }
+    }
+  }
+
+  return null
+}
 
 interface AuthState {
   session: Session | null
@@ -21,10 +40,11 @@ interface AuthState {
 
   initialize: () => Promise<void>
   completeOnboarding: () => Promise<void>
-  signUpWithEmail: (email: string, password: string) => Promise<AuthResult>
+  signUpWithEmail: (email: string, password: string) => Promise<SignUpResult>
   signInWithEmail: (email: string, password: string) => Promise<AuthResult>
   signInWithKakao: () => Promise<AuthResult>
   signInWithApple: () => Promise<AuthResult>
+  handleAuthCallback: (url: string) => Promise<AuthResult>
   signOut: () => Promise<AuthResult>
   deleteAccount: () => Promise<AuthResult>
 }
@@ -70,13 +90,27 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   signUpWithEmail: async (email, password) => {
-    const { error } = await supabase.auth.signUp({ email, password })
-    return { error: error?.message ?? null }
+    const redirectTo = Linking.createURL('auth/callback')
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: redirectTo },
+    })
+    if (error) return { error: error.message }
+
+    if (data.session) {
+      set({ session: data.session, user: data.session.user })
+      return { error: null, needsEmailConfirmation: false }
+    }
+
+    return { error: null, needsEmailConfirmation: true }
   },
 
   signInWithEmail: async (email, password) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    return { error: error?.message ?? null }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) return { error: error.message }
+    if (data.session) set({ session: data.session, user: data.session.user })
+    return { error: null }
   },
 
   // 카카오 OAuth: 외부 브라우저에서 인증 후 리다이렉트된 code를 세션으로 교환한다.
@@ -143,8 +177,37 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
+  handleAuthCallback: async (url) => {
+    const callbackError = getUrlParam(url, 'error_description') ?? getUrlParam(url, 'error')
+    if (callbackError) return { error: callbackError }
+
+    const code = getUrlParam(url, 'code')
+    if (code) {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+      if (error) return { error: error.message }
+      set({ session: data.session, user: data.session?.user ?? null })
+      return { error: null }
+    }
+
+    const accessToken = getUrlParam(url, 'access_token')
+    const refreshToken = getUrlParam(url, 'refresh_token')
+    if (accessToken && refreshToken) {
+      const { data, error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      })
+      if (error) return { error: error.message }
+      set({ session: data.session, user: data.session?.user ?? null })
+      return { error: null }
+    }
+
+    return { error: '이메일 인증 정보를 앱에서 확인하지 못했습니다.' }
+  },
+
   signOut: async () => {
-    const { error } = await supabase.auth.signOut()
+    set({ session: null, user: null })
+
+    const { error } = await supabase.auth.signOut({ scope: 'local' })
     return { error: error?.message ?? null }
   },
 
@@ -154,6 +217,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     const { error } = await supabase.functions.invoke('delete-account')
     if (error) return { error: error.message }
     await supabase.auth.signOut({ scope: 'local' })
+    set({ session: null, user: null })
     return { error: null }
   },
 }))
