@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import * as AppleAuthentication from 'expo-apple-authentication'
 import { router } from 'expo-router'
@@ -25,9 +25,25 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false)
   const [kakaoLoading, setKakaoLoading] = useState(false)
   const [appleLoading, setAppleLoading] = useState(false)
+  const [appleAvailable, setAppleAvailable] = useState(false)
 
   const busy = loading || kakaoLoading || appleLoading
   const canSubmit = email.trim().length > 0 && password.length > 0 && !busy
+
+  useEffect(() => {
+    let mounted = true
+
+    async function checkAppleAvailability() {
+      if (Platform.OS !== 'ios') return
+      const available = await AppleAuthentication.isAvailableAsync()
+      if (mounted) setAppleAvailable(available)
+    }
+
+    checkAppleAvailability()
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   async function handleSignIn() {
     if (!canSubmit) return
@@ -105,6 +121,16 @@ export default function LoginScreen() {
           editable={!busy}
         />
 
+        <TouchableOpacity
+          style={styles.forgotLink}
+          onPress={() => router.push('/forgot-password')}
+          disabled={busy}
+          accessibilityRole="button"
+          accessibilityLabel="비밀번호 찾기"
+        >
+          <Text style={styles.forgotText}>비밀번호를 잊으셨나요?</Text>
+        </TouchableOpacity>
+
         <AuthErrorText message={error} />
 
         <AuthSubmitButton
@@ -132,7 +158,7 @@ export default function LoginScreen() {
           )}
         </TouchableOpacity>
 
-        {Platform.OS === 'ios' && (
+        {appleAvailable && (
           <AppleAuthentication.AppleAuthenticationButton
             buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
             buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
@@ -149,6 +175,15 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   form: {
     gap: spacing.md,
+  },
+  forgotLink: {
+    alignSelf: 'flex-end',
+    marginTop: -spacing.xs,
+  },
+  forgotText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: colors.textMuted,
   },
   kakaoBtn: {
     backgroundColor: '#FEE500', // 카카오 브랜드 컬러

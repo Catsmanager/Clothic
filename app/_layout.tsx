@@ -24,11 +24,14 @@ export default function RootLayout() {
     if (!initialized) return
 
     const inOnboarding = segments[0] === 'onboarding'
-    const inAuth = segments[0] === 'login' || segments[0] === 'signup'
+    const inAuth =
+      segments[0] === 'login' || segments[0] === 'signup' || segments[0] === 'forgot-password'
     const inAuthCallback = segments[0] === 'auth'
+    // 비밀번호 재설정 화면은 recovery 세션(로그인 상태)에서 열리므로 가드에서 제외한다.
+    const inRecovery = segments[0] === 'reset-password'
     const inPublic = segments[0] === 'privacy' || segments[0] === 'terms'
 
-    if (inPublic || inAuthCallback) return
+    if (inPublic || inAuthCallback || inRecovery) return
 
     if (!onboardingDone) {
       // 온보딩 미완료 → 온보딩으로
