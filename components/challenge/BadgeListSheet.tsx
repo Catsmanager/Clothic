@@ -24,7 +24,7 @@ const ICON_MAP: Record<BadgeIcon, keyof typeof MaterialCommunityIcons.glyphMap> 
   calendar: 'calendar-check-outline',
   wardrobe: 'wardrobe-outline',
   umbrella: 'umbrella-outline',
-  lock: 'lock-outline',
+  compass: 'compass-outline',
 }
 
 export default function BadgeListSheet({ badges, visible, onClose }: Props) {
