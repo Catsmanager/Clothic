@@ -1,5 +1,9 @@
 import type { ImageSourcePropType, ImageStyle } from 'react-native'
-import { getAvatarItemAsset, getAvatarItemPreviewStyle } from './avatarAssets'
+import {
+  getAvatarItemAsset,
+  getAvatarItemLayerOrder,
+  getAvatarItemPreviewStyle,
+} from './avatarAssets'
 
 export interface ItemVisualInput {
   id: string
@@ -26,6 +30,10 @@ export function getItemImageSource(item: ItemVisualInput): ImageSourcePropType |
 
 export function getItemLayerStyle(item: ItemVisualInput): ImageStyle | undefined {
   return getAvatarItemAsset(item.id)?.layerStyle
+}
+
+export function getItemLayerOrder(item: ItemVisualInput): number | null {
+  return getAvatarItemLayerOrder(item.id)
 }
 
 export function getItemPreviewImageStyle(item: ItemVisualInput, itemSize: number): ImageStyle {

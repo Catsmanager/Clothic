@@ -1,6 +1,6 @@
 import { Image, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 import { RENDER_ORDER, type CatalogItem } from '../constants/items'
-import { getItemImageSource, getItemLayerStyle } from '../lib/itemVisuals'
+import { getItemImageSource, getItemLayerOrder, getItemLayerStyle } from '../lib/itemVisuals'
 
 const BASE_AVATAR = require('../assets/avatar/base/base_female_01.png')
 
@@ -10,9 +10,10 @@ interface Props {
 }
 
 export default function OutfitAvatar({ style, items = [] }: Props) {
-  const layeredItems = RENDER_ORDER.flatMap((category) =>
-    items.filter((item) => item.category === category)
-  )
+  const layeredItems = items
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => getRenderOrder(a.item) - getRenderOrder(b.item) || a.index - b.index)
+    .map(({ item }) => item)
 
   return (
     <View style={[styles.root, style]}>
@@ -32,6 +33,13 @@ export default function OutfitAvatar({ style, items = [] }: Props) {
       })}
     </View>
   )
+}
+
+function getRenderOrder(item: CatalogItem): number {
+  const itemOrder = getItemLayerOrder(item)
+  if (itemOrder != null) return itemOrder
+
+  return RENDER_ORDER.indexOf(item.category)
 }
 
 const styles = StyleSheet.create({
