@@ -66,6 +66,14 @@ export const SUB_CATEGORIES: Record<Category, string[]> = {
 // 신발은 항상 제일 아래(모델 위, 하의 아래)에 둔다. hair는 상의 위에 위치한다.
 export const RENDER_ORDER: Category[] = ['shoes', 'bottom', 'top', 'hair', 'accessory']
 
+// 색상 선택·통계 집계 대상 카테고리.
+// 상의·하의가 코디의 색을 대표한다. 신발·헤어·악세서리는 색 선택 피로도·통계 노이즈만 키우므로 제외.
+export const COLOR_CATEGORIES: Category[] = ['top', 'bottom']
+
+export function isColorCategory(category: Category): boolean {
+  return COLOR_CATEGORIES.includes(category)
+}
+
 export const ITEMS: CatalogItem[] = ITEM_CATALOG
 
 export function getItemsByCategory(category: Category): CatalogItem[] {
