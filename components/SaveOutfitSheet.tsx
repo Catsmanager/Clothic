@@ -20,7 +20,7 @@ import {
   type NewOutfit,
 } from '../stores/outfitStore'
 import { useSaveOutfitForm } from '../hooks/useSaveOutfitForm'
-import type { CatalogItem } from '../constants/items'
+import { isColorCategory, type CatalogItem } from '../constants/items'
 import ItemColorPicker from './save-outfit/ItemColorPicker'
 import OptionChipGroup from './save-outfit/OptionChipGroup'
 import SaveOutfitActions from './save-outfit/SaveOutfitActions'
@@ -59,6 +59,9 @@ export default function SaveOutfitSheet({ visible, items, saving, onClose, onSav
     setWasVisible(visible)
     if (visible) setStep(1)
   }
+
+  // 색상 선택은 상의·하의로 한정한다(코디 색을 대표하는 카테고리만).
+  const colorItems = items.filter((item) => isColorCategory(item.category))
 
   function handleSave() {
     onSave(buildInput())
@@ -111,7 +114,7 @@ export default function SaveOutfitSheet({ visible, items, saving, onClose, onSav
               <>
                 <Text style={styles.stepHint}>입은 색을 골라주세요 (안 바꿔도 돼요)</Text>
                 <ItemColorPicker
-                  items={items}
+                  items={colorItems}
                   itemColors={itemColors}
                   onSelectColor={setItemColor}
                 />
