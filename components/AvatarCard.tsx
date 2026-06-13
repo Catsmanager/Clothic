@@ -25,8 +25,10 @@ export default function AvatarCard({ items }: Props) {
       <Image source={ROOM_BACKGROUND} style={styles.background} resizeMode="contain" />
 
       {isEmpty && (
-        <View style={styles.bubble}>
-          <Text style={styles.bubbleText}>오늘의 코디를 기록해볼까요?</Text>
+        <View style={styles.bubbleWrap} pointerEvents="none">
+          <View style={styles.bubble}>
+            <Text style={styles.bubbleText}>오늘의 코디를 기록해볼까요?</Text>
+          </View>
           <View style={styles.bubbleTail} />
         </View>
       )}
@@ -59,10 +61,14 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  bubble: {
+  bubbleWrap: {
     position: 'absolute',
-    top: '12%',
-    alignSelf: 'center',
+    top: '14%',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  bubble: {
     backgroundColor: colors.white,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
@@ -81,9 +87,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   bubbleTail: {
-    position: 'absolute',
-    bottom: -5,
-    alignSelf: 'center',
+    marginTop: -5,
     width: 10,
     height: 10,
     backgroundColor: colors.white,
