@@ -4,11 +4,10 @@ import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 
 interface Props {
-  onAddPress: () => void
   onHelpPress: () => void
 }
 
-export default function WardrobeHeader({ onAddPress, onHelpPress }: Props) {
+export default function WardrobeHeader({ onHelpPress }: Props) {
   return (
     <View style={styles.header}>
       <View style={styles.headerLeft}>
@@ -24,15 +23,6 @@ export default function WardrobeHeader({ onAddPress, onHelpPress }: Props) {
           accessibilityLabel="잠자는 옷장 도움말 보기"
         >
           <Feather name="help-circle" size={16} color={colors.textMuted} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={onAddPress}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel="옷 추가하기"
-        >
-          <Feather name="plus" size={18} color={colors.white} />
         </TouchableOpacity>
       </View>
     </View>
@@ -73,14 +63,6 @@ const styles = StyleSheet.create({
     height: 34,
     borderRadius: radius.full,
     backgroundColor: colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addButton: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.full,
-    backgroundColor: colors.text,
     alignItems: 'center',
     justifyContent: 'center',
   },
