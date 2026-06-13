@@ -37,14 +37,24 @@ function getUniqueSortedDateKeys(outfits: Outfit[]): string[] {
   return Array.from(new Set(outfits.map((outfit) => outfit.date))).sort()
 }
 
-function getLatestStreak(dateKeys: string[]): number {
+// 현재 연속 기록은 "오늘까지 이어진" 경우만 센다.
+// 오늘 기록이 있으면 오늘부터, 없고 어제 기록이 있으면 어제부터(아직 살아있는 스트릭) 거꾸로 센다.
+// 둘 다 없으면 연속이 끊긴 것이므로 0.
+function getLatestStreak(dateKeys: string[], today: Date): number {
   if (dateKeys.length === 0) return 0
 
   const dateSet = new Set(dateKeys)
-  let currentDate = parseDateKey(dateKeys[dateKeys.length - 1])
-  let streak = 0
+  let currentDate: Date
+  if (dateSet.has(toDateKey(today))) {
+    currentDate = today
+  } else if (dateSet.has(toDateKey(addDays(today, -1)))) {
+    currentDate = addDays(today, -1)
+  } else {
+    return 0
+  }
 
-  while (currentDate != null && dateSet.has(toDateKey(currentDate))) {
+  let streak = 0
+  while (dateSet.has(toDateKey(currentDate))) {
     streak += 1
     currentDate = addDays(currentDate, -1)
   }
@@ -148,7 +158,7 @@ export function buildChallengeData(
 ): { badges: Badge[]; challenges: Challenge[]; summary: ChallengeSummary } {
   const dateKeys = getUniqueSortedDateKeys(outfits)
   const currentMonthOutfits = getCurrentMonthOutfits(outfits, today)
-  const latestStreak = getLatestStreak(dateKeys)
+  const latestStreak = getLatestStreak(dateKeys, today)
   const bestStreak = getBestStreak(dateKeys)
   const uniqueCombosThisMonth = new Set(
     currentMonthOutfits
@@ -227,7 +237,7 @@ export function buildChallengeData(
       },
       {
         id: 'style-explorer',
-        icon: 'lock',
+        icon: 'compass',
         name: '스타일 탐험가',
         earnedAt:
           usedStyleTagCount >= 5 ? formatBadgeDate(dateKeys[dateKeys.length - 1] ?? null) : null,
