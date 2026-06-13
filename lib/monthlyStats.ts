@@ -1,5 +1,5 @@
 import { resolvePaletteColor } from '../constants/colorPalette'
-import type { CatalogItem } from '../constants/items'
+import { isColorCategory, type CatalogItem } from '../constants/items'
 import type { Outfit } from '../stores/outfitStore'
 import { getMonthKey } from './date'
 
@@ -46,15 +46,18 @@ export function buildMonthData(
         count: (itemCount?.count ?? 0) + 1,
       })
 
-      // 색상은 옷이 가진 속성으로 본다. 코디 저장 시 사용자가 고른 색(itemColors)을 우선 쓰고,
-      // 없으면 아이템 원래 색으로 폴백한다. 비슷한 hex(#1C1C1C, #2A2A2A 등)는 팔레트 색상명으로 묶는다.
-      const palette = resolvePaletteColor(outfit.itemColors[itemId] ?? item.color)
-      const colorCount = colorCounts.get(palette.name)
-      colorCounts.set(palette.name, {
-        label: palette.name,
-        color: palette.hex,
-        count: (colorCount?.count ?? 0) + 1,
-      })
+      // 색상 통계는 상의·하의만 집계한다(코디 색을 대표하는 카테고리). 신발·헤어·악세서리는 제외.
+      // 코디 저장 시 사용자가 고른 색(itemColors)을 우선 쓰고, 없으면 아이템 원래 색으로 폴백한다.
+      // 비슷한 hex(#1C1C1C, #2A2A2A 등)는 팔레트 색상명으로 묶는다.
+      if (isColorCategory(item.category)) {
+        const palette = resolvePaletteColor(outfit.itemColors[itemId] ?? item.color)
+        const colorCount = colorCounts.get(palette.name)
+        colorCounts.set(palette.name, {
+          label: palette.name,
+          color: palette.hex,
+          count: (colorCount?.count ?? 0) + 1,
+        })
+      }
 
       item.styleTags.forEach((tag) => {
         const styleCount = styleCounts.get(tag)
