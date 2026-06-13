@@ -47,7 +47,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     category: 'bottom',
     subCategory: '팬츠',
     name: '청 와이드 팬츠',
-    color: '#9CB8CC',
+    color: '#6B8CAE',
     imagePath: 'assets/avatar/bottom/bottom_010_blue.png',
     styleTags: ['casual', 'street'],
   },
