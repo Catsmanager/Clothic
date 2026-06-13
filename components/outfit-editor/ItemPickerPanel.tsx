@@ -10,13 +10,12 @@ import {
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
-import { type CatalogItem, type Category } from '../../constants/items'
+import { type CatalogItem } from '../../constants/items'
+import { type EquippedItems } from '../../hooks/useOutfitEditor'
 import ItemPreviewThumb from '../ItemPreviewThumb'
 
 const COLUMN_COUNT = 4
 const ITEM_GAP = spacing.sm
-
-type EquippedItems = Partial<Record<Category, string>>
 
 interface Props {
   activeSubCategory: string
@@ -89,7 +88,7 @@ export default function ItemPickerPanel({
             style={[
               styles.itemCard,
               { width: itemSize, height: itemSize },
-              equipped[item.category] === item.id && styles.itemCardSelected,
+              isEquipped(equipped, item) && styles.itemCardSelected,
             ]}
             onPress={() => onItemPress(item)}
           >
@@ -103,6 +102,11 @@ export default function ItemPickerPanel({
 
 function ItemPreview({ item, itemSize }: { item: CatalogItem; itemSize: number }) {
   return <ItemPreviewThumb item={item} size={itemSize} />
+}
+
+function isEquipped(equipped: EquippedItems, item: CatalogItem): boolean {
+  const value = equipped[item.category]
+  return Array.isArray(value) ? value.includes(item.id) : value === item.id
 }
 
 const styles = StyleSheet.create({

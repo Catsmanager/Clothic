@@ -1,22 +1,42 @@
 import type { ImageSourcePropType, ImageStyle } from 'react-native'
 
+interface AvatarItemPreview {
+  widthScale: number
+  heightScale: number
+  topScale: number
+  xOffsetScale?: number
+}
+
 interface AvatarItemAsset {
   source: ImageSourcePropType
+  layerOrder?: number
   layerStyle?: ImageStyle
-  preview?: {
-    widthScale: number
-    heightScale: number
-    topScale: number
-  }
+  preview?: AvatarItemPreview
 }
 
 const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {
+  top_001: {
+    source: require('../assets/avatar/top/top_001_black.png'),
+    preview: {
+      widthScale: 2.55,
+      heightScale: 3.82,
+      topScale: -0.92,
+    },
+  },
   top_002: {
     source: require('../assets/avatar/top/top_002_white.png'),
     preview: {
       widthScale: 2.3,
       heightScale: 3.45,
       topScale: -0.78,
+    },
+  },
+  top_003: {
+    source: require('../assets/avatar/top/top_003_black_crop.png'),
+    preview: {
+      widthScale: 2.7,
+      heightScale: 4.05,
+      topScale: -1.0,
     },
   },
   bottom_009: {
@@ -67,9 +87,51 @@ const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {
       topScale: -3.62,
     },
   },
+  accessory_001: {
+    source: require('../assets/avatar/accessory/accessory_001_glasses.png'),
+    preview: {
+      widthScale: 4.5,
+      heightScale: 6.75,
+      topScale: -0.58,
+    },
+  },
+  accessory_002: {
+    source: require('../assets/avatar/accessory/accessory_002_knee_socks.png'),
+    layerOrder: -1,
+    preview: {
+      widthScale: 2.5,
+      heightScale: 3.75,
+      topScale: -2.18,
+    },
+  },
+  accessory_003: {
+    source: require('../assets/avatar/accessory/accessory_003_necklace.png'),
+    preview: {
+      widthScale: 8.0,
+      heightScale: 12.0,
+      topScale: -2.58,
+    },
+  },
+  accessory_004: {
+    source: require('../assets/avatar/accessory/accessory_004_watch.png'),
+    preview: {
+      widthScale: 7.0,
+      heightScale: 10.5,
+      topScale: -4.5,
+      xOffsetScale: -1.08,
+    },
+  },
+  accessory_005: {
+    source: require('../assets/avatar/accessory/accessory_005_cap.png'),
+    preview: {
+      widthScale: 3.6,
+      heightScale: 5.4,
+      topScale: -0.08,
+    },
+  },
 }
 
-const DEFAULT_PREVIEW = {
+const DEFAULT_PREVIEW: AvatarItemPreview = {
   widthScale: 2.2,
   heightScale: 4.4,
   topScale: -1.52,
@@ -83,12 +145,19 @@ export function getAvatarItemAsset(itemId: string): AvatarItemAsset | null {
   return AVATAR_ITEM_ASSETS[itemId] ?? null
 }
 
+export function getAvatarItemLayerOrder(itemId: string): number | null {
+  return AVATAR_ITEM_ASSETS[itemId]?.layerOrder ?? null
+}
+
 export function getAvatarItemPreviewStyle(itemId: string, itemSize: number): ImageStyle {
   const preview = AVATAR_ITEM_ASSETS[itemId]?.preview ?? DEFAULT_PREVIEW
+  const transform =
+    preview.xOffsetScale == null ? undefined : [{ translateX: itemSize * preview.xOffsetScale }]
 
   return {
     width: itemSize * preview.widthScale,
     height: itemSize * preview.heightScale,
     top: itemSize * preview.topScale,
+    transform,
   }
 }
