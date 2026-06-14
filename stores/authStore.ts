@@ -186,9 +186,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  // 비밀번호 재설정 메일 발송. 메일의 링크는 auth/callback으로 돌아온다(type=recovery).
+  // 비밀번호 재설정 메일 발송. 메일의 링크는 auth/callback으로 돌아온다.
+  // PKCE 흐름에선 Supabase verify 리다이렉트가 type=recovery를 떨구므로,
+  // redirect_to에 intent=recovery 표식을 직접 심어 콜백에서 재설정 흐름을 구분한다.
   sendPasswordReset: async (email) => {
-    const redirectTo = Linking.createURL('auth/callback')
+    const redirectTo = Linking.createURL('auth/callback', { queryParams: { intent: 'recovery' } })
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
     return { error: error?.message ?? null }
   },
@@ -204,7 +206,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (callbackError) return { error: callbackError }
 
     // 비밀번호 재설정 링크면 새 비밀번호 입력 화면으로 보내기 위해 표시한다.
-    const recovery = getUrlParam(url, 'type') === 'recovery'
+    // type=recovery는 implicit 흐름, intent=recovery는 PKCE 흐름(우리가 심은 표식)에서 잡힌다.
+    const recovery =
+      getUrlParam(url, 'type') === 'recovery' || getUrlParam(url, 'intent') === 'recovery'
 
     const code = getUrlParam(url, 'code')
     if (code) {
