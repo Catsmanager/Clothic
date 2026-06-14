@@ -1,5 +1,27 @@
 # LOG
 
+## 2026-06-14 (fix: 비밀번호 재설정 링크가 재설정 화면 대신 홈으로 이동)
+
+### 처리 항목
+- 이슈 #99 / 작업 브랜치: fix/password-reset-recovery-redirect-99
+- 문제: 재설정 이메일은 정상 발송되나 링크 클릭 시 `/reset-password`가 아니라 홈으로 이동
+- 원인: 앱이 PKCE 흐름(`flowType: 'pkce'`)을 쓰는데, Supabase verify 엔드포인트가 콜백으로 리다이렉트할 때 `type=recovery`를 떨굼 → 콜백이 재설정 흐름을 구분 못 하고 일반 로그인으로 취급 → 홈(`/(tabs)`)으로 보냄. (Site URL / Redirect URLs 설정은 정상이었음)
+- 해결: `redirect_to`에 `intent=recovery` 표식을 직접 심어 콜백이 재설정 흐름을 인식하도록 함
+
+### 신규/변경
+- stores/authStore.ts
+  - `sendPasswordReset` — `redirect_to`를 `Linking.createURL('auth/callback', { queryParams: { intent: 'recovery' } })`로 변경. Supabase가 `&code=...`를 덧붙여도 표식 유지
+  - `handleAuthCallback` — `type=recovery`(implicit) 또는 `intent=recovery`(PKCE, 우리 표식)면 recovery로 인식
+
+### 리뷰에서 발견·반영
+- PKCE에선 `exchangeCodeForSession`이 `SIGNED_IN`만 발생시키고 `PASSWORD_RECOVERY` 이벤트는 안 떠서 이벤트 기반 감지는 부적합 → redirect_to 표식 방식 채택 (웹 새로고침·기기 무관하게 동작)
+- Kakao/이메일 가입 콜백은 `intent`를 안 붙이므로 영향 없음 (recovery=false → 홈)
+- 진단 중 간헐적 `/login` 이동은 일회용 링크 재사용(`otp_expired`) 때문이었고 코드 버그 아님
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+- 웹 실제 동작: 새 메일 → 링크 1회 클릭 → 재설정 화면 정상 진입 확인
+
 ## 2026-06-12 (feat: 코디 저장 시 아이템 색상 선택 — 통계 색상 정확도)
 
 ### 처리 항목
