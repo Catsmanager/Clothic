@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   },
   bubbleWrap: {
     position: 'absolute',
-    top: '14%',
+    top: '30%',
     left: 0,
     right: 0,
     alignItems: 'center',
@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
+    maxWidth: '82%',
     borderRadius: radius.full,
     borderWidth: 1,
     borderColor: colors.border,
