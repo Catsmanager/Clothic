@@ -14,6 +14,8 @@ import { colors } from '../constants/colors'
 import { spacing, radius } from '../constants/spacing'
 import { useAuthStore } from '../stores/authStore'
 
+const LOGIN_CHARACTER = require('../assets/auth/login-character-cropped.png')
+
 export default function LoginScreen() {
   const signInWithEmail = useAuthStore((s) => s.signInWithEmail)
   const signInWithKakao = useAuthStore((s) => s.signInWithKakao)
@@ -93,8 +95,10 @@ export default function LoginScreen() {
       }
     >
       <AuthHeader
+        centered
+        illustration={LOGIN_CHARACTER}
         title="다시 만나서 반가워요"
-        subtitle={`이메일로 로그인하고\n오늘의 코디를 기록해보세요.`}
+        subtitle="오늘의 코디를 기록해보세요."
       />
 
       <View style={styles.form}>
