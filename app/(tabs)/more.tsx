@@ -22,10 +22,7 @@ export default function WardrobeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <WardrobeHeader
-        onAddPress={() => router.push('/item-new')}
-        onHelpPress={() => setHelpVisible(true)}
-      />
+      <WardrobeHeader onHelpPress={() => setHelpVisible(true)} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <Pressable

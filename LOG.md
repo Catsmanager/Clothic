@@ -1,5 +1,99 @@
 # LOG
 
+## 2026-06-16 (fix: TestFlight 90683 NSMotionUsageDescription 누락 해결)
+
+### 처리 항목
+- TestFlight 업로드 시 경고 90683(Missing purpose string / NSMotionUsageDescription) 발생
+- 원인: expo-location이 Core Motion 프레임워크에 링크되어 바이너리가 Motion API를 참조하나, `motionUsagePermission: false`로 Info.plist에서 목적 문자열을 제거하고 있었음. Apple은 API 참조가 있으면 사용 여부와 무관하게 목적 문자열을 요구함
+
+### 변경 (app.json)
+- expo-location 플러그인 `motionUsagePermission`을 `false` → 사용자용 목적 문자열로 변경 → 다음 EAS 빌드 시 Info.plist에 NSMotionUsageDescription 생성됨
+
+### 검증
+- 코드 변경 없음 (app.json 설정만 수정) → tsc/lint 생략. 다음 EAS 빌드에서 효과 검증
+
+## 2026-06-15 (docs: 개인정보 처리방침 코드 대조 정정·보강)
+
+### 처리 항목
+- 기존 docs/PRIVACY_POLICY.md 초안을 실제 코드/수집 흐름과 대조해 부정확·누락 보완 (신규 작성 아님 — 기존 문서 개정)
+- 확인: 분석/크래시/광고 SDK 없음, 결제 SDK 없음(package.json), Apple·Kakao 로그인 사용, 위치는 When-In-Use 일시 사용·미저장, Supabase 국외 저장
+
+### 변경 (docs/PRIVACY_POLICY.md)
+- 시행일 2026-06-15, 문의처 hyeonjij450@gmail.com(앱 contact.tsx에 이미 공개된 주소) 기입
+- 수집 항목: Apple 로그인 추가, 프로필·알림설정·날씨·색상·즐겨찾기·인앱알림 명시
+- 삭제: "기기/로그(오류 로그) 자동 수집" — 실제 미수집이라 과장 기재 제거, "분석·광고·크래시 도구 미사용" 명시
+- 제3자: Apple을 결제가 아닌 로그인으로 정정, "결제 기능 없음" 명시(CLAUDE.md 결제 금지와 일치)
+- 신규: 개인정보 국외 이전(Supabase) 조항 추가
+- English Summary 동일 내용으로 갱신
+- 2026-06-16: 운영자=진현지, 저장 리전=대한민국(서울) 기입. 리전이 국내이므로 "국외 이전" 조항을 "데이터 저장 위치 및 처리 위탁"으로 정정(국내 저장, 인프라는 해외 법인 Supabase, Inc. 운영). 모든 placeholder 해소
+
+### 검증
+- 코드 변경 없음 (문서만 수정) → tsc/lint 생략
+
+## 2026-06-16 (feat: 앱 내 개인정보 처리방침 화면을 정식 내용과 동기화)
+
+### 처리 항목
+- app/privacy.tsx가 3문단 stub("정식 문서는 공개 전 업데이트")이라 Apple 심사에 약한 신호 → docs/PRIVACY_POLICY.md 확정 내용으로 교체
+- 수집항목·이용목적·보관기간·처리위탁(Supabase 대한민국 리전)·이용자 권리·안전성·문의처(운영자 진현지, hyeonjij450@gmail.com) 7개 섹션을 SECTIONS 배열로 구조화해 렌더
+
+### 변경
+- app/privacy.tsx — SECTIONS 데이터 + map 렌더, sectionTitle/effectiveDate 스타일 추가. 기존 SafeAreaView/SettingsHeader/ScrollView 구조 유지
+
+### 검증
+- npx tsc --noEmit PASS / npx expo lint PASS
+
+## 2026-06-15 (chore: iOS 미사용 권한 제거 — 앱스토어 심사 대비)
+
+### 처리 항목
+- 앱스토어 심사 점검 중, app.json의 expo-location 플러그인이 `locationAlwaysAndWhenInUsePermission`만 한글로 지정 → @expo/config-plugins의 createPermissionsPlugin(applyPermissions)이 관리 키 전부를 주입하는 구조라, 빌드 Info.plist에 상시(Always) 위치 2종 + WhenInUse(영어 기본) + NSMotionUsageDescription(영어 기본)까지 들어감을 확인
+- 추가로 expo-secure-store 플러그인이 NSFaceIDUsageDescription(영어 기본)을 주입. 단 코드(lib/supabase.ts·lib/keyValueStore.ts)는 SecureStore를 requireAuthentication 없이 사용 → 생체인증 미사용
+- 실제 사용 권한은 "사용 중 위치(When In Use)"뿐. 미사용 권한이 선언되면 Apple 5.1.1(목적 문구·미사용 권한)·2.5.4(백그라운드 위치 정당화) 리젝 위험
+
+### 변경
+- app.json
+  - expo-location: `locationWhenInUsePermission`(한글)로 변경, `locationAlwaysAndWhenInUsePermission`/`locationAlwaysPermission`/`motionUsagePermission`을 `false`로 명시 삭제
+  - expo-secure-store: 객체 형태로 바꿔 `faceIDPermission: false`로 NSFaceIDUsageDescription 삭제
+
+### 검증
+- `npx expo config --type introspect` → iOS Info.plist 위치 권한이 `NSLocationWhenInUseUsageDescription`(한글) 1종만 남음. NSLocationAlways*/NSMotion/NSFaceID 제거 확인
+- `npx tsc --noEmit` PASS / `npx expo lint` PASS (코드 변경 없음, 설정만 수정)
+
+## 2026-06-15 (docs: 챌린지/잠자는 옷장 'mock' 표기 정정 — 실데이터 기반)
+
+### 처리 항목
+- 앱스토어 심사 점검 중, TODO.md·USER_ACTION_ITEMS.md가 챌린지 화면을 "mock"으로 표기했으나 실제 코드는 실데이터 기반임을 확인 (문서-코드 불일치)
+- lib/challenges.ts의 buildChallengeData가 outfits/items에서 streak·조합·비오는날·배지 등을 모두 계산 → mock 아님. 배너/안내에 placeholder 문구 없음
+- 사용자 결정: 동작하는 기능이므로 숨기지 않고 그대로 MVP 포함, 문서만 정정
+
+### 변경
+- TODO.md — 챌린지 화면 항목의 "(mock 데이터)" 표기 제거 및 실데이터 기반 명시
+- USER_ACTION_ITEMS.md — "결정이 필요한 항목"의 챌린지/잠자는 옷장 mock 관련 항목을 해소 처리
+
+### 검증
+- 코드 변경 없음 (문서만 수정) → tsc/lint 생략
+
+## 2026-06-14 (fix: 비밀번호 재설정 링크가 재설정 화면 대신 홈으로 이동)
+
+### 처리 항목
+- 이슈 #99 / 작업 브랜치: fix/password-reset-recovery-redirect-99
+- 문제: 재설정 이메일은 정상 발송되나 링크 클릭 시 `/reset-password`가 아니라 홈으로 이동
+- 원인: 앱이 PKCE 흐름(`flowType: 'pkce'`)을 쓰는데, Supabase verify 엔드포인트가 콜백으로 리다이렉트할 때 `type=recovery`를 떨굼 → 콜백이 재설정 흐름을 구분 못 하고 일반 로그인으로 취급 → 홈(`/(tabs)`)으로 보냄. (Site URL / Redirect URLs 설정은 정상이었음)
+- 해결: `redirect_to`에 `intent=recovery` 표식을 직접 심어 콜백이 재설정 흐름을 인식하도록 함
+
+### 신규/변경
+- stores/authStore.ts
+  - `sendPasswordReset` — `redirect_to`를 `Linking.createURL('auth/callback', { queryParams: { intent: 'recovery' } })`로 변경. Supabase가 `&code=...`를 덧붙여도 표식 유지
+  - `handleAuthCallback` — `type=recovery`(implicit) 또는 `intent=recovery`(PKCE, 우리 표식)면 recovery로 인식
+
+### 리뷰에서 발견·반영
+- PKCE에선 `exchangeCodeForSession`이 `SIGNED_IN`만 발생시키고 `PASSWORD_RECOVERY` 이벤트는 안 떠서 이벤트 기반 감지는 부적합 → redirect_to 표식 방식 채택 (웹 새로고침·기기 무관하게 동작)
+- Kakao/이메일 가입 콜백은 `intent`를 안 붙이므로 영향 없음 (recovery=false → 홈)
+- 진단 중 간헐적 `/login` 이동은 일회용 링크 재사용(`otp_expired`) 때문이었고 코드 버그 아님
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+- 웹 실제 동작: 새 메일 → 링크 1회 클릭 → 재설정 화면 정상 진입 확인
+
 ## 2026-06-12 (feat: 코디 저장 시 아이템 색상 선택 — 통계 색상 정확도)
 
 ### 처리 항목

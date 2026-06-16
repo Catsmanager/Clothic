@@ -6,7 +6,7 @@ import { spacing } from '../../constants/spacing'
 
 interface Props {
   children: ReactNode
-  footer: ReactNode
+  footer?: ReactNode
 }
 
 export default function AuthScreen({ children, footer }: Props) {

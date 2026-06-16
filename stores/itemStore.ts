@@ -11,7 +11,6 @@ import type { Database } from '../lib/database.types'
 import { supabase } from '../lib/supabase'
 
 type ItemRow = Database['public']['Tables']['items']['Row']
-type ItemInsert = Database['public']['Tables']['items']['Insert']
 
 export interface UserItem {
   id: string
@@ -24,23 +23,12 @@ export interface UserItem {
   createdAt: string
 }
 
-export interface NewItem {
-  name: string
-  category: Category
-  color: string
-  styleTags: StyleTag[]
-  imagePath?: string
-}
-
-type Result = { error: string | null }
-
 interface ItemState {
   items: UserItem[]
   loading: boolean
   error: string | null
 
   fetchItems: () => Promise<void>
-  addItem: (input: NewItem) => Promise<Result>
 }
 
 function sanitizeStyleTags(tags: string[] | null): StyleTag[] {
@@ -82,7 +70,7 @@ export function findCatalogItemById(items: CatalogItem[], id: string): CatalogIt
   return items.find((item) => item.id === id)
 }
 
-export const useItemStore = create<ItemState>((set, get) => ({
+export const useItemStore = create<ItemState>((set) => ({
   items: [],
   loading: false,
   error: null,
@@ -103,30 +91,5 @@ export const useItemStore = create<ItemState>((set, get) => ({
       items: (data ?? []).map(mapRow).filter((item): item is UserItem => item != null),
       loading: false,
     })
-  },
-
-  addItem: async (input) => {
-    const name = input.name.trim()
-    if (name.length === 0) return { error: '아이템 이름을 입력하세요.' }
-
-    const { data: userData } = await supabase.auth.getUser()
-    const userId = userData.user?.id
-    if (!userId) return { error: '로그인이 필요합니다.' }
-
-    const payload: ItemInsert = {
-      user_id: userId,
-      name,
-      category: input.category,
-      image_path: input.imagePath ?? '',
-      color: input.color,
-      style_tags: input.styleTags,
-    }
-
-    const { data, error } = await supabase.from('items').insert(payload).select().single()
-    if (error) return { error: error.message }
-
-    const item = data ? mapRow(data) : null
-    if (item) set({ items: [item, ...get().items] })
-    return { error: null }
   },
 }))

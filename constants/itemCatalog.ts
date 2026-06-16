@@ -5,6 +5,15 @@ import type { CatalogItem } from './items'
 export const ITEM_CATALOG: CatalogItem[] = [
   // top
   {
+    id: 'top_001',
+    category: 'top',
+    subCategory: '나시',
+    name: '일반 나시',
+    color: '#24231F',
+    imagePath: 'assets/avatar/top/top_001_black.png',
+    styleTags: ['minimal', 'chic'],
+  },
+  {
     id: 'top_002',
     category: 'top',
     subCategory: '티셔츠',
@@ -12,6 +21,15 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#F5F5F5',
     imagePath: 'assets/avatar/top/top_002_white.png',
     styleTags: ['casual', 'minimal'],
+  },
+  {
+    id: 'top_003',
+    category: 'top',
+    subCategory: '나시',
+    name: '크롭 나시',
+    color: '#1E2520',
+    imagePath: 'assets/avatar/top/top_003_black_crop.png',
+    styleTags: ['street', 'chic'],
   },
 
   // bottom
@@ -29,7 +47,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     category: 'bottom',
     subCategory: '팬츠',
     name: '청 와이드 팬츠',
-    color: '#9CB8CC',
+    color: '#6B8CAE',
     imagePath: 'assets/avatar/bottom/bottom_010_blue.png',
     styleTags: ['casual', 'street'],
   },
@@ -70,5 +88,52 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#111111',
     imagePath: 'assets/avatar/shoes/shoes_007_black.png',
     styleTags: ['formal', 'chic'],
+  },
+
+  // accessory
+  {
+    id: 'accessory_001',
+    category: 'accessory',
+    subCategory: '안경',
+    name: '원형 안경',
+    color: '#8C5B52',
+    imagePath: 'assets/avatar/accessory/accessory_001_glasses.png',
+    styleTags: ['minimal', 'chic'],
+  },
+  {
+    id: 'accessory_002',
+    category: 'accessory',
+    subCategory: '니삭스',
+    name: '화이트 니삭스',
+    color: '#F5F5F5',
+    imagePath: 'assets/avatar/accessory/accessory_002_knee_socks.png',
+    styleTags: ['feminine', 'preppy'],
+  },
+  {
+    id: 'accessory_003',
+    category: 'accessory',
+    subCategory: '목걸이',
+    name: '블루 펜던트 목걸이',
+    color: '#1F5D99',
+    imagePath: 'assets/avatar/accessory/accessory_003_necklace.png',
+    styleTags: ['minimal', 'chic'],
+  },
+  {
+    id: 'accessory_004',
+    category: 'accessory',
+    subCategory: '시계',
+    name: '메탈 시계',
+    color: '#4F5873',
+    imagePath: 'assets/avatar/accessory/accessory_004_watch.png',
+    styleTags: ['minimal', 'chic'],
+  },
+  {
+    id: 'accessory_005',
+    category: 'accessory',
+    subCategory: '모자',
+    name: '크림 볼캡',
+    color: '#F2D7A9',
+    imagePath: 'assets/avatar/accessory/accessory_005_cap.png',
+    styleTags: ['casual', 'sporty'],
   },
 ]

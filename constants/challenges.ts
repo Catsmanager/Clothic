@@ -1,5 +1,5 @@
 export type ChallengeIcon = 'calendar' | 'wardrobe' | 'hanger' | 'umbrella'
-export type BadgeIcon = 'sprout' | 'calendar' | 'wardrobe' | 'umbrella' | 'lock'
+export type BadgeIcon = 'sprout' | 'calendar' | 'wardrobe' | 'umbrella' | 'compass'
 
 export interface Challenge {
   id: string
