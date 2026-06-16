@@ -1,17 +1,28 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { Image, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native'
 import { colors } from '../../constants/colors'
 import { spacing } from '../../constants/spacing'
 
 interface Props {
   title: string
   subtitle: string
+  illustration?: ImageSourcePropType
+  centered?: boolean
 }
 
-export default function AuthHeader({ title, subtitle }: Props) {
+export default function AuthHeader({ title, subtitle, illustration, centered = false }: Props) {
   return (
-    <View style={styles.header}>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.subtitle}>{subtitle}</Text>
+    <View style={[styles.header, centered && styles.headerCentered]}>
+      {illustration && (
+        <Image
+          source={illustration}
+          style={styles.illustration}
+          resizeMode="contain"
+          accessible={false}
+          accessibilityIgnoresInvertColors
+        />
+      )}
+      <Text style={[styles.title, centered && styles.textCentered]}>{title}</Text>
+      <Text style={[styles.subtitle, centered && styles.textCentered]}>{subtitle}</Text>
     </View>
   )
 }
@@ -19,6 +30,15 @@ export default function AuthHeader({ title, subtitle }: Props) {
 const styles = StyleSheet.create({
   header: {
     gap: spacing.sm,
+  },
+  headerCentered: {
+    alignItems: 'center',
+  },
+  illustration: {
+    alignSelf: 'center',
+    width: 240,
+    height: 240,
+    marginBottom: spacing.md,
   },
   title: {
     fontSize: 26,
@@ -30,5 +50,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textMuted,
     lineHeight: 22,
+  },
+  textCentered: {
+    textAlign: 'center',
   },
 })
