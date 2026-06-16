@@ -50,10 +50,7 @@ export default function ResetPasswordScreen() {
 
   return (
     <AuthScreen>
-      <AuthHeader
-        title="새 비밀번호 설정"
-        subtitle={`사용할 새 비밀번호를\n입력해주세요.`}
-      />
+      <AuthHeader title="새 비밀번호 설정" subtitle={`사용할 새 비밀번호를\n입력해주세요.`} />
 
       <View style={styles.form}>
         <AuthTextField
