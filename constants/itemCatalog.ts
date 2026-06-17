@@ -1,7 +1,6 @@
 import type { CatalogItem } from './items'
 
 // 실제 PNG 에셋이 제작된 아이템만 등록한다. (목데이터 금지)
-// 에셋이 없는 카테고리(hair, accessory)는 UI에서 "추후 업데이트" 빈 상태로 안내한다.
 export const ITEM_CATALOG: CatalogItem[] = [
   // top
   {
@@ -88,6 +87,26 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#111111',
     imagePath: 'assets/avatar/shoes/shoes_007_black.png',
     styleTags: ['formal', 'chic'],
+  },
+
+  // hair
+  {
+    id: 'hair_001',
+    category: 'hair',
+    subCategory: '전체',
+    name: '단발머리',
+    color: '#5A4036',
+    imagePath: 'assets/avatar/hair/hair_001_brown.png',
+    styleTags: ['casual', 'feminine'],
+  },
+  {
+    id: 'hair_002',
+    category: 'hair',
+    subCategory: '전체',
+    name: '포니테일',
+    color: '#70482F',
+    imagePath: 'assets/avatar/hair/hair_002_brown.png',
+    styleTags: ['casual', 'sporty'],
   },
 
   // accessory
