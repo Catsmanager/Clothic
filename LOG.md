@@ -1,5 +1,24 @@
 # LOG
 
+## 2026-06-17 (fix: App Store ITMS-90683 재발 대응 — NSMotionUsageDescription 이중 보장 + 재빌드 준비)
+
+### 처리 항목
+- App Store Connect 1.1.0 Build 1 거절(ITMS-90683, NSMotionUsageDescription 누락) 메일 수신
+- 진단: 거절된 Build 1은 6/15 `motionUsagePermission: false`(키 제거) 상태에서 만들어진 바이너리. 6/16 fix(72f9a70)에서 이미 목적 문자열 복구됨 → 소스는 이미 정상이며 재빌드만 필요
+- `npx expo config --type introspect`로 빌드 Info.plist에 NSMotionUsageDescription 포함 확인
+
+### 변경
+- app.json — `ios.infoPlist.NSMotionUsageDescription` 직접 지정 추가(expo-location 플러그인 외 이중 보장). android `adaptiveIcon.backgroundImage` 제거
+- eas.json — production submit ios 자격증명(appleId/ascAppId/appleTeamId) 실제 값 기입
+- package.json / package-lock.json — expo SDK 패치 버전 업(expo 56.0.9→56.0.12, expo-location 56.0.16→56.0.18, expo-router 56.2.9→56.2.11 등)
+
+### 다음 작업 (사용자 실행 필요)
+- `eas build --platform ios --profile production` (autoIncrement → Build 2)
+- `eas submit --platform ios --profile production` 후 재심사 제출
+
+### 검증
+- `npx expo config --type introspect` → NSMotionUsageDescription 정상 포함 확인
+
 ## 2026-06-16 (fix: TestFlight 90683 NSMotionUsageDescription 누락 해결)
 
 ### 처리 항목

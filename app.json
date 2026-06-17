@@ -12,7 +12,8 @@
       "bundleIdentifier": "com.clothic.app",
       "usesAppleSignIn": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSMotionUsageDescription": "위치 기반 날씨 정보를 정확하게 제공하기 위해 동작 정보를 사용합니다."
       }
     },
     "android": {
@@ -20,7 +21,6 @@
       "adaptiveIcon": {
         "backgroundColor": "#FBF6EF",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
