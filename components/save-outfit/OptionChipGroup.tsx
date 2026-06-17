@@ -47,8 +47,8 @@ export default function OptionChipGroup<OptionValue extends string>({
 const styles = StyleSheet.create({
   label: {
     fontSize: 13,
-    color: colors.textMuted,
-    fontWeight: '500',
+    color: '#7A4A36',
+    fontWeight: '700',
     marginTop: spacing.sm,
   },
   chipRow: {
@@ -57,20 +57,24 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   chip: {
-    backgroundColor: colors.secondary,
-    borderRadius: radius.full,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    backgroundColor: colors.white,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 9,
+    paddingHorizontal: 11,
   },
   chipActive: {
-    backgroundColor: colors.text,
+    backgroundColor: '#FFF5ED',
+    borderColor: '#8A4F32',
   },
   chipText: {
     fontSize: 13,
     color: colors.text,
+    fontWeight: '600',
   },
   chipTextActive: {
-    color: colors.white,
+    color: '#8A4F32',
     fontWeight: '600',
   },
 })

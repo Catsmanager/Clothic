@@ -58,12 +58,14 @@ const styles = StyleSheet.create({
   btn: {
     flex: 1,
     height: 52,
-    borderRadius: radius.full,
+    borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
   cancelBtn: {
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: '#D9A98E',
   },
   cancelText: {
     fontSize: 15,
@@ -71,7 +73,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   saveBtn: {
-    backgroundColor: colors.text,
+    backgroundColor: '#8A4F32',
   },
   btnDisabled: {
     opacity: 0.6,
