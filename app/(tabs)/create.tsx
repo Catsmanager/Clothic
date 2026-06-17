@@ -36,7 +36,10 @@ export default function CreateScreen() {
         return
       }
       setSheetVisible(false)
-      router.replace('/outfits')
+      router.replace({
+        pathname: '/(tabs)',
+        params: { savedOutfit: Date.now().toString() },
+      })
     },
     [addOutfit]
   )

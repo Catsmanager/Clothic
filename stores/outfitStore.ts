@@ -76,6 +76,7 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
       .from('outfits')
       .select('*')
       .order('date', { ascending: false })
+      .order('created_at', { ascending: false })
 
     if (error) {
       set({ loading: false, error: error.message })
