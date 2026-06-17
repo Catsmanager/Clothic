@@ -87,6 +87,22 @@ const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {
       topScale: -3.62,
     },
   },
+  hair_001: {
+    source: require('../assets/avatar/hair/hair_001_brown.png'),
+    preview: {
+      widthScale: 2.8,
+      heightScale: 4.2,
+      topScale: -0.04,
+    },
+  },
+  hair_002: {
+    source: require('../assets/avatar/hair/hair_002_brown.png'),
+    preview: {
+      widthScale: 3.15,
+      heightScale: 4.72,
+      topScale: -0.08,
+    },
+  },
   accessory_001: {
     source: require('../assets/avatar/accessory/accessory_001_glasses.png'),
     preview: {

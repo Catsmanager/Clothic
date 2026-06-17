@@ -16,3 +16,6 @@ web-build/
 
 # Claude Code (로컬 도구 상태 — 커밋 제외)
 .claude/
+
+# Supabase CLI local cache
+supabase/.temp/

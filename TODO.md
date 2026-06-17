@@ -63,7 +63,7 @@
 - [x] 캘린더 화면  (Supabase outfits 기반)
 - [x] 월간 통계 화면  (Supabase outfits 기반 클라이언트 계산)
 - [x] 잠자는 옷장 화면  ← 2026-06-12 mock 제거, outfits 실데이터 역산으로 전환 (이슈 #80)
-- [x] 챌린지 화면  (mock 데이터)  ← app/challenge.tsx + components/challenge/* (히어로/진행 챌린지/획득 배지/안내 배너). 홈 헤더 award 아이콘으로 진입
+- [x] 챌린지 화면  ← app/challenge.tsx + components/challenge/* (히어로/진행 챌린지/획득 배지/안내 배너). 홈 헤더 award 아이콘으로 진입. **lib/challenges.ts에서 outfits/items 실데이터로 챌린지·배지·요약 계산(mock 아님)** — mock 표기는 2026-06-15 정정
 
 ## 색상 방향 (2026-06-11 결정)
 > **현재(초기 단계)**: 색은 옷이 가진 속성. 개발자가 카탈로그 옷에 의미 있는 색을 큐레이션해
