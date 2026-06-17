@@ -4,7 +4,6 @@ import * as AppleAuthentication from 'expo-apple-authentication'
 import { router } from 'expo-router'
 import AuthDivider from '../components/auth/AuthDivider'
 import AuthErrorText from '../components/auth/AuthErrorText'
-import AuthFooterLink from '../components/auth/AuthFooterLink'
 import AuthHeader from '../components/auth/AuthHeader'
 import AuthLegalLinks from '../components/auth/AuthLegalLinks'
 import AuthScreen from '../components/auth/AuthScreen'
@@ -81,22 +80,11 @@ export default function LoginScreen() {
   }
 
   return (
-    <AuthScreen
-      footer={
-        <View>
-          <AuthFooterLink
-            disabled={busy}
-            prompt="아직 계정이 없으신가요?"
-            linkLabel="회원가입"
-            onPress={() => router.push('/signup')}
-          />
-          <AuthLegalLinks />
-        </View>
-      }
-    >
+    <AuthScreen footer={<AuthLegalLinks />}>
       <AuthHeader
         centered
         illustration={LOGIN_CHARACTER}
+        illustrationStyle={styles.loginCharacter}
         title="다시 만나서 반가워요"
         subtitle="오늘의 코디를 기록해보세요."
       />
@@ -144,6 +132,20 @@ export default function LoginScreen() {
           onPress={handleSignIn}
         />
 
+        <View style={styles.signupLinkRow}>
+          <Text style={styles.signupPrompt}>계정이 없으신가요?</Text>
+          <TouchableOpacity
+            onPress={() => router.push('/signup')}
+            activeOpacity={0.7}
+            disabled={busy}
+            accessibilityRole="button"
+            accessibilityLabel="회원가입"
+            accessibilityState={{ disabled: busy }}
+          >
+            <Text style={[styles.signupLink, busy && styles.signupLinkDisabled]}>회원가입</Text>
+          </TouchableOpacity>
+        </View>
+
         <AuthDivider />
 
         <TouchableOpacity
@@ -177,6 +179,10 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
+  loginCharacter: {
+    marginTop: spacing.lg,
+    marginBottom: spacing.xs,
+  },
   form: {
     gap: spacing.md,
   },
@@ -203,6 +209,26 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 16,
     fontWeight: '600',
+  },
+  signupLinkRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: -spacing.xs,
+  },
+  signupPrompt: {
+    color: colors.textMuted,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  signupLink: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  signupLinkDisabled: {
+    opacity: 0.4,
   },
   appleBtn: {
     width: '100%',
