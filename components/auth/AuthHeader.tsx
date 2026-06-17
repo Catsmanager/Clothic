@@ -1,4 +1,12 @@
-import { Image, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native'
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  type ImageSourcePropType,
+  type ImageStyle,
+  type StyleProp,
+} from 'react-native'
 import { colors } from '../../constants/colors'
 import { spacing } from '../../constants/spacing'
 
@@ -6,16 +14,23 @@ interface Props {
   title: string
   subtitle: string
   illustration?: ImageSourcePropType
+  illustrationStyle?: StyleProp<ImageStyle>
   centered?: boolean
 }
 
-export default function AuthHeader({ title, subtitle, illustration, centered = false }: Props) {
+export default function AuthHeader({
+  title,
+  subtitle,
+  illustration,
+  illustrationStyle,
+  centered = false,
+}: Props) {
   return (
     <View style={[styles.header, centered && styles.headerCentered]}>
       {illustration && (
         <Image
           source={illustration}
-          style={styles.illustration}
+          style={[styles.illustration, illustrationStyle]}
           resizeMode="contain"
           accessible={false}
           accessibilityIgnoresInvertColors
