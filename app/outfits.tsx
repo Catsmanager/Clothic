@@ -2,12 +2,14 @@ import { useEffect, useState, useMemo, useCallback } from 'react'
 import {
   View,
   Text,
+  Pressable,
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
   StyleSheet,
   Dimensions,
   Alert,
+  type GestureResponderEvent,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
@@ -175,11 +177,14 @@ function OutfitCard({
     .filter((item): item is CatalogItem => item != null)
   const dateLabel = formatShortDateWithWeekday(outfit.date)
   const memoLabel = outfit.memo ?? '메모 없음'
+  const handleToggleFav = (event: GestureResponderEvent) => {
+    event.stopPropagation()
+    onToggleFav()
+  }
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={styles.card}
-      activeOpacity={0.9}
       onPress={() => router.push(`/outfit/${outfit.id}`)}
       accessibilityRole="button"
       accessibilityLabel={`${dateLabel} 코디 상세 보기, ${memoLabel}`}
@@ -188,7 +193,7 @@ function OutfitCard({
         <OutfitAvatar items={items} style={styles.thumbAvatar} />
         <TouchableOpacity
           style={styles.starBtn}
-          onPress={onToggleFav}
+          onPress={handleToggleFav}
           hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel={outfit.isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
@@ -205,7 +210,7 @@ function OutfitCard({
       <Text style={styles.cardMemo} numberOfLines={1}>
         {memoLabel}
       </Text>
-    </TouchableOpacity>
+    </Pressable>
   )
 }
 

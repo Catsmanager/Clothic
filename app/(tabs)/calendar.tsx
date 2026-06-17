@@ -25,10 +25,13 @@ export default function CalendarScreen() {
 
   const catalogItems = useMemo(() => buildCatalogItems(items), [items])
 
-  const outfitsByDate = useMemo(
-    () => new Map(outfits.map((outfit) => [outfit.date, outfit])),
-    [outfits]
-  )
+  const outfitsByDate = useMemo(() => {
+    const latestByDate = new Map<string, (typeof outfits)[number]>()
+    outfits.forEach((outfit) => {
+      if (!latestByDate.has(outfit.date)) latestByDate.set(outfit.date, outfit)
+    })
+    return latestByDate
+  }, [outfits])
   const selectedOutfit = outfitsByDate.get(selectedKey) ?? null
   const selectedItems = useMemo(
     () =>

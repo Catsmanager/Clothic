@@ -1,4 +1,11 @@
-import { StyleSheet, Text, TouchableOpacity, View, type GestureResponderEvent } from 'react-native'
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  type GestureResponderEvent,
+} from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
@@ -18,10 +25,9 @@ export default function NotificationItem({ notification, onDelete, onPress }: Pr
   }
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={[styles.row, !read && styles.rowUnread]}
       onPress={() => onPress(id)}
-      activeOpacity={0.7}
       accessibilityRole="button"
       accessibilityLabel={`${title}, ${body}, ${time}`}
       accessibilityState={{ selected: !read }}
@@ -52,7 +58,7 @@ export default function NotificationItem({ notification, onDelete, onPress }: Pr
           <Feather name="x" size={16} color={colors.textMuted} />
         </TouchableOpacity>
       )}
-    </TouchableOpacity>
+    </Pressable>
   )
 }
 

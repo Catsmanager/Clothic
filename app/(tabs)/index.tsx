@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { View, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useLocalSearchParams } from 'expo-router'
 import HomeHeader from '../../components/HomeHeader'
 import DateWeatherBar from '../../components/DateWeatherBar'
 import HomeMenuSheet from '../../components/HomeMenuSheet'
@@ -14,6 +15,9 @@ import { buildCatalogItems, findCatalogItemById, useItemStore } from '../../stor
 
 export default function HomeScreen() {
   const [menuVisible, setMenuVisible] = useState(false)
+  const [showSavedFeedback, setShowSavedFeedback] = useState(false)
+  const handledSavedFeedbackId = useRef<string | null>(null)
+  const { savedOutfit } = useLocalSearchParams<{ savedOutfit?: string | string[] }>()
   const outfits = useOutfitStore((s) => s.outfits)
   const fetchOutfits = useOutfitStore((s) => s.fetchOutfits)
   const userItems = useItemStore((s) => s.items)
@@ -23,6 +27,20 @@ export default function HomeScreen() {
     fetchOutfits()
     fetchItems()
   }, [fetchItems, fetchOutfits])
+
+  useEffect(() => {
+    const feedbackId = Array.isArray(savedOutfit) ? savedOutfit[0] : savedOutfit
+    if (feedbackId == null || handledSavedFeedbackId.current === feedbackId) return
+
+    handledSavedFeedbackId.current = feedbackId
+    setShowSavedFeedback(true)
+
+    const timer = setTimeout(() => {
+      setShowSavedFeedback(false)
+    }, 2800)
+
+    return () => clearTimeout(timer)
+  }, [savedOutfit])
 
   const todayOutfit = useMemo(
     () => outfits.find((outfit) => outfit.date === getTodayDateKey()) ?? null,
@@ -44,7 +62,7 @@ export default function HomeScreen() {
       <DateWeatherBar />
       <View style={styles.content}>
         <View style={styles.avatarWrap}>
-          <AvatarCard items={todayItems} />
+          <AvatarCard items={todayItems} savedFeedback={showSavedFeedback} />
         </View>
         <MoodMemoCard mood={todayOutfit?.mood ?? null} memo={todayOutfit?.memo ?? null} />
       </View>
