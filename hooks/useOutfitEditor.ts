@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { type CatalogItem, type Category, SUB_CATEGORIES } from '../constants/items'
+import {
+  ITEM_CATEGORIES,
+  type CatalogItem,
+  type Category,
+  SUB_CATEGORIES,
+} from '../constants/items'
 import { buildCatalogItems, useItemStore } from '../stores/itemStore'
 
 export type EquippedItems = {
@@ -72,26 +77,29 @@ export function useOutfitEditor() {
     [equipped, history, historyIndex]
   )
 
-  const randomizeActiveCategory = useCallback(() => {
-    if (filteredItems.length === 0) return
-    const candidates =
-      activeCategory === 'accessory'
-        ? filteredItems.filter((item) => !(equipped.accessory ?? []).includes(item.id))
-        : filteredItems
-    if (candidates.length === 0) return
+  const randomizeOutfit = useCallback(() => {
+    const next: EquippedItems = {}
 
-    const randomItem = candidates[Math.floor(Math.random() * candidates.length)]
-    if (randomItem == null) return
+    ITEM_CATEGORIES.forEach((category) => {
+      const candidates = catalogItems.filter((item) => item.category === category)
+      const randomItem = candidates[Math.floor(Math.random() * candidates.length)]
+      if (randomItem == null) return
 
-    const next =
-      randomItem.category === 'accessory'
-        ? { ...equipped, accessory: [...(equipped.accessory ?? []), randomItem.id] }
-        : { ...equipped, [randomItem.category]: randomItem.id }
+      if (category === 'accessory') {
+        next.accessory = [randomItem.id]
+        return
+      }
+
+      next[category] = randomItem.id
+    })
+
+    if (Object.keys(next).length === 0) return
+
     const nextHistory = history.slice(0, historyIndex + 1)
     setHistory([...nextHistory, next])
     setHistoryIndex(nextHistory.length)
     setEquipped(next)
-  }, [activeCategory, equipped, filteredItems, history, historyIndex])
+  }, [catalogItems, history, historyIndex])
 
   const undo = useCallback(() => {
     if (historyIndex <= 0) return
@@ -124,7 +132,7 @@ export function useOutfitEditor() {
     equippedItemIds,
     equippedItems,
     filteredItems,
-    randomizeActiveCategory,
+    randomizeOutfit,
     selectCategory,
     selectSubCategory,
     subCategories,

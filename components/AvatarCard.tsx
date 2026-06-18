@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Animated, Easing, View, Image, StyleSheet, Text } from 'react-native'
+import { Animated, Easing, View, Image, StyleSheet, Text, TouchableOpacity } from 'react-native'
+import { Feather } from '@expo/vector-icons'
+import type { AvatarBackground } from '../constants/avatarBackgrounds'
 import { colors } from '../constants/colors'
 import { spacing, radius } from '../constants/spacing'
 import type { CatalogItem } from '../constants/items'
 import OutfitAvatar from './OutfitAvatar'
 
-// 아바타 뒤 방 배경 (오늘의 코디 카드)
-const ROOM_BACKGROUND = require('../assets/avatar/background/room_01.png')
 // 오늘 코디 미기록 시 보여주는 가려진(모자이크) 캐릭터.
 // TODO(에셋): 현재는 base 복사본 플레이스홀더 — 디자이너가 픽셀화/모자이크 버전으로 교체 예정.
 const MOSAIC_AVATAR = require('../assets/avatar/base/base_female_01_mosaic.png')
@@ -16,9 +16,16 @@ interface Props {
   items: CatalogItem[] | null
   // 저장 직후 홈으로 돌아왔을 때 짧게 보여주는 성공 피드백.
   savedFeedback?: boolean
+  background: AvatarBackground
+  onBackgroundPress: () => void
 }
 
-export default function AvatarCard({ items, savedFeedback = false }: Props) {
+export default function AvatarCard({
+  items,
+  savedFeedback = false,
+  background,
+  onBackgroundPress,
+}: Props) {
   const [bubbleProgress] = useState(() => new Animated.Value(1))
   const [sparkleProgress] = useState(() => new Animated.Value(0))
   const isEmpty = items == null
@@ -87,10 +94,22 @@ export default function AvatarCard({ items, savedFeedback = false }: Props) {
   }
 
   return (
-    <View style={styles.card}>
-      {/* contain: 카드 높이가 화면에 맞춰 줄어도 방 배경 전체가 잘림 없이 보인다.
-          여백은 카드 배경색(secondary)과 같아 자연스럽게 묻힌다. */}
-      <Image source={ROOM_BACKGROUND} style={styles.background} resizeMode="contain" />
+    <View style={[styles.card, { backgroundColor: background.color }]}>
+      <Image
+        source={background.image}
+        style={styles.background}
+        resizeMode={background.resizeMode}
+      />
+
+      <TouchableOpacity
+        style={styles.backgroundButton}
+        onPress={onBackgroundPress}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="배경 변경"
+      >
+        <Feather name="image" size={17} color={colors.text} />
+      </TouchableOpacity>
 
       {showBubble && (
         <Animated.View style={[styles.bubbleWrap, animatedBubbleStyle]} pointerEvents="none">
@@ -136,6 +155,23 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     height: '100%',
+  },
+  backgroundButton: {
+    position: 'absolute',
+    top: spacing.sm,
+    right: spacing.sm,
+    zIndex: 3,
+    width: 34,
+    height: 34,
+    borderRadius: radius.sm,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
   bubbleWrap: {
     position: 'absolute',
