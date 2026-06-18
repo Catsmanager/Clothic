@@ -5,8 +5,14 @@ import { useLocalSearchParams } from 'expo-router'
 import HomeHeader from '../../components/HomeHeader'
 import DateWeatherBar from '../../components/DateWeatherBar'
 import HomeMenuSheet from '../../components/HomeMenuSheet'
+import HomeBackgroundSheet from '../../components/HomeBackgroundSheet'
 import AvatarCard from '../../components/AvatarCard'
 import MoodMemoCard from '../../components/MoodMemoCard'
+import {
+  DEFAULT_AVATAR_BACKGROUND_ID,
+  getAvatarBackground,
+  type AvatarBackgroundId,
+} from '../../constants/avatarBackgrounds'
 import { colors } from '../../constants/colors'
 import { spacing } from '../../constants/spacing'
 import { getTodayDateKey } from '../../lib/date'
@@ -15,6 +21,8 @@ import { buildCatalogItems, findCatalogItemById, useItemStore } from '../../stor
 
 export default function HomeScreen() {
   const [menuVisible, setMenuVisible] = useState(false)
+  const [backgroundSheetVisible, setBackgroundSheetVisible] = useState(false)
+  const [backgroundId, setBackgroundId] = useState<AvatarBackgroundId>(DEFAULT_AVATAR_BACKGROUND_ID)
   const [showSavedFeedback, setShowSavedFeedback] = useState(false)
   const handledSavedFeedbackId = useRef<string | null>(null)
   const { savedOutfit } = useLocalSearchParams<{ savedOutfit?: string | string[] }>()
@@ -55,6 +63,7 @@ export default function HomeScreen() {
       .map((id) => findCatalogItemById(catalog, id))
       .filter((item): item is NonNullable<typeof item> => item != null)
   }, [todayOutfit, userItems])
+  const selectedBackground = useMemo(() => getAvatarBackground(backgroundId), [backgroundId])
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -62,11 +71,22 @@ export default function HomeScreen() {
       <DateWeatherBar />
       <View style={styles.content}>
         <View style={styles.avatarWrap}>
-          <AvatarCard items={todayItems} savedFeedback={showSavedFeedback} />
+          <AvatarCard
+            items={todayItems}
+            savedFeedback={showSavedFeedback}
+            background={selectedBackground}
+            onBackgroundPress={() => setBackgroundSheetVisible(true)}
+          />
         </View>
         <MoodMemoCard mood={todayOutfit?.mood ?? null} memo={todayOutfit?.memo ?? null} />
       </View>
       <HomeMenuSheet visible={menuVisible} onClose={() => setMenuVisible(false)} />
+      <HomeBackgroundSheet
+        visible={backgroundSheetVisible}
+        selectedId={backgroundId}
+        onClose={() => setBackgroundSheetVisible(false)}
+        onSelect={setBackgroundId}
+      />
     </SafeAreaView>
   )
 }

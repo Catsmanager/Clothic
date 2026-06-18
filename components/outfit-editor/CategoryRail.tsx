@@ -18,12 +18,6 @@ const CATEGORY_ICONS: Record<Category, ImageSourcePropType> = {
   accessory: require('../../assets/category-icons/rail/accessory.png'),
 }
 
-const BACKGROUND_OPTION = {
-  key: 'background',
-  icon: require('../../assets/category-icons/rail/background.png'),
-  label: '배경',
-}
-
 interface Props {
   activeCategory: Category
   onCategoryPress: (category: Category) => void
@@ -53,10 +47,6 @@ export default function CategoryRail({ activeCategory, onCategoryPress }: Props)
           </Text>
         </TouchableOpacity>
       ))}
-      <TouchableOpacity style={styles.categoryItem}>
-        <CategoryIcon source={BACKGROUND_OPTION.icon} />
-        <Text style={styles.categoryLabel}>{BACKGROUND_OPTION.label}</Text>
-      </TouchableOpacity>
     </ScrollView>
   )
 }

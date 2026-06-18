@@ -37,14 +37,16 @@ export function buildMonthData(
       const item = items.find((candidate) => candidate.id === itemId)
       if (!item) return
 
-      const itemCount = itemCounts.get(item.id)
-      itemCounts.set(item.id, {
-        id: item.id,
-        label: item.name,
-        color: item.color,
-        imagePath: item.imagePath,
-        count: (itemCount?.count ?? 0) + 1,
-      })
+      if (item.category !== 'hair') {
+        const itemCount = itemCounts.get(item.id)
+        itemCounts.set(item.id, {
+          id: item.id,
+          label: item.name,
+          color: item.color,
+          imagePath: item.imagePath,
+          count: (itemCount?.count ?? 0) + 1,
+        })
+      }
 
       // 색상 통계는 상의·하의만 집계한다(코디 색을 대표하는 카테고리). 신발·헤어·악세서리는 제외.
       // 코디 저장 시 사용자가 고른 색(itemColors)을 우선 쓰고, 없으면 아이템 원래 색으로 폴백한다.
