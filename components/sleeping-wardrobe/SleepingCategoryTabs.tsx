@@ -61,7 +61,9 @@ function CategoryIcon({ active, category }: { active: boolean; category: Sleepin
   const iconMap: Record<SleepingCategory, ReactNode> = {
     전체: <Feather name="grid" size={14} color={color} />,
     top: <Ionicons name="shirt-outline" size={18} color={color} />,
+    outer: <Ionicons name="shirt-outline" size={18} color={color} />,
     bottom: <Feather name="align-justify" size={18} color={color} />,
+    dress: <Ionicons name="shirt-outline" size={18} color={color} />,
     shoes: <Ionicons name="footsteps-outline" size={18} color={color} />,
     hair: <Ionicons name="cut-outline" size={18} color={color} />,
     accessory: <Ionicons name="glasses-outline" size={18} color={color} />,

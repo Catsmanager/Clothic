@@ -7,8 +7,10 @@ import {
 } from '../constants/items'
 import { buildCatalogItems, useItemStore } from '../stores/itemStore'
 
-export type EquippedItems = {
-  [K in Category]?: K extends 'accessory' ? string[] : string
+type SingleEquipCategory = Exclude<Category, 'accessory'>
+
+export type EquippedItems = Partial<Record<SingleEquipCategory, string>> & {
+  accessory?: string[]
 }
 
 export function useOutfitEditor() {
@@ -67,6 +69,13 @@ export function useOutfitEditor() {
         delete next[item.category]
       } else {
         next[item.category] = item.id
+
+        if (isDress(item)) {
+          delete next.top
+          delete next.bottom
+        } else if (item.category === 'top' || item.category === 'bottom') {
+          delete next.dress
+        }
       }
 
       const nextHistory = history.slice(0, historyIndex + 1)
@@ -74,13 +83,15 @@ export function useOutfitEditor() {
       setHistoryIndex(nextHistory.length)
       setEquipped(next)
     },
-    [equipped, history, historyIndex]
+    [catalogItems, equipped, history, historyIndex]
   )
 
   const randomizeOutfit = useCallback(() => {
     const next: EquippedItems = {}
 
     ITEM_CATEGORIES.forEach((category) => {
+      if (category === 'dress') return
+
       const candidates = catalogItems.filter((item) => item.category === category)
       const randomItem = candidates[Math.floor(Math.random() * candidates.length)]
       if (randomItem == null) return
@@ -92,6 +103,21 @@ export function useOutfitEditor() {
 
       next[category] = randomItem.id
     })
+
+    if (Math.random() < 0.35) {
+      const dressItems = catalogItems.filter((item) => item.category === 'dress')
+      const randomDress = dressItems[Math.floor(Math.random() * dressItems.length)]
+      if (randomDress != null) {
+        next.dress = randomDress.id
+        delete next.top
+        delete next.bottom
+      }
+    }
+
+    if (next.dress != null) {
+      delete next.top
+      delete next.bottom
+    }
 
     if (Object.keys(next).length === 0) return
 
@@ -139,4 +165,8 @@ export function useOutfitEditor() {
     undo,
     equipItem,
   }
+}
+
+function isDress(item: CatalogItem): boolean {
+  return item.category === 'dress'
 }

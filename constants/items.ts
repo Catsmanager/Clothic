@@ -2,12 +2,12 @@
 //
 // 주의:
 // - imagePath는 require()가 아닌 "문자열 경로"다. 실제 Image 매핑은 lib/avatarAssets.ts에서 연결한다.
-// - 카테고리는 top/bottom/shoes/hair/accessory 5종.
+// - 카테고리는 top/outer/bottom/dress/shoes/hair/accessory 7종.
 //   가방은 별도 카테고리가 아니라 accessory의 서브카테고리로 제공한다.
 
 import { ITEM_CATALOG } from './itemCatalog'
 
-export type Category = 'top' | 'bottom' | 'shoes' | 'hair' | 'accessory'
+export type Category = 'top' | 'outer' | 'bottom' | 'dress' | 'shoes' | 'hair' | 'accessory'
 
 export type StyleTag =
   | 'casual'
@@ -44,19 +44,31 @@ export interface CatalogItem {
   styleTags: StyleTag[]
 }
 
-export const ITEM_CATEGORIES: Category[] = ['top', 'bottom', 'shoes', 'hair', 'accessory']
+export const ITEM_CATEGORIES: Category[] = [
+  'top',
+  'outer',
+  'bottom',
+  'dress',
+  'shoes',
+  'hair',
+  'accessory',
+]
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   top: '상의',
+  outer: '아우터',
   bottom: '하의',
+  dress: '원피스',
   shoes: '신발',
   hair: '헤어',
   accessory: '악세서리',
 }
 
 export const SUB_CATEGORIES: Record<Category, string[]> = {
-  top: ['전체', '티셔츠', '나시', '블라우스', '니트', '아우터'],
+  top: ['전체', '티셔츠', '나시', '블라우스', '니트', '맨투맨', '셔츠'],
+  outer: ['전체', '가디건', '자켓', '코트', '후드집업'],
   bottom: ['전체', '팬츠', '스커트', '쇼츠', '레깅스'],
+  dress: ['전체', '미니 원피스', '롱 원피스'],
   shoes: ['전체', '스니커즈', '힐', '로퍼', '부츠', '구두'],
   hair: ['전체'],
   accessory: [
@@ -75,11 +87,19 @@ export const SUB_CATEGORIES: Record<Category, string[]> = {
 
 // 레이어 z-order (아래 → 위). base는 별도로 가장 아래에 렌더.
 // 기본적으로 신발은 모델 위, 하의 아래에 둔다. 아이템별 오버라이드는 lib/avatarAssets.ts에서 처리한다.
-export const RENDER_ORDER: Category[] = ['shoes', 'bottom', 'top', 'hair', 'accessory']
+export const RENDER_ORDER: Category[] = [
+  'shoes',
+  'bottom',
+  'dress',
+  'top',
+  'outer',
+  'hair',
+  'accessory',
+]
 
 // 색상 선택·통계 집계 대상 카테고리.
-// 상의·하의가 코디의 색을 대표한다. 신발·헤어·악세서리는 색 선택 피로도·통계 노이즈만 키우므로 제외.
-export const COLOR_CATEGORIES: Category[] = ['top', 'bottom']
+// 옷 본체의 색을 대표한다. 신발·헤어·악세서리는 색 선택 피로도·통계 노이즈만 키우므로 제외.
+export const COLOR_CATEGORIES: Category[] = ['top', 'outer', 'bottom', 'dress']
 
 export function isColorCategory(category: Category): boolean {
   return COLOR_CATEGORIES.includes(category)

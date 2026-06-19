@@ -28,9 +28,13 @@
 
 1. PNG 파일을 카테고리 폴더에 저장합니다.
 
+폴더명은 `constants/items.ts`의 `Category`와 1:1로 맞춥니다. 파일명 prefix도 카테고리와 일치시킵니다. (예: 원피스는 `top/`이 아니라 `dress/`에 둔다.)
+
 ```text
 assets/avatar/top/top_###_<color>.png
+assets/avatar/outer/outer_###_<color>.png
 assets/avatar/bottom/bottom_###_<color>.png
+assets/avatar/dress/dress_###_<color>.png
 assets/avatar/shoes/shoes_###_<color>.png
 ```
 
