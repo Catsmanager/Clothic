@@ -39,6 +39,39 @@ const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {
       topScale: -1.0,
     },
   },
+  top_005: {
+    source: require('../assets/avatar/top/top_005_white_sweatshirt.png'),
+    preview: {
+      widthScale: 2.05,
+      heightScale: 3.08,
+      topScale: -0.64,
+    },
+  },
+  top_006: {
+    source: require('../assets/avatar/top/top_006_white_shirt.png'),
+    preview: {
+      widthScale: 2.0,
+      heightScale: 3.0,
+      topScale: -0.62,
+    },
+  },
+  outer_001: {
+    source: require('../assets/avatar/outer/outer_001_cream_cardigan.png'),
+    preview: {
+      widthScale: 2.0,
+      heightScale: 3.0,
+      topScale: -0.62,
+    },
+  },
+  dress_001: {
+    source: require('../assets/avatar/dress/dress_001_cream_onepiece.png'),
+    layerOrder: 2,
+    preview: {
+      widthScale: 2.0,
+      heightScale: 3.0,
+      topScale: -0.7,
+    },
+  },
   bottom_009: {
     source: require('../assets/avatar/bottom/bottom_009_blue.png'),
     preview: {
@@ -57,6 +90,30 @@ const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {
   },
   bottom_011: {
     source: require('../assets/avatar/bottom/bottom_011_gray.png'),
+    preview: {
+      widthScale: 1.32,
+      heightScale: 1.98,
+      topScale: -0.78,
+    },
+  },
+  bottom_012: {
+    source: require('../assets/avatar/bottom/bottom_012_cream_long_skirt.png'),
+    preview: {
+      widthScale: 1.32,
+      heightScale: 1.98,
+      topScale: -0.78,
+    },
+  },
+  bottom_013: {
+    source: require('../assets/avatar/bottom/bottom_013_black_slacks.png'),
+    preview: {
+      widthScale: 1.32,
+      heightScale: 1.98,
+      topScale: -0.78,
+    },
+  },
+  bottom_014: {
+    source: require('../assets/avatar/bottom/bottom_014_blue_shorts.png'),
     preview: {
       widthScale: 1.32,
       heightScale: 1.98,

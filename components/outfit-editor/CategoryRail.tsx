@@ -12,7 +12,9 @@ import { CATEGORY_LABELS, ITEM_CATEGORIES, type Category } from '../../constants
 
 const CATEGORY_ICONS: Record<Category, ImageSourcePropType> = {
   top: require('../../assets/category-icons/rail/top.png'),
+  outer: require('../../assets/category-icons/rail/outer.png'),
   bottom: require('../../assets/category-icons/rail/bottom.png'),
+  dress: require('../../assets/category-icons/rail/dress.png'),
   shoes: require('../../assets/category-icons/rail/shoes.png'),
   hair: require('../../assets/category-icons/rail/hair.png'),
   accessory: require('../../assets/category-icons/rail/accessory.png'),

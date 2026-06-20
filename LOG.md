@@ -1,5 +1,24 @@
 # LOG
 
+## 2026-06-19 (refactor: 아바타 에셋 폴더를 카테고리와 1:1 정렬)
+
+### 처리 항목
+- 신규 아이템 파일 prefix·폴더가 논리 카테고리와 어긋난 문제 정리 (원피스·가디건이 `top/`에 들어가 있었음)
+- `assets/avatar/dress/`, `assets/avatar/outer/` 폴더 신설 → 폴더 = `Category` 1:1
+- 빈 `assets/avatar/bag/` 제거 (`bag`은 카테고리가 아니라 accessory의 subCategory라 죽은 폴더였음)
+
+### 변경
+- 파일 이동: `top/top_004_cream_onepiece.png` → `dress/dress_001_cream_onepiece.png`, `top/top_007_cream_cardigan.png` → `outer/outer_001_cream_cardigan.png`
+- `constants/itemCatalog.ts`: top 섹션에 섞여 있던 두 항목을 `outer`/`dress` 섹션으로 분리, id·imagePath 갱신 (`top_004`→`dress_001`, `top_007`→`outer_001`)
+- `lib/avatarAssets.ts`: 동일 id·require 경로 갱신. preview·layerOrder 값은 그대로 유지해 렌더 결과 보존
+- `docs/ITEM_ASSET_FLOW.md`: 폴더 규칙 예시에 outer/dress 추가, "폴더명=Category 1:1" 명시
+- 신규 미커밋 아이템이라 DB `outfit` 참조 마이그레이션 불필요. id 참조는 위 두 파일에만 존재함을 grep으로 확인
+
+### 검증
+- `npx tsc --noEmit` 통과
+- `npx expo lint` 통과 (에러·경고 없음)
+- 잔여 참조(`top_004`/`top_007`) grep 0건
+
 ## 2026-06-16 (fix: TestFlight 90683 NSMotionUsageDescription 누락 해결)
 
 ### 처리 항목

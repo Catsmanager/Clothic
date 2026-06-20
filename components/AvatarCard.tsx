@@ -48,13 +48,13 @@ export default function AvatarCard({
       Animated.sequence([
         Animated.timing(sparkleProgress, {
           toValue: 1,
-          duration: 420,
+          duration: 520,
           easing: Easing.out(Easing.quad),
           useNativeDriver: true,
         }),
         Animated.timing(sparkleProgress, {
           toValue: 0,
-          duration: 900,
+          duration: 1200,
           easing: Easing.in(Easing.quad),
           useNativeDriver: true,
         }),
@@ -87,7 +87,21 @@ export default function AvatarCard({
       {
         scale: sparkleProgress.interpolate({
           inputRange: [0, 0.35, 1],
-          outputRange: [0.45, 1.15, 0.75],
+          outputRange: [0.35, 1.45, 0.65],
+        }),
+      },
+    ],
+  }
+  const glowStyle = {
+    opacity: sparkleProgress.interpolate({
+      inputRange: [0, 0.35, 1],
+      outputRange: [0, 0.55, 0],
+    }),
+    transform: [
+      {
+        scale: sparkleProgress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.72, 1.32],
         }),
       },
     ],
@@ -122,9 +136,12 @@ export default function AvatarCard({
 
       {savedFeedback && (
         <View style={styles.sparkleLayer} pointerEvents="none">
+          <Animated.View style={[styles.successGlow, glowStyle]} />
           <Animated.View style={[styles.sparkle, styles.sparkleOne, sparkleStyle]} />
           <Animated.View style={[styles.sparkle, styles.sparkleTwo, sparkleStyle]} />
           <Animated.View style={[styles.sparkleSmall, styles.sparkleThree, sparkleStyle]} />
+          <Animated.View style={[styles.sparkleSmall, styles.sparkleFour, sparkleStyle]} />
+          <Animated.View style={[styles.sparkle, styles.sparkleFive, sparkleStyle]} />
         </View>
       )}
 
@@ -211,43 +228,64 @@ const styles = StyleSheet.create({
   },
   sparkleLayer: {
     position: 'absolute',
-    top: '34%',
+    top: '30%',
     left: 0,
     right: 0,
-    height: '26%',
+    height: '36%',
+  },
+  successGlow: {
+    position: 'absolute',
+    left: '24%',
+    right: '24%',
+    top: '20%',
+    bottom: '0%',
+    borderRadius: 999,
+    backgroundColor: '#FFDFA3',
+    shadowColor: '#F0B45C',
+    shadowOpacity: 0.5,
+    shadowRadius: 26,
+    shadowOffset: { width: 0, height: 0 },
   },
   sparkle: {
     position: 'absolute',
-    width: 9,
-    height: 9,
-    borderRadius: 5,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     backgroundColor: '#F7C948',
     shadowColor: '#F7C948',
-    shadowOpacity: 0.45,
-    shadowRadius: 6,
+    shadowOpacity: 0.7,
+    shadowRadius: 9,
     shadowOffset: { width: 0, height: 0 },
     elevation: 3,
   },
   sparkleSmall: {
     position: 'absolute',
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#F7C948',
   },
   sparkleOne: {
-    left: '30%',
-    top: '18%',
+    left: '24%',
+    top: '24%',
   },
   sparkleTwo: {
-    right: '27%',
-    top: '36%',
+    right: '22%',
+    top: '42%',
   },
   sparkleThree: {
-    left: '63%',
-    top: '4%',
+    left: '66%',
+    top: '10%',
+  },
+  sparkleFour: {
+    left: '18%',
+    top: '58%',
+  },
+  sparkleFive: {
+    right: '35%',
+    top: '70%',
   },
   avatarArea: {
     flex: 1,
