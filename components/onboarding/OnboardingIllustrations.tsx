@@ -40,7 +40,7 @@ function OutfitCaptureIllustration() {
         <Text style={styles.captureWeather}>⛅ 22°C</Text>
       </View>
       <View style={styles.captureImageBox}>
-        <Image source={CAPTURE_IMAGE} style={styles.imageCover} resizeMode="cover" />
+        <Image source={CAPTURE_IMAGE} style={styles.captureImage} resizeMode="cover" />
       </View>
       <View style={styles.captureActions}>
         {actions.map((action) => (
@@ -165,7 +165,8 @@ export const ONBOARDING_ILLUSTRATIONS = [
 ]
 
 const contentWidth = ONBOARDING_SCREEN_WIDTH - spacing.xl * 2
-const imageBoxHeight = Math.min(ONBOARDING_SCREEN_HEIGHT * 0.4, 360)
+const imageBoxHeight = Math.min(ONBOARDING_SCREEN_HEIGHT * 0.46, 420)
+const captureImageHeight = contentWidth * (1668 / 760)
 
 const styles = StyleSheet.create({
   welcomeImageBox: {
@@ -182,11 +183,19 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  captureImage: {
+    position: 'absolute',
+    top: -contentWidth * 0.26,
+    left: 0,
+    right: 0,
+    width: '100%',
+    height: captureImageHeight,
+  },
   captureCard: {
     width: contentWidth,
     borderRadius: 28,
     backgroundColor: colors.white,
-    padding: spacing.lg,
+    padding: spacing.md,
   },
   captureHeader: {
     flexDirection: 'row',
@@ -205,7 +214,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   captureImageBox: {
-    height: Math.min(ONBOARDING_SCREEN_HEIGHT * 0.23, 220),
+    height: Math.min(ONBOARDING_SCREEN_HEIGHT * 0.25, 220),
     borderRadius: radius.lg,
     overflow: 'hidden',
     backgroundColor: colors.secondary,
@@ -217,7 +226,7 @@ const styles = StyleSheet.create({
   },
   captureAction: {
     flex: 1,
-    height: 82,
+    height: 74,
     borderRadius: radius.lg,
     backgroundColor: colors.secondary,
     alignItems: 'center',
@@ -276,23 +285,23 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   wardrobeImageBox: {
-    height: Math.min(ONBOARDING_SCREEN_HEIGHT * 0.34, 310),
+    height: Math.min(ONBOARDING_SCREEN_HEIGHT * 0.25, 240),
     alignItems: 'center',
     justifyContent: 'center',
   },
   sleepingCard: {
-    minHeight: 98,
+    minHeight: 88,
     borderRadius: 24,
     backgroundColor: colors.white,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
   },
   sleepingIcon: {
-    width: 58,
-    height: 58,
+    width: 52,
+    height: 52,
     borderRadius: radius.lg,
     backgroundColor: colors.secondary,
     alignItems: 'center',
@@ -305,14 +314,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sleepingTitle: {
-    fontSize: 19,
+    fontSize: 17,
     fontWeight: '900',
     color: colors.text,
     marginBottom: 4,
   },
   sleepingText: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 14,
+    lineHeight: 20,
     color: colors.textMuted,
   },
   reportCard: {
@@ -438,8 +447,8 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   finalImageBox: {
-    width: contentWidth * 0.72,
-    height: Math.min(ONBOARDING_SCREEN_HEIGHT * 0.34, 300),
+    width: contentWidth * 0.78,
+    height: Math.min(ONBOARDING_SCREEN_HEIGHT * 0.36, 320),
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',

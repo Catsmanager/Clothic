@@ -51,8 +51,8 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xxl,
   },
   finalSlide: {
-    justifyContent: 'center',
-    paddingTop: spacing.lg,
+    justifyContent: 'flex-start',
+    paddingTop: spacing.xl,
   },
   badge: {
     width: 58,
@@ -75,8 +75,8 @@ const styles = StyleSheet.create({
   },
   textBlockFinal: {
     alignItems: 'center',
-    gap: spacing.lg,
-    marginTop: spacing.lg,
+    gap: spacing.md,
+    marginTop: spacing.md,
     marginBottom: spacing.xl,
   },
   title: {
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     lineHeight: 45,
   },
   titleCenter: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '900',
     color: colors.text,
     lineHeight: 42,
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     lineHeight: 34,
   },
   subtitleCenter: {
-    fontSize: 19,
+    fontSize: 20,
     fontWeight: '700',
     color: colors.textMuted,
     lineHeight: 32,
@@ -113,5 +113,6 @@ const styles = StyleSheet.create({
   finalIllustArea: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: spacing.md,
   },
 })
