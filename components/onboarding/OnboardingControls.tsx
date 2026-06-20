@@ -28,6 +28,16 @@ export default function OnboardingControls({
     </View>
   )
 
+  if (isFirst && isLast) {
+    return (
+      <View style={styles.bottom}>
+        <TouchableOpacity style={styles.startBtn} onPress={onStart} activeOpacity={0.85}>
+          <Text style={styles.startBtnText}>시작하기</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  }
+
   if (isFirst) {
     return (
       <View style={styles.bottom}>
@@ -42,10 +52,10 @@ export default function OnboardingControls({
   if (isLast) {
     return (
       <View style={styles.bottom}>
-        {dots}
         <TouchableOpacity style={styles.startBtn} onPress={onStart} activeOpacity={0.85}>
           <Text style={styles.startBtnText}>시작하기</Text>
         </TouchableOpacity>
+        {dots}
       </View>
     )
   }
@@ -55,7 +65,7 @@ export default function OnboardingControls({
       <View style={styles.featureBottom}>
         {dots}
         <TouchableOpacity style={styles.nextBtn} onPress={onNext} activeOpacity={0.85}>
-          <Feather name="arrow-right" size={22} color={colors.white} />
+          <Feather name="arrow-right" size={32} color={colors.white} />
         </TouchableOpacity>
       </View>
     </View>
@@ -65,8 +75,8 @@ export default function OnboardingControls({
 const styles = StyleSheet.create({
   bottom: {
     paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.lg,
-    gap: spacing.md,
+    paddingBottom: spacing.xl,
+    gap: spacing.xl,
   },
   featureBottom: {
     flexDirection: 'row',
@@ -75,34 +85,34 @@ const styles = StyleSheet.create({
   },
   dots: {
     flexDirection: 'row',
-    gap: spacing.xs,
+    gap: spacing.sm,
     justifyContent: 'center',
   },
   dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: colors.border,
   },
   dotActive: {
-    width: 20,
+    width: 28,
     backgroundColor: colors.text,
   },
   startBtn: {
     backgroundColor: colors.text,
     borderRadius: radius.full,
-    height: 54,
+    height: 64,
     alignItems: 'center',
     justifyContent: 'center',
   },
   startBtnText: {
     color: colors.white,
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '900',
   },
   nextBtn: {
-    width: 54,
-    height: 54,
+    width: 72,
+    height: 72,
     borderRadius: radius.full,
     backgroundColor: colors.text,
     alignItems: 'center',

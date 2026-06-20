@@ -13,8 +13,8 @@ interface Props {
 export default function OnboardingSlideView({ Illustration, slide }: Props) {
   if (slide.type === 'final') {
     return (
-      <View style={styles.slide}>
-        <View style={styles.illustArea}>
+      <View style={[styles.slide, styles.finalSlide]}>
+        <View style={styles.finalIllustArea}>
           <Illustration />
         </View>
         <View style={styles.textBlockFinal}>
@@ -48,58 +48,69 @@ const styles = StyleSheet.create({
     width: ONBOARDING_SCREEN_WIDTH,
     flex: 1,
     paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xxl,
+  },
+  finalSlide: {
+    justifyContent: 'center',
     paddingTop: spacing.lg,
   },
   badge: {
-    width: 36,
+    width: 58,
     height: 36,
     borderRadius: radius.full,
-    borderWidth: 1.5,
-    borderColor: colors.text,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.xl,
   },
   badgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.text,
+    fontSize: 14,
+    fontWeight: '800',
+    color: colors.textMuted,
   },
   textBlock: {
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
+    gap: spacing.lg,
+    marginBottom: spacing.xl,
   },
   textBlockFinal: {
     alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
+    gap: spacing.lg,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xl,
   },
   title: {
-    fontSize: 26,
-    fontWeight: '700',
+    fontSize: 34,
+    fontWeight: '900',
     color: colors.text,
-    lineHeight: 36,
+    lineHeight: 45,
   },
   titleCenter: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 30,
+    fontWeight: '900',
     color: colors.text,
-    lineHeight: 34,
+    lineHeight: 42,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 20,
+    fontWeight: '700',
     color: colors.textMuted,
-    lineHeight: 22,
+    lineHeight: 34,
   },
   subtitleCenter: {
-    fontSize: 14,
+    fontSize: 19,
+    fontWeight: '700',
     color: colors.textMuted,
-    lineHeight: 22,
+    lineHeight: 32,
     textAlign: 'center',
   },
   illustArea: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  finalIllustArea: {
     alignItems: 'center',
     justifyContent: 'center',
   },
