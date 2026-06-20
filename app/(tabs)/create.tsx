@@ -61,7 +61,7 @@ export default function CreateScreen() {
           <AvatarPreview items={editor.equippedItems} />
           <EditorActionPanel
             canUndo={editor.canUndo}
-            onRandom={editor.randomizeActiveCategory}
+            onRandom={editor.randomizeOutfit}
             onUndo={editor.undo}
           />
         </View>

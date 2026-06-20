@@ -1,9 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { type CatalogItem, type Category, SUB_CATEGORIES } from '../constants/items'
+import {
+  ITEM_CATEGORIES,
+  type CatalogItem,
+  type Category,
+  SUB_CATEGORIES,
+} from '../constants/items'
 import { buildCatalogItems, useItemStore } from '../stores/itemStore'
 
-export type EquippedItems = {
-  [K in Category]?: K extends 'accessory' ? string[] : string
+type SingleEquipCategory = Exclude<Category, 'accessory'>
+
+export type EquippedItems = Partial<Record<SingleEquipCategory, string>> & {
+  accessory?: string[]
 }
 
 export function useOutfitEditor() {
@@ -62,6 +69,13 @@ export function useOutfitEditor() {
         delete next[item.category]
       } else {
         next[item.category] = item.id
+
+        if (isDress(item)) {
+          delete next.top
+          delete next.bottom
+        } else if (item.category === 'top' || item.category === 'bottom') {
+          delete next.dress
+        }
       }
 
       const nextHistory = history.slice(0, historyIndex + 1)
@@ -69,29 +83,49 @@ export function useOutfitEditor() {
       setHistoryIndex(nextHistory.length)
       setEquipped(next)
     },
-    [equipped, history, historyIndex]
+    [catalogItems, equipped, history, historyIndex]
   )
 
-  const randomizeActiveCategory = useCallback(() => {
-    if (filteredItems.length === 0) return
-    const candidates =
-      activeCategory === 'accessory'
-        ? filteredItems.filter((item) => !(equipped.accessory ?? []).includes(item.id))
-        : filteredItems
-    if (candidates.length === 0) return
+  const randomizeOutfit = useCallback(() => {
+    const next: EquippedItems = {}
 
-    const randomItem = candidates[Math.floor(Math.random() * candidates.length)]
-    if (randomItem == null) return
+    ITEM_CATEGORIES.forEach((category) => {
+      if (category === 'dress') return
 
-    const next =
-      randomItem.category === 'accessory'
-        ? { ...equipped, accessory: [...(equipped.accessory ?? []), randomItem.id] }
-        : { ...equipped, [randomItem.category]: randomItem.id }
+      const candidates = catalogItems.filter((item) => item.category === category)
+      const randomItem = candidates[Math.floor(Math.random() * candidates.length)]
+      if (randomItem == null) return
+
+      if (category === 'accessory') {
+        next.accessory = [randomItem.id]
+        return
+      }
+
+      next[category] = randomItem.id
+    })
+
+    if (Math.random() < 0.35) {
+      const dressItems = catalogItems.filter((item) => item.category === 'dress')
+      const randomDress = dressItems[Math.floor(Math.random() * dressItems.length)]
+      if (randomDress != null) {
+        next.dress = randomDress.id
+        delete next.top
+        delete next.bottom
+      }
+    }
+
+    if (next.dress != null) {
+      delete next.top
+      delete next.bottom
+    }
+
+    if (Object.keys(next).length === 0) return
+
     const nextHistory = history.slice(0, historyIndex + 1)
     setHistory([...nextHistory, next])
     setHistoryIndex(nextHistory.length)
     setEquipped(next)
-  }, [activeCategory, equipped, filteredItems, history, historyIndex])
+  }, [catalogItems, history, historyIndex])
 
   const undo = useCallback(() => {
     if (historyIndex <= 0) return
@@ -124,11 +158,15 @@ export function useOutfitEditor() {
     equippedItemIds,
     equippedItems,
     filteredItems,
-    randomizeActiveCategory,
+    randomizeOutfit,
     selectCategory,
     selectSubCategory,
     subCategories,
     undo,
     equipItem,
   }
+}
+
+function isDress(item: CatalogItem): boolean {
+  return item.category === 'dress'
 }

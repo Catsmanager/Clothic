@@ -15,7 +15,7 @@ export default function HomeHeader({ onMenuPress }: Props) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={styles.iconButton}
+        style={[styles.iconButton, styles.menuButton]}
         onPress={onMenuPress}
         hitSlop={8}
         accessibilityRole="button"
@@ -54,7 +54,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    minHeight: 52,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
@@ -65,9 +66,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rightGroup: {
+    position: 'absolute',
+    right: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
+  },
+  menuButton: {
+    position: 'absolute',
+    left: spacing.md,
   },
   unreadDot: {
     position: 'absolute',

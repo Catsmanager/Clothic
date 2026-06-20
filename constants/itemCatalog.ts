@@ -30,6 +30,46 @@ export const ITEM_CATALOG: CatalogItem[] = [
     imagePath: 'assets/avatar/top/top_003_black_crop.png',
     styleTags: ['street', 'chic'],
   },
+  {
+    id: 'top_005',
+    category: 'top',
+    subCategory: '맨투맨',
+    name: '화이트 맨투맨',
+    color: '#EFEDE7',
+    imagePath: 'assets/avatar/top/top_005_white_sweatshirt.png',
+    styleTags: ['casual', 'minimal'],
+  },
+  {
+    id: 'top_006',
+    category: 'top',
+    subCategory: '셔츠',
+    name: '화이트 셔츠',
+    color: '#FAF8F0',
+    imagePath: 'assets/avatar/top/top_006_white_shirt.png',
+    styleTags: ['formal', 'minimal'],
+  },
+
+  // outer
+  {
+    id: 'outer_001',
+    category: 'outer',
+    subCategory: '가디건',
+    name: '크림 가디건',
+    color: '#F4DDB9',
+    imagePath: 'assets/avatar/outer/outer_001_cream_cardigan.png',
+    styleTags: ['casual', 'feminine'],
+  },
+
+  // dress
+  {
+    id: 'dress_001',
+    category: 'dress',
+    subCategory: '미니 원피스',
+    name: '크림 리본 원피스',
+    color: '#F7E8C8',
+    imagePath: 'assets/avatar/dress/dress_001_cream_onepiece.png',
+    styleTags: ['feminine', 'vintage'],
+  },
 
   // bottom
   {
@@ -58,6 +98,33 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#C8C6CA',
     imagePath: 'assets/avatar/bottom/bottom_011_gray.png',
     styleTags: ['casual', 'sporty'],
+  },
+  {
+    id: 'bottom_012',
+    category: 'bottom',
+    subCategory: '스커트',
+    name: '크림 롱스커트',
+    color: '#F3E1C3',
+    imagePath: 'assets/avatar/bottom/bottom_012_cream_long_skirt.png',
+    styleTags: ['feminine', 'vintage'],
+  },
+  {
+    id: 'bottom_013',
+    category: 'bottom',
+    subCategory: '팬츠',
+    name: '블랙 슬랙스',
+    color: '#202020',
+    imagePath: 'assets/avatar/bottom/bottom_013_black_slacks.png',
+    styleTags: ['formal', 'chic'],
+  },
+  {
+    id: 'bottom_014',
+    category: 'bottom',
+    subCategory: '쇼츠',
+    name: '데님 쇼츠',
+    color: '#233B5C',
+    imagePath: 'assets/avatar/bottom/bottom_014_blue_shorts.png',
+    styleTags: ['casual', 'street'],
   },
 
   // shoes

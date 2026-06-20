@@ -12,16 +12,12 @@ import { CATEGORY_LABELS, ITEM_CATEGORIES, type Category } from '../../constants
 
 const CATEGORY_ICONS: Record<Category, ImageSourcePropType> = {
   top: require('../../assets/category-icons/rail/top.png'),
+  outer: require('../../assets/category-icons/rail/outer.png'),
   bottom: require('../../assets/category-icons/rail/bottom.png'),
+  dress: require('../../assets/category-icons/rail/dress.png'),
   shoes: require('../../assets/category-icons/rail/shoes.png'),
   hair: require('../../assets/category-icons/rail/hair.png'),
   accessory: require('../../assets/category-icons/rail/accessory.png'),
-}
-
-const BACKGROUND_OPTION = {
-  key: 'background',
-  icon: require('../../assets/category-icons/rail/background.png'),
-  label: '배경',
 }
 
 interface Props {
@@ -53,10 +49,6 @@ export default function CategoryRail({ activeCategory, onCategoryPress }: Props)
           </Text>
         </TouchableOpacity>
       ))}
-      <TouchableOpacity style={styles.categoryItem}>
-        <CategoryIcon source={BACKGROUND_OPTION.icon} />
-        <Text style={styles.categoryLabel}>{BACKGROUND_OPTION.label}</Text>
-      </TouchableOpacity>
     </ScrollView>
   )
 }

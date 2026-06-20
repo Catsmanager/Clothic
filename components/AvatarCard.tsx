@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Animated, Easing, View, Image, StyleSheet, Text } from 'react-native'
+import { Animated, Easing, View, Image, StyleSheet, Text, TouchableOpacity } from 'react-native'
+import { Feather } from '@expo/vector-icons'
+import type { AvatarBackground } from '../constants/avatarBackgrounds'
 import { colors } from '../constants/colors'
 import { spacing, radius } from '../constants/spacing'
 import type { CatalogItem } from '../constants/items'
 import OutfitAvatar from './OutfitAvatar'
 
-// 아바타 뒤 방 배경 (오늘의 코디 카드)
-const ROOM_BACKGROUND = require('../assets/avatar/background/room_01.png')
 // 오늘 코디 미기록 시 보여주는 가려진(모자이크) 캐릭터.
 // TODO(에셋): 현재는 base 복사본 플레이스홀더 — 디자이너가 픽셀화/모자이크 버전으로 교체 예정.
 const MOSAIC_AVATAR = require('../assets/avatar/base/base_female_01_mosaic.png')
@@ -16,9 +16,16 @@ interface Props {
   items: CatalogItem[] | null
   // 저장 직후 홈으로 돌아왔을 때 짧게 보여주는 성공 피드백.
   savedFeedback?: boolean
+  background: AvatarBackground
+  onBackgroundPress: () => void
 }
 
-export default function AvatarCard({ items, savedFeedback = false }: Props) {
+export default function AvatarCard({
+  items,
+  savedFeedback = false,
+  background,
+  onBackgroundPress,
+}: Props) {
   const [bubbleProgress] = useState(() => new Animated.Value(1))
   const [sparkleProgress] = useState(() => new Animated.Value(0))
   const isEmpty = items == null
@@ -41,13 +48,13 @@ export default function AvatarCard({ items, savedFeedback = false }: Props) {
       Animated.sequence([
         Animated.timing(sparkleProgress, {
           toValue: 1,
-          duration: 420,
+          duration: 520,
           easing: Easing.out(Easing.quad),
           useNativeDriver: true,
         }),
         Animated.timing(sparkleProgress, {
           toValue: 0,
-          duration: 900,
+          duration: 1200,
           easing: Easing.in(Easing.quad),
           useNativeDriver: true,
         }),
@@ -80,17 +87,43 @@ export default function AvatarCard({ items, savedFeedback = false }: Props) {
       {
         scale: sparkleProgress.interpolate({
           inputRange: [0, 0.35, 1],
-          outputRange: [0.45, 1.15, 0.75],
+          outputRange: [0.35, 1.45, 0.65],
+        }),
+      },
+    ],
+  }
+  const glowStyle = {
+    opacity: sparkleProgress.interpolate({
+      inputRange: [0, 0.35, 1],
+      outputRange: [0, 0.55, 0],
+    }),
+    transform: [
+      {
+        scale: sparkleProgress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.72, 1.32],
         }),
       },
     ],
   }
 
   return (
-    <View style={styles.card}>
-      {/* contain: 카드 높이가 화면에 맞춰 줄어도 방 배경 전체가 잘림 없이 보인다.
-          여백은 카드 배경색(secondary)과 같아 자연스럽게 묻힌다. */}
-      <Image source={ROOM_BACKGROUND} style={styles.background} resizeMode="contain" />
+    <View style={[styles.card, { backgroundColor: background.color }]}>
+      <Image
+        source={background.image}
+        style={styles.background}
+        resizeMode={background.resizeMode}
+      />
+
+      <TouchableOpacity
+        style={styles.backgroundButton}
+        onPress={onBackgroundPress}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="배경 변경"
+      >
+        <Feather name="image" size={17} color={colors.text} />
+      </TouchableOpacity>
 
       {showBubble && (
         <Animated.View style={[styles.bubbleWrap, animatedBubbleStyle]} pointerEvents="none">
@@ -103,9 +136,12 @@ export default function AvatarCard({ items, savedFeedback = false }: Props) {
 
       {savedFeedback && (
         <View style={styles.sparkleLayer} pointerEvents="none">
+          <Animated.View style={[styles.successGlow, glowStyle]} />
           <Animated.View style={[styles.sparkle, styles.sparkleOne, sparkleStyle]} />
           <Animated.View style={[styles.sparkle, styles.sparkleTwo, sparkleStyle]} />
           <Animated.View style={[styles.sparkleSmall, styles.sparkleThree, sparkleStyle]} />
+          <Animated.View style={[styles.sparkleSmall, styles.sparkleFour, sparkleStyle]} />
+          <Animated.View style={[styles.sparkle, styles.sparkleFive, sparkleStyle]} />
         </View>
       )}
 
@@ -136,6 +172,23 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     height: '100%',
+  },
+  backgroundButton: {
+    position: 'absolute',
+    top: spacing.sm,
+    right: spacing.sm,
+    zIndex: 3,
+    width: 34,
+    height: 34,
+    borderRadius: radius.sm,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
   bubbleWrap: {
     position: 'absolute',
@@ -175,43 +228,64 @@ const styles = StyleSheet.create({
   },
   sparkleLayer: {
     position: 'absolute',
-    top: '34%',
+    top: '30%',
     left: 0,
     right: 0,
-    height: '26%',
+    height: '36%',
+  },
+  successGlow: {
+    position: 'absolute',
+    left: '24%',
+    right: '24%',
+    top: '20%',
+    bottom: '0%',
+    borderRadius: 999,
+    backgroundColor: '#FFDFA3',
+    shadowColor: '#F0B45C',
+    shadowOpacity: 0.5,
+    shadowRadius: 26,
+    shadowOffset: { width: 0, height: 0 },
   },
   sparkle: {
     position: 'absolute',
-    width: 9,
-    height: 9,
-    borderRadius: 5,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     backgroundColor: '#F7C948',
     shadowColor: '#F7C948',
-    shadowOpacity: 0.45,
-    shadowRadius: 6,
+    shadowOpacity: 0.7,
+    shadowRadius: 9,
     shadowOffset: { width: 0, height: 0 },
     elevation: 3,
   },
   sparkleSmall: {
     position: 'absolute',
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#F7C948',
   },
   sparkleOne: {
-    left: '30%',
-    top: '18%',
+    left: '24%',
+    top: '24%',
   },
   sparkleTwo: {
-    right: '27%',
-    top: '36%',
+    right: '22%',
+    top: '42%',
   },
   sparkleThree: {
-    left: '63%',
-    top: '4%',
+    left: '66%',
+    top: '10%',
+  },
+  sparkleFour: {
+    left: '18%',
+    top: '58%',
+  },
+  sparkleFive: {
+    right: '35%',
+    top: '70%',
   },
   avatarArea: {
     flex: 1,

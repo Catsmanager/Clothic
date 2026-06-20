@@ -62,7 +62,7 @@ export default function SaveOutfitSheet({ visible, items, saving, onClose, onSav
     if (visible) setStep(1)
   }
 
-  // 색상 선택은 상의·하의로 한정한다(코디 색을 대표하는 카테고리만).
+  // 색상 선택은 옷 본체로 한정한다(코디 색을 대표하는 카테고리만).
   const colorItems = items.filter((item) => isColorCategory(item.category))
   const itemSummary =
     items.length === 0
