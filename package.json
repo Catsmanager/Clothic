@@ -39,6 +39,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "vercel-build": "expo export -p web",
     "avatar:add": "node scripts/add-avatar-item.mjs",
     "avatar:check": "node scripts/check-avatar-assets.mjs",
     "typecheck": "tsc --noEmit",

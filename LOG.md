@@ -1,5 +1,24 @@
 # LOG
 
+## 2026-06-20 (chore: Vercel 웹 데모 배포 설정 추가)
+
+### 처리 항목 (이슈 #114)
+- Expo 웹 정적 빌드를 Vercel에 데모로 올릴 수 있도록 설정 파일만 추가 (코드 로직 변경 없음)
+- 코드의 web 분기(SecureStore→web 대체)는 이미 구현돼 있어 추가 수정 불필요
+
+### 변경
+- `vercel.json` 신규 — buildCommand(`expo export -p web`), outputDirectory(`dist`), Expo Router용 SPA rewrite(`/(.*)`→`/index.html`)
+- `package.json` — `vercel-build` 스크립트 추가
+
+### 검증
+- `npx expo export -p web` 성공 → `dist/` 생성 확인
+- `npx tsc --noEmit` 통과 / `npx expo lint` exit 0
+
+### 알려진 한계 (데모 한정)
+- Apple 로그인 버튼은 네이티브 전용 → 웹에서 동작 안 함 (이메일 로그인은 가능)
+- 웹 auth 저장소가 in-memory → 새로고침 시 로그아웃 (유지하려면 web localStorage 어댑터 분기 별도 필요)
+- Vercel 환경변수 `EXPO_PUBLIC_SUPABASE_URL`/`EXPO_PUBLIC_SUPABASE_ANON_KEY`는 대시보드에서 사용자가 등록해야 함
+
 ## 2026-06-19 (refactor: 아바타 에셋 폴더를 카테고리와 1:1 정렬)
 
 ### 처리 항목
