@@ -19,6 +19,14 @@
 
 ### 변경
 - components/onboarding/OnboardingControls.tsx — 다음 버튼에 `accessibilityRole="button"`, `accessibilityLabel="다음"` 추가. HomeHeader 등 기존 아이콘 버튼 컨벤션과 동일. 일러스트 내부 chevron은 비인터랙티브 장식이라 제외
+## 2026-06-21 (feat: 온보딩 건너뛰기(Skip) 버튼 추가)
+
+### 처리 항목
+- 이슈 #128 / 작업 브랜치: feat/onboarding-skip-button-128 (base: feat/onboarding-flow-redesign)
+- RN 온보딩 베스트프랙티스(경험자용 skip) 반영. 사용자 승인(2026-06-21) 후 진행. reduced-motion·버튼 라벨 정리는 범위 제외
+
+### 변경
+- app/onboarding.tsx — 우상단에 '건너뛰기' 버튼 추가. 마지막 슬라이드 제외(`!isLast`) 시 노출, 동작은 기존 goStart 재사용(completeOnboarding 후 /login replace). absolute 배치(zIndex 10)로 슬라이드 레이아웃 영향 없음. accessibilityRole/Label 포함(코드베이스 버튼 컨벤션)
 
 ### 검증
 - npx tsc --noEmit → PASS
