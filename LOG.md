@@ -1,5 +1,23 @@
 # LOG
 
+## 2026-06-21 (chore: 미사용 온보딩 이미지 3개 제거 ~1.1MB)
+
+### 처리 항목
+- 이슈 #136 / 작업 브랜치: chore/remove-unused-onboarding-assets (base: develop)
+- 온보딩 메모/리포트는 코드 컴포넌트로, 옷장은 wardrobe.png로 렌더되어 아래 3개 PNG가 어디서도 참조되지 않음 → 제거. 사용자 승인(2026-06-21)
+
+### 변경 (삭제)
+- assets/onboarding/onboarding_03_memo.png (128K)
+- assets/onboarding/onboarding_04_closet.png (872K)
+- assets/onboarding/onboarding_05_report.png (112K)
+
+### 리뷰에서 확인한 사항
+- `git grep`으로 develop·feat/onboarding-flow-redesign 양쪽에서 코드 참조 0건 확인(정적 require만 사용하는 코드베이스라 동적 참조 없음)
+- git 이력으로 복구 가능
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS (코드 참조 없어 영향 없음)
+
 ## 2026-06-20 (chore: Vercel 웹 데모 배포 설정 추가)
 
 ### 처리 항목 (이슈 #114)
