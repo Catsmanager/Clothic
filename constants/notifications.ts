@@ -16,6 +16,16 @@ export interface AppNotification {
   read: boolean
 }
 
+// 타입별 기본 아이콘. DB의 icon 값이 비어있거나 누락된 경우 폴백으로 사용한다.
+export const NOTIFICATION_TYPE_ICONS: Record<
+  NotificationType,
+  ComponentProps<typeof Feather>['name']
+> = {
+  reminder: 'edit-3',
+  wardrobe: 'archive',
+  system: 'bell',
+}
+
 export const MOCK_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'n1',

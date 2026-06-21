@@ -66,6 +66,18 @@
 
 ### 검증
 - npx tsc --noEmit → PASS / npx expo lint → PASS / expo config introspect → exit 0
+## 2026-06-21 (fix: 알림 아이콘 DB값 방어 — 누락/빈 값 폴백)
+
+### 처리 항목
+- 이슈 #134 / 작업 브랜치: fix/notification-icon-fallback (base: develop)
+- notificationStore.mapRow가 row.icon을 무검증 `as` 캐스팅 → DB icon이 null/빈 문자열이면 NotificationItem의 `<Feather name={icon}>`가 깨진 아이콘 렌더. 사용자 승인(2026-06-21)
+
+### 변경
+- constants/notifications.ts — `NOTIFICATION_TYPE_ICONS`(reminder→edit-3, wardrobe→archive, system→bell, mock과 동일) 추가
+- stores/notificationStore.ts — `resolveIcon(icon, type)` 추가: icon이 비어있으면 타입별 기본 아이콘 폴백, 유효 값은 그대로 사용(정상 아이콘을 임의 allowlist로 떨구지 않음). mapRow가 이를 사용
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS
 
 ## 2026-06-20 (chore: Vercel 웹 데모 배포 설정 추가)
 
