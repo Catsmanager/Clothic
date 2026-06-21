@@ -64,7 +64,13 @@ export default function OnboardingControls({
     <View style={styles.bottom}>
       <View style={styles.featureBottom}>
         {dots}
-        <TouchableOpacity style={styles.nextBtn} onPress={onNext} activeOpacity={0.85}>
+        <TouchableOpacity
+          style={styles.nextBtn}
+          onPress={onNext}
+          activeOpacity={0.85}
+          accessibilityRole="button"
+          accessibilityLabel="다음"
+        >
           <Feather name="arrow-right" size={32} color={colors.white} />
         </TouchableOpacity>
       </View>

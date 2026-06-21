@@ -11,6 +11,14 @@
 
 ### 변경
 - constants/onboarding.ts — capture 슬라이드에 `badge: '01'` 복원. OnboardingSlideView는 `slide.badge` 존재 시에만 badge를 렌더하므로 데이터만 보정하면 해소
+## 2026-06-21 (fix: 온보딩 '다음' 화살표 버튼 접근성 라벨 추가)
+
+### 처리 항목
+- 이슈 #126 / 작업 브랜치: fix/onboarding-next-a11y-126 (base: feat/onboarding-flow-redesign)
+- OnboardingControls의 다음(arrow-right) 버튼이 아이콘 전용 TouchableOpacity인데 접근성 라벨이 없어 스크린리더 사용자가 용도를 알 수 없던 문제 보완
+
+### 변경
+- components/onboarding/OnboardingControls.tsx — 다음 버튼에 `accessibilityRole="button"`, `accessibilityLabel="다음"` 추가. HomeHeader 등 기존 아이콘 버튼 컨벤션과 동일. 일러스트 내부 chevron은 비인터랙티브 장식이라 제외
 
 ### 검증
 - npx tsc --noEmit → PASS
