@@ -1,5 +1,17 @@
 # LOG
 
+## 2026-06-21 (docs: 이미지 최적화 가이드 작성 — 에셋 미변경)
+
+### 처리 항목
+- 작업 브랜치: docs/image-optimization-guide (base: develop)
+- 큰 온보딩/옷장 일러스트(합 ~3.7MB) 최적화 권고를 별도 문서로 작성. 사용자 요청에 따라 이미지 에셋 자체는 건드리지 않음
+
+### 변경
+- docs/IMAGE_OPTIMIZATION.md 신규 — 대상/용량, 자동 미적용 사유(cwebp·pngquant 미설치, sips 한계), 권장 방법(디자이너 WebP 재출력 / pngquant / cwebp), 검증 체크리스트
+
+### 검증
+- 문서만 추가, 코드 변경 없음 → tsc/lint 생략
+
 ## 2026-06-21 (chore: CI 액션 버전 bump — Node 20 deprecation 해소)
 
 ### 처리 항목
