@@ -1,5 +1,22 @@
 # LOG
 
+## 2026-06-21 (chore: 미사용 splash-icon.png 제거)
+
+### 처리 항목
+- 이슈 #142 / 작업 브랜치: chore/remove-unused-splash-icon (base: develop)
+- create-expo-app 잔재로 보이는 미참조 splash-icon.png 제거. 사용자 승인(2026-06-21)
+
+### 변경 (삭제)
+- assets/splash-icon.png (30K)
+
+### 리뷰에서 확인한 사항
+- app.json에 splash 키/플러그인 없음
+- `npx expo config --type introspect`에 splash-icon.png 참조 없음(기본 SplashScreen storyboard/theme 이름만 존재), 제거 후에도 introspect exit 0
+- 전체 `grep` 참조 0건
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS / expo config introspect → exit 0
+
 ## 2026-06-20 (chore: Vercel 웹 데모 배포 설정 추가)
 
 ### 처리 항목 (이슈 #114)
