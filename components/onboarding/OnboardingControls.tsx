@@ -42,7 +42,7 @@ export default function OnboardingControls({
     return (
       <View style={styles.bottom}>
         <TouchableOpacity style={styles.startBtn} onPress={onNext} activeOpacity={0.85}>
-          <Text style={styles.startBtnText}>시작하기</Text>
+          <Text style={styles.startBtnText}>다음</Text>
         </TouchableOpacity>
         {dots}
       </View>
