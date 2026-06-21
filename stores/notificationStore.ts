@@ -3,7 +3,7 @@ import type { ComponentProps } from 'react'
 import type { Feather } from '@expo/vector-icons'
 import type { Database } from '../lib/database.types'
 import { supabase } from '../lib/supabase'
-import type { NotificationType } from '../constants/notifications'
+import { NOTIFICATION_TYPE_ICONS, type NotificationType } from '../constants/notifications'
 
 type NotificationRow = Database['public']['Tables']['notifications']['Row']
 
@@ -48,13 +48,24 @@ function formatRelativeTime(value: string): string {
   return new Date(value).toLocaleDateString('ko-KR')
 }
 
+// DB icon 값이 비어있거나 누락되면 타입별 기본 아이콘으로 폴백한다(깨진 아이콘 방지).
+function resolveIcon(
+  icon: string | null,
+  type: NotificationType
+): ComponentProps<typeof Feather>['name'] {
+  if (typeof icon === 'string' && icon.trim().length > 0) {
+    return icon as ComponentProps<typeof Feather>['name']
+  }
+  return NOTIFICATION_TYPE_ICONS[type]
+}
+
 function mapRow(row: NotificationRow): AppNotificationRecord | null {
   if (!isNotificationType(row.type)) return null
 
   return {
     id: row.id,
     type: row.type,
-    icon: row.icon as ComponentProps<typeof Feather>['name'],
+    icon: resolveIcon(row.icon, row.type),
     title: row.title,
     body: row.body,
     time: formatRelativeTime(row.created_at),
