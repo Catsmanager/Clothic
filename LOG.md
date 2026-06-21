@@ -35,6 +35,21 @@
 ### 검증
 - npx tsc --noEmit → PASS
 - npx expo lint → PASS (exit 0)
+## 2026-06-21 (chore: 미사용 로그인 캐릭터 이미지 제거 2MB)
+
+### 처리 항목
+- 이슈 #138 / 작업 브랜치: chore/remove-unused-login-asset (base: develop)
+- login.tsx가 login-character-cropped.png(220K)를 쓰는데 오타 철자 구버전 login-charater.png(2MB)가 미사용으로 남아 제거
+
+### 변경 (삭제)
+- assets/auth/login-charater.png (~2MB)
+
+### 리뷰에서 확인한 사항
+- `git grep`으로 develop·feat/onboarding-flow-redesign 양쪽 참조 0건
+- splash-icon.png(32K)도 데드 후보지만 splash 빌드 민감 영역이라 이번 범위 제외(후속 확인 권장)
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS
 
 ## 2026-06-20 (chore: Vercel 웹 데모 배포 설정 추가)
 
