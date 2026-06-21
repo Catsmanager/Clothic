@@ -1,5 +1,17 @@
 # LOG
 
+## 2026-06-21 (chore: CI 액션 버전 bump — Node 20 deprecation 해소)
+
+### 처리 항목
+- 이슈 #144 / 작업 브랜치: chore/ci-bump-actions (base: develop)
+- develop CI 경고(actions/checkout@v4·setup-node@v4가 Node 20 타깃, deprecation) 해소
+
+### 변경
+- .github/workflows/ci.yml — actions/checkout v4→v5, actions/setup-node v4→v5. 프로젝트 빌드 node-version(20)은 유지
+
+### 검증
+- 설정만 변경(앱 코드 없음) → PR의 CI 실행으로 검증
+
 ## 2026-06-21 (chore: 미사용 온보딩 이미지 3개 제거 ~1.1MB)
 
 ### 처리 항목
