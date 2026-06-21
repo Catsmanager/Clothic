@@ -43,6 +43,33 @@
 ### 리뷰에서 확인한 사항
 - contact/profile/SleepingBottomBanner/ChallengeListItem/BadgeShelf/SleepingToolbar는 텍스트가 버튼 자식이라 접근성 이름이 잡힘 → 비대상
 - HomeHeader 등 기존 컨벤션 및 PR #127(온보딩 '다음' 버튼)과 동일 패턴
+## 2026-06-21 (fix: 온보딩 capture 슬라이드 번호 badge '01' 복원)
+
+### 처리 항목
+- 이슈 #124 / 작업 브랜치: fix/onboarding-capture-badge-124 (base: feat/onboarding-flow-redesign)
+- 온보딩 리디자인에서 첫 feature 슬라이드 'capture'의 badge가 누락되어 화면 번호가 02·03·04로만 보이던 회귀 수정
+
+### 원인
+- constants/onboarding.ts에서 슬라이드 id를 s1→capture로 바꾸는 과정에서 기존 `badge: '01'`이 함께 삭제됨 (`git diff main`에서 `- badge: '01'` 확인). memo(02)/closet(03)/report(04)는 유지되어 첫 번호만 빠진 형태
+
+### 변경
+- constants/onboarding.ts — capture 슬라이드에 `badge: '01'` 복원. OnboardingSlideView는 `slide.badge` 존재 시에만 badge를 렌더하므로 데이터만 보정하면 해소
+## 2026-06-21 (fix: 온보딩 '다음' 화살표 버튼 접근성 라벨 추가)
+
+### 처리 항목
+- 이슈 #126 / 작업 브랜치: fix/onboarding-next-a11y-126 (base: feat/onboarding-flow-redesign)
+- OnboardingControls의 다음(arrow-right) 버튼이 아이콘 전용 TouchableOpacity인데 접근성 라벨이 없어 스크린리더 사용자가 용도를 알 수 없던 문제 보완
+
+### 변경
+- components/onboarding/OnboardingControls.tsx — 다음 버튼에 `accessibilityRole="button"`, `accessibilityLabel="다음"` 추가. HomeHeader 등 기존 아이콘 버튼 컨벤션과 동일. 일러스트 내부 chevron은 비인터랙티브 장식이라 제외
+## 2026-06-21 (feat: 온보딩 건너뛰기(Skip) 버튼 추가)
+
+### 처리 항목
+- 이슈 #128 / 작업 브랜치: feat/onboarding-skip-button-128 (base: feat/onboarding-flow-redesign)
+- RN 온보딩 베스트프랙티스(경험자용 skip) 반영. 사용자 승인(2026-06-21) 후 진행. reduced-motion·버튼 라벨 정리는 범위 제외
+
+### 변경
+- app/onboarding.tsx — 우상단에 '건너뛰기' 버튼 추가. 마지막 슬라이드 제외(`!isLast`) 시 노출, 동작은 기존 goStart 재사용(completeOnboarding 후 /login replace). absolute 배치(zIndex 10)로 슬라이드 레이아웃 영향 없음. accessibilityRole/Label 포함(코드베이스 버튼 컨벤션)
 
 ### 검증
 - npx tsc --noEmit → PASS
@@ -103,6 +130,19 @@
 ### 검증
 - npx tsc --noEmit → PASS / npx expo lint → PASS
 - MOCK_NOTIFICATIONS 잔여 참조 0건(grep)
+## 2026-06-21 (feat: 온보딩 reduced-motion 존중 + 첫 슬라이드 버튼 라벨 정리)
+
+### 처리 항목
+- 이슈 #132 / 작업 브랜치: feat/onboarding-a11y-motion-label (base: feat/onboarding-flow-redesign)
+- 사용자 승인(2026-06-21) 후 보류했던 온보딩 개선 2건 적용
+
+### 변경
+- hooks/useOnboardingPager.ts — AccessibilityInfo로 '동작 줄이기' 설정을 감지(초기값 + reduceMotionChanged 구독, ref 보관)해 goNext의 scrollToOffset `animated`를 `!reduceMotion`으로. 구독은 cleanup에서 해제
+- components/onboarding/OnboardingControls.tsx — 첫 슬라이드(단일 아님) 버튼 라벨 '시작하기' → '다음'. 실제 동작(다음 이동)과 일치시키고 마지막 '시작하기'(앱 진입)와 의미 중복 해소. 단일 슬라이드 경우의 '시작하기'는 유지
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+- 실앱(Playwright, web): 첫 슬라이드 버튼 "다음" 표시(count 1), "시작하기" 미표시(count 0), 페이지/콘솔 에러 0
 
 ## 2026-06-20 (chore: Vercel 웹 데모 배포 설정 추가)
 
