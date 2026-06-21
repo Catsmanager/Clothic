@@ -1,16 +1,25 @@
+import { useEffect } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { router } from 'expo-router'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../constants/colors'
 import { radius, spacing } from '../constants/spacing'
-import { MOCK_NOTIFICATIONS } from '../constants/notifications'
+import { useNotificationStore } from '../stores/notificationStore'
 
 interface Props {
   onMenuPress: () => void
 }
 
 export default function HomeHeader({ onMenuPress }: Props) {
-  const hasUnread = MOCK_NOTIFICATIONS.some((item) => !item.read)
+  // 안읽은 알림 표시는 실제 알림(Supabase) 기준으로 계산한다.
+  const notifications = useNotificationStore((s) => s.notifications)
+  const fetchNotifications = useNotificationStore((s) => s.fetchNotifications)
+
+  useEffect(() => {
+    fetchNotifications()
+  }, [fetchNotifications])
+
+  const hasUnread = notifications.some((item) => !item.read)
 
   return (
     <View style={styles.container}>
