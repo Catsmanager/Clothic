@@ -78,6 +78,19 @@
 
 ### 검증
 - npx tsc --noEmit → PASS / npx expo lint → PASS
+## 2026-06-21 (fix: 홈 헤더 안읽은 알림 배지를 실데이터 기준으로 — 목데이터 제거)
+
+### 처리 항목
+- 이슈 #140 / 작업 브랜치: fix/home-unread-badge-real-data (base: develop)
+- HomeHeader가 안읽은 알림 표시(unreadDot+접근성 라벨)를 하드코딩 MOCK_NOTIFICATIONS로 계산 → 실제 알림 상태와 무관하게 빨간 점이 항상 표시되던 회귀(실데이터 전환 후 잔재) 수정
+
+### 변경
+- components/HomeHeader.tsx — MOCK_NOTIFICATIONS 대신 useNotificationStore의 실제 notifications로 hasUnread 계산, 마운트 시 fetchNotifications(알림 화면과 동일 패턴)
+- constants/notifications.ts — 더 이상 쓰이지 않는 MOCK_NOTIFICATIONS 배열 제거. AppNotification 타입은 NotificationItem이 사용하므로 유지. 헤더 주석 갱신
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+- MOCK_NOTIFICATIONS 잔여 참조 0건(grep)
 
 ## 2026-06-20 (chore: Vercel 웹 데모 배포 설정 추가)
 
