@@ -1,5 +1,21 @@
 # LOG
 
+## 2026-06-21 (fix: 온보딩 capture 슬라이드 번호 badge '01' 복원)
+
+### 처리 항목
+- 이슈 #124 / 작업 브랜치: fix/onboarding-capture-badge-124 (base: feat/onboarding-flow-redesign)
+- 온보딩 리디자인에서 첫 feature 슬라이드 'capture'의 badge가 누락되어 화면 번호가 02·03·04로만 보이던 회귀 수정
+
+### 원인
+- constants/onboarding.ts에서 슬라이드 id를 s1→capture로 바꾸는 과정에서 기존 `badge: '01'`이 함께 삭제됨 (`git diff main`에서 `- badge: '01'` 확인). memo(02)/closet(03)/report(04)는 유지되어 첫 번호만 빠진 형태
+
+### 변경
+- constants/onboarding.ts — capture 슬라이드에 `badge: '01'` 복원. OnboardingSlideView는 `slide.badge` 존재 시에만 badge를 렌더하므로 데이터만 보정하면 해소
+
+### 검증
+- npx tsc --noEmit → PASS
+- npx expo lint → PASS (exit 0)
+
 ## 2026-06-20 (chore: Vercel 웹 데모 배포 설정 추가)
 
 ### 처리 항목 (이슈 #114)
