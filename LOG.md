@@ -31,6 +31,19 @@
 ### 검증
 - npx tsc --noEmit → PASS
 - npx expo lint → PASS (exit 0)
+## 2026-06-21 (feat: 온보딩 reduced-motion 존중 + 첫 슬라이드 버튼 라벨 정리)
+
+### 처리 항목
+- 이슈 #132 / 작업 브랜치: feat/onboarding-a11y-motion-label (base: feat/onboarding-flow-redesign)
+- 사용자 승인(2026-06-21) 후 보류했던 온보딩 개선 2건 적용
+
+### 변경
+- hooks/useOnboardingPager.ts — AccessibilityInfo로 '동작 줄이기' 설정을 감지(초기값 + reduceMotionChanged 구독, ref 보관)해 goNext의 scrollToOffset `animated`를 `!reduceMotion`으로. 구독은 cleanup에서 해제
+- components/onboarding/OnboardingControls.tsx — 첫 슬라이드(단일 아님) 버튼 라벨 '시작하기' → '다음'. 실제 동작(다음 이동)과 일치시키고 마지막 '시작하기'(앱 진입)와 의미 중복 해소. 단일 슬라이드 경우의 '시작하기'는 유지
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+- 실앱(Playwright, web): 첫 슬라이드 버튼 "다음" 표시(count 1), "시작하기" 미표시(count 0), 페이지/콘솔 에러 0
 
 ## 2026-06-20 (chore: Vercel 웹 데모 배포 설정 추가)
 
