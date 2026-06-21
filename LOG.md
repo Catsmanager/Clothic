@@ -1,5 +1,23 @@
 # LOG
 
+## 2026-06-21 (fix: 코디 에디터 아이콘 전용 버튼 접근성 라벨 추가)
+
+### 처리 항목
+- 이슈 #130 / 작업 브랜치: fix/icon-button-a11y (base: develop)
+- 아이콘 전용 인터랙티브 버튼이 접근성 이름이 없어 스크린리더가 용도를 못 읽던 문제 보완. 앱 전역 아이콘 버튼 감사로 발견
+
+### 변경
+- components/outfit-editor/EditorActionPanel.tsx — 실행취소·랜덤 버튼에 `accessibilityRole="button"` + `accessibilityLabel` 추가 (라벨 텍스트가 버튼 바깥 형제라 버튼 자체엔 이름이 없었음)
+- components/outfit-editor/ItemPickerPanel.tsx — 전체보기(grid) 버튼에 동일 보완 (텍스트 전혀 없던 버튼)
+
+### 리뷰에서 확인한 사항
+- contact/profile/SleepingBottomBanner/ChallengeListItem/BadgeShelf/SleepingToolbar는 텍스트가 버튼 자식이라 접근성 이름이 잡힘 → 비대상
+- HomeHeader 등 기존 컨벤션 및 PR #127(온보딩 '다음' 버튼)과 동일 패턴
+
+### 검증
+- npx tsc --noEmit → PASS
+- npx expo lint → PASS (exit 0)
+
 ## 2026-06-20 (chore: Vercel 웹 데모 배포 설정 추가)
 
 ### 처리 항목 (이슈 #114)

@@ -64,7 +64,12 @@ export default function ItemPickerPanel({
             </TouchableOpacity>
           ))}
         </ScrollView>
-        <TouchableOpacity style={styles.fullViewBtn} onPress={onFullViewPress}>
+        <TouchableOpacity
+          style={styles.fullViewBtn}
+          onPress={onFullViewPress}
+          accessibilityRole="button"
+          accessibilityLabel="전체 보기"
+        >
           <Feather name="grid" size={16} color={colors.textMuted} />
         </TouchableOpacity>
       </View>

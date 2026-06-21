@@ -17,6 +17,8 @@ export default function EditorActionPanel({ canUndo, onRandom, onUndo }: Props) 
           style={[styles.actionBtn, !canUndo && styles.actionBtnDisabled]}
           onPress={onUndo}
           disabled={!canUndo}
+          accessibilityRole="button"
+          accessibilityLabel="실행 취소"
         >
           <Feather name="rotate-ccw" size={17} color={canUndo ? colors.text : colors.textMuted} />
         </TouchableOpacity>
@@ -24,7 +26,12 @@ export default function EditorActionPanel({ canUndo, onRandom, onUndo }: Props) 
       </View>
 
       <View style={styles.actionItem}>
-        <TouchableOpacity style={styles.actionBtn} onPress={onRandom}>
+        <TouchableOpacity
+          style={styles.actionBtn}
+          onPress={onRandom}
+          accessibilityRole="button"
+          accessibilityLabel="랜덤"
+        >
           <Feather name="shuffle" size={17} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.actionLabel}>랜덤</Text>
