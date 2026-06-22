@@ -18,6 +18,7 @@ export const ONBOARDING_SLIDES: OnboardingSlide[] = [
   {
     id: 'capture',
     type: 'feature',
+    badge: '01',
     title: '오늘의 착장을\n캘린더에 기록해요',
     subtitle: '매일 입은 코디를 저장하고\n날짜별로 한눈에 확인할 수 있어요.',
   },

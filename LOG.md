@@ -1,5 +1,161 @@
 # LOG
 
+## 2026-06-21 (docs: 이미지 최적화 가이드 작성 — 에셋 미변경)
+
+### 처리 항목
+- 작업 브랜치: docs/image-optimization-guide (base: develop)
+- 큰 온보딩/옷장 일러스트(합 ~3.7MB) 최적화 권고를 별도 문서로 작성. 사용자 요청에 따라 이미지 에셋 자체는 건드리지 않음
+
+### 변경
+- docs/IMAGE_OPTIMIZATION.md 신규 — 대상/용량, 자동 미적용 사유(cwebp·pngquant 미설치, sips 한계), 권장 방법(디자이너 WebP 재출력 / pngquant / cwebp), 검증 체크리스트
+
+### 검증
+- 문서만 추가, 코드 변경 없음 → tsc/lint 생략
+
+## 2026-06-21 (chore: CI 액션 버전 bump — Node 20 deprecation 해소)
+
+### 처리 항목
+- 이슈 #144 / 작업 브랜치: chore/ci-bump-actions (base: develop)
+- develop CI 경고(actions/checkout@v4·setup-node@v4가 Node 20 타깃, deprecation) 해소
+
+### 변경
+- .github/workflows/ci.yml — actions/checkout v4→v5, actions/setup-node v4→v5. 프로젝트 빌드 node-version(20)은 유지
+
+### 검증
+- 설정만 변경(앱 코드 없음) → PR의 CI 실행으로 검증
+
+## 2026-06-21 (chore: 미사용 온보딩 이미지 3개 제거 ~1.1MB)
+
+### 처리 항목
+- 이슈 #136 / 작업 브랜치: chore/remove-unused-onboarding-assets (base: develop)
+- 온보딩 메모/리포트는 코드 컴포넌트로, 옷장은 wardrobe.png로 렌더되어 아래 3개 PNG가 어디서도 참조되지 않음 → 제거. 사용자 승인(2026-06-21)
+
+### 변경 (삭제)
+- assets/onboarding/onboarding_03_memo.png (128K)
+- assets/onboarding/onboarding_04_closet.png (872K)
+- assets/onboarding/onboarding_05_report.png (112K)
+
+### 리뷰에서 확인한 사항
+- `git grep`으로 develop·feat/onboarding-flow-redesign 양쪽에서 코드 참조 0건 확인(정적 require만 사용하는 코드베이스라 동적 참조 없음)
+- git 이력으로 복구 가능
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS (코드 참조 없어 영향 없음)
+
+## 2026-06-21 (fix: 코디 에디터 아이콘 전용 버튼 접근성 라벨 추가)
+
+### 처리 항목
+- 이슈 #130 / 작업 브랜치: fix/icon-button-a11y (base: develop)
+- 아이콘 전용 인터랙티브 버튼이 접근성 이름이 없어 스크린리더가 용도를 못 읽던 문제 보완. 앱 전역 아이콘 버튼 감사로 발견
+
+### 변경
+- components/outfit-editor/EditorActionPanel.tsx — 실행취소·랜덤 버튼에 `accessibilityRole="button"` + `accessibilityLabel` 추가 (라벨 텍스트가 버튼 바깥 형제라 버튼 자체엔 이름이 없었음)
+- components/outfit-editor/ItemPickerPanel.tsx — 전체보기(grid) 버튼에 동일 보완 (텍스트 전혀 없던 버튼)
+
+### 리뷰에서 확인한 사항
+- contact/profile/SleepingBottomBanner/ChallengeListItem/BadgeShelf/SleepingToolbar는 텍스트가 버튼 자식이라 접근성 이름이 잡힘 → 비대상
+- HomeHeader 등 기존 컨벤션 및 PR #127(온보딩 '다음' 버튼)과 동일 패턴
+## 2026-06-21 (fix: 온보딩 capture 슬라이드 번호 badge '01' 복원)
+
+### 처리 항목
+- 이슈 #124 / 작업 브랜치: fix/onboarding-capture-badge-124 (base: feat/onboarding-flow-redesign)
+- 온보딩 리디자인에서 첫 feature 슬라이드 'capture'의 badge가 누락되어 화면 번호가 02·03·04로만 보이던 회귀 수정
+
+### 원인
+- constants/onboarding.ts에서 슬라이드 id를 s1→capture로 바꾸는 과정에서 기존 `badge: '01'`이 함께 삭제됨 (`git diff main`에서 `- badge: '01'` 확인). memo(02)/closet(03)/report(04)는 유지되어 첫 번호만 빠진 형태
+
+### 변경
+- constants/onboarding.ts — capture 슬라이드에 `badge: '01'` 복원. OnboardingSlideView는 `slide.badge` 존재 시에만 badge를 렌더하므로 데이터만 보정하면 해소
+## 2026-06-21 (fix: 온보딩 '다음' 화살표 버튼 접근성 라벨 추가)
+
+### 처리 항목
+- 이슈 #126 / 작업 브랜치: fix/onboarding-next-a11y-126 (base: feat/onboarding-flow-redesign)
+- OnboardingControls의 다음(arrow-right) 버튼이 아이콘 전용 TouchableOpacity인데 접근성 라벨이 없어 스크린리더 사용자가 용도를 알 수 없던 문제 보완
+
+### 변경
+- components/onboarding/OnboardingControls.tsx — 다음 버튼에 `accessibilityRole="button"`, `accessibilityLabel="다음"` 추가. HomeHeader 등 기존 아이콘 버튼 컨벤션과 동일. 일러스트 내부 chevron은 비인터랙티브 장식이라 제외
+## 2026-06-21 (feat: 온보딩 건너뛰기(Skip) 버튼 추가)
+
+### 처리 항목
+- 이슈 #128 / 작업 브랜치: feat/onboarding-skip-button-128 (base: feat/onboarding-flow-redesign)
+- RN 온보딩 베스트프랙티스(경험자용 skip) 반영. 사용자 승인(2026-06-21) 후 진행. reduced-motion·버튼 라벨 정리는 범위 제외
+
+### 변경
+- app/onboarding.tsx — 우상단에 '건너뛰기' 버튼 추가. 마지막 슬라이드 제외(`!isLast`) 시 노출, 동작은 기존 goStart 재사용(completeOnboarding 후 /login replace). absolute 배치(zIndex 10)로 슬라이드 레이아웃 영향 없음. accessibilityRole/Label 포함(코드베이스 버튼 컨벤션)
+
+### 검증
+- npx tsc --noEmit → PASS
+- npx expo lint → PASS (exit 0)
+## 2026-06-21 (chore: 미사용 로그인 캐릭터 이미지 제거 2MB)
+
+### 처리 항목
+- 이슈 #138 / 작업 브랜치: chore/remove-unused-login-asset (base: develop)
+- login.tsx가 login-character-cropped.png(220K)를 쓰는데 오타 철자 구버전 login-charater.png(2MB)가 미사용으로 남아 제거
+
+### 변경 (삭제)
+- assets/auth/login-charater.png (~2MB)
+
+### 리뷰에서 확인한 사항
+- `git grep`으로 develop·feat/onboarding-flow-redesign 양쪽 참조 0건
+- splash-icon.png(32K)도 데드 후보지만 splash 빌드 민감 영역이라 이번 범위 제외(후속 확인 권장)
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+## 2026-06-21 (chore: 미사용 splash-icon.png 제거)
+
+### 처리 항목
+- 이슈 #142 / 작업 브랜치: chore/remove-unused-splash-icon (base: develop)
+- create-expo-app 잔재로 보이는 미참조 splash-icon.png 제거. 사용자 승인(2026-06-21)
+
+### 변경 (삭제)
+- assets/splash-icon.png (30K)
+
+### 리뷰에서 확인한 사항
+- app.json에 splash 키/플러그인 없음
+- `npx expo config --type introspect`에 splash-icon.png 참조 없음(기본 SplashScreen storyboard/theme 이름만 존재), 제거 후에도 introspect exit 0
+- 전체 `grep` 참조 0건
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS / expo config introspect → exit 0
+## 2026-06-21 (fix: 알림 아이콘 DB값 방어 — 누락/빈 값 폴백)
+
+### 처리 항목
+- 이슈 #134 / 작업 브랜치: fix/notification-icon-fallback (base: develop)
+- notificationStore.mapRow가 row.icon을 무검증 `as` 캐스팅 → DB icon이 null/빈 문자열이면 NotificationItem의 `<Feather name={icon}>`가 깨진 아이콘 렌더. 사용자 승인(2026-06-21)
+
+### 변경
+- constants/notifications.ts — `NOTIFICATION_TYPE_ICONS`(reminder→edit-3, wardrobe→archive, system→bell, mock과 동일) 추가
+- stores/notificationStore.ts — `resolveIcon(icon, type)` 추가: icon이 비어있으면 타입별 기본 아이콘 폴백, 유효 값은 그대로 사용(정상 아이콘을 임의 allowlist로 떨구지 않음). mapRow가 이를 사용
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+## 2026-06-21 (fix: 홈 헤더 안읽은 알림 배지를 실데이터 기준으로 — 목데이터 제거)
+
+### 처리 항목
+- 이슈 #140 / 작업 브랜치: fix/home-unread-badge-real-data (base: develop)
+- HomeHeader가 안읽은 알림 표시(unreadDot+접근성 라벨)를 하드코딩 MOCK_NOTIFICATIONS로 계산 → 실제 알림 상태와 무관하게 빨간 점이 항상 표시되던 회귀(실데이터 전환 후 잔재) 수정
+
+### 변경
+- components/HomeHeader.tsx — MOCK_NOTIFICATIONS 대신 useNotificationStore의 실제 notifications로 hasUnread 계산, 마운트 시 fetchNotifications(알림 화면과 동일 패턴)
+- constants/notifications.ts — 더 이상 쓰이지 않는 MOCK_NOTIFICATIONS 배열 제거. AppNotification 타입은 NotificationItem이 사용하므로 유지. 헤더 주석 갱신
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+- MOCK_NOTIFICATIONS 잔여 참조 0건(grep)
+## 2026-06-21 (feat: 온보딩 reduced-motion 존중 + 첫 슬라이드 버튼 라벨 정리)
+
+### 처리 항목
+- 이슈 #132 / 작업 브랜치: feat/onboarding-a11y-motion-label (base: feat/onboarding-flow-redesign)
+- 사용자 승인(2026-06-21) 후 보류했던 온보딩 개선 2건 적용
+
+### 변경
+- hooks/useOnboardingPager.ts — AccessibilityInfo로 '동작 줄이기' 설정을 감지(초기값 + reduceMotionChanged 구독, ref 보관)해 goNext의 scrollToOffset `animated`를 `!reduceMotion`으로. 구독은 cleanup에서 해제
+- components/onboarding/OnboardingControls.tsx — 첫 슬라이드(단일 아님) 버튼 라벨 '시작하기' → '다음'. 실제 동작(다음 이동)과 일치시키고 마지막 '시작하기'(앱 진입)와 의미 중복 해소. 단일 슬라이드 경우의 '시작하기'는 유지
+
+### 검증
+- npx tsc --noEmit → PASS / npx expo lint → PASS
+- 실앱(Playwright, web): 첫 슬라이드 버튼 "다음" 표시(count 1), "시작하기" 미표시(count 0), 페이지/콘솔 에러 0
+
 ## 2026-06-20 (chore: Vercel 웹 데모 배포 설정 추가)
 
 ### 처리 항목 (이슈 #114)
