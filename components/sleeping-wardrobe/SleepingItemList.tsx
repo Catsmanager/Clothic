@@ -28,7 +28,7 @@ export default function SleepingItemList({
         <Text style={styles.emptyDesc}>
           {hasActiveFilter
             ? '필터를 줄이거나 다른 카테고리를 선택해보세요.'
-            : '코디를 기록하면, 요즘 손이 안 가는 옷을 여기 모아 다시 꺼내드려요.'}
+            : '코디를 기록하면, 현재 계절에 입은 옷을 미착용 기간 순으로 여기서 확인할 수 있어요.'}
         </Text>
         {hasActiveFilter && onClearFilters != null && (
           <TouchableOpacity
@@ -79,11 +79,13 @@ export default function SleepingItemList({
                 </Text>
               </View>
             </View>
-            <View style={[styles.sleepBadge, isSleeping && styles.sleepBadgeLong]}>
-              <Text style={[styles.sleepBadgeText, isSleeping && styles.sleepBadgeTextLong]}>
-                {SLEEPING_TIER_LABELS[item.tier]}
-              </Text>
-            </View>
+            {item.tier !== 'active' && (
+              <View style={[styles.sleepBadge, isSleeping && styles.sleepBadgeLong]}>
+                <Text style={[styles.sleepBadgeText, isSleeping && styles.sleepBadgeTextLong]}>
+                  {SLEEPING_TIER_LABELS[item.tier]}
+                </Text>
+              </View>
+            )}
           </View>
         )
       })}

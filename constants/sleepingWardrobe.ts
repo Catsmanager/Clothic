@@ -1,14 +1,17 @@
 import { CATEGORY_LABELS, ITEM_CATEGORIES, type Category } from './items'
 
 // 잠자는 옷장 분류 기준 (현재 계절 아이템의 미착용 일수). DATA_MODEL.md 계산 규칙.
-// 14일 미만은 미표시, 14~29일은 '관심 필요', 30일 이상은 '잠자는 옷'.
+// 현재 계절 코디 아이템 전체를 미착용 긴 순으로 보여주되, 14일 미만은 배지 없이('active'),
+// 14~29일은 '관심 필요', 30일 이상은 '잠자는 옷'으로 강조한다.
 export const SLEEPING_ATTENTION_DAYS = 14
 export const SLEEPING_DAYS = 30
 
-// 'attention' = 관심 필요(14~29일), 'sleeping' = 잠자는 옷(30일+)
-export type SleepingTier = 'attention' | 'sleeping'
+// 'active' = 최근 착용(14일 미만, 배지 없음), 'attention' = 관심 필요(14~29일), 'sleeping' = 잠자는 옷(30일+)
+export type SleepingTier = 'active' | 'attention' | 'sleeping'
 
+// 'active'는 배지를 표시하지 않는다.
 export const SLEEPING_TIER_LABELS: Record<SleepingTier, string> = {
+  active: '',
   attention: '관심 필요',
   sleeping: '잠자는 옷',
 }
