@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { router } from 'expo-router'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
-import { SLEEPING_THRESHOLD_DAYS, type SleepingItem } from '../../constants/sleepingWardrobe'
+import { type SleepingItem } from '../../constants/sleepingWardrobe'
 import { radius, spacing } from '../../constants/spacing'
 import { getSleepingDays } from '../../lib/sleepingWardrobe'
 import ItemPreviewThumb from '../ItemPreviewThumb'
@@ -31,7 +31,7 @@ export default function SleepingItemList({
         <Text style={styles.emptyDesc}>
           {hasActiveFilter
             ? '필터를 줄이거나 다른 카테고리를 선택해보세요.'
-            : `코디를 기록하면, 마지막 착용 후 ${SLEEPING_THRESHOLD_DAYS}일이 지난 옷을 여기 모아 다시 꺼내드려요.`}
+            : '코디를 기록하면, 그동안 가장 손이 안 간 옷들을 여기 모아 다시 꺼내드려요.'}
         </Text>
         {hasActiveFilter && onClearFilters != null && (
           <TouchableOpacity
