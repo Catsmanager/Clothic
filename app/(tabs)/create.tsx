@@ -60,7 +60,9 @@ export default function CreateScreen() {
         <View style={styles.previewSection}>
           <AvatarPreview items={editor.equippedItems} />
           <EditorActionPanel
+            canClear={editor.equippedItemIds.length > 0}
             canUndo={editor.canUndo}
+            onClear={editor.clearOutfit}
             onRandom={editor.randomizeOutfit}
             onUndo={editor.undo}
           />
