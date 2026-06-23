@@ -10,9 +10,8 @@ interface Props {
 }
 
 const HELP_ITEMS = [
-  '코디 기록을 바탕으로 가장 오래 안 입은 옷을 모아 보여줘요.',
-  '카테고리별로 잠자는 옷을 확인하고 오래된 순으로 정렬할 수 있어요.',
-  '다시 입을 아이템을 골라 새 코디에 활용하면 옷장 회전율을 높일 수 있어요.',
+  '현재 계절에 입을 수 있는 옷만 분석해요.',
+  '다른 계절의 옷은 잠자는 옷에서 제외돼요.',
 ]
 
 export default function SleepingHelpSheet({ visible, onClose }: Props) {

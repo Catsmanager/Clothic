@@ -1,7 +1,17 @@
 import { CATEGORY_LABELS, ITEM_CATEGORIES, type Category } from './items'
 
-// 잠자는 옷장 기준: 착용 기록이 있는 아이템 중 마지막 착용일이 오래된 순 하위 비율 (DATA_MODEL.md 계산 규칙)
-export const SLEEPING_RATIO = 0.3
+// 잠자는 옷장 분류 기준 (현재 계절 아이템의 미착용 일수). DATA_MODEL.md 계산 규칙.
+// 14일 미만은 미표시, 14~29일은 '관심 필요', 30일 이상은 '잠자는 옷'.
+export const SLEEPING_ATTENTION_DAYS = 14
+export const SLEEPING_DAYS = 30
+
+// 'attention' = 관심 필요(14~29일), 'sleeping' = 잠자는 옷(30일+)
+export type SleepingTier = 'attention' | 'sleeping'
+
+export const SLEEPING_TIER_LABELS: Record<SleepingTier, string> = {
+  attention: '관심 필요',
+  sleeping: '잠자는 옷',
+}
 
 export type SleepingCategory = '전체' | Category
 export type SortOrder = '오래된 순' | '최신 순'
@@ -14,6 +24,7 @@ export interface SleepingItem {
   color: string
   imagePath?: string
   category: Category
+  tier: SleepingTier
 }
 
 export const SLEEPING_CATEGORIES: SleepingCategory[] = ['전체', ...ITEM_CATEGORIES]

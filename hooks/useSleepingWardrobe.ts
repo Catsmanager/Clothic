@@ -28,6 +28,12 @@ export function useSleepingWardrobe() {
     [outfits, userItems]
   )
 
+  // '잠자는 옷 N벌' 헤드라인: 현재 계절 아이템 중 30일+(tier === 'sleeping')만 센다.
+  const sleepingCount = useMemo(
+    () => sleepingItems.filter((item) => item.tier === 'sleeping').length,
+    [sleepingItems]
+  )
+
   const counts = useMemo(() => {
     const next = {} as Record<SleepingCategory, number>
     SLEEPING_CATEGORIES.forEach((category) => {
@@ -100,5 +106,6 @@ export function useSleepingWardrobe() {
     toggleTag,
     toggleSort,
     totalCount: sleepingItems.length,
+    sleepingCount,
   }
 }
