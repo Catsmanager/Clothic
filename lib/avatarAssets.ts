@@ -291,20 +291,13 @@ const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {
       xOffsetScale: -1.08,
     },
   },
-  accessory_005: {
-    source: require('../assets/avatar/accessory/accessory_005_cap.png'),
-    preview: {
-      widthScale: 3.6,
-      heightScale: 5.4,
-      topScale: -0.08,
-    },
-  },
   accessory_006: {
     source: require('../assets/avatar/accessory/accessory_006_brown_shoulder_bag.png'),
     preview: {
-      widthScale: 3.6,
-      heightScale: 5.4,
-      topScale: -0.08,
+      // 원본의 투명 여백이 커서 일반 액세서리 좌표를 쓰면 카드 아래로 밀린다.
+      widthScale: 2.6,
+      heightScale: 3.9,
+      topScale: -1.0,
     },
   },
   accessory_007: {

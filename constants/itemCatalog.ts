@@ -322,15 +322,6 @@ export const ITEM_CATALOG: CatalogItem[] = [
     styleTags: ['minimal', 'chic'],
   },
   {
-    id: 'accessory_005',
-    category: 'accessory',
-    subCategory: '모자',
-    name: '볼캡',
-    color: '#F2D7A9',
-    imagePath: 'assets/avatar/accessory/accessory_005_cap.png',
-    styleTags: ['casual', 'sporty'],
-  },
-  {
     id: 'accessory_006',
     category: 'accessory',
     subCategory: '가방',
