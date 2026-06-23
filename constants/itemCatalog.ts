@@ -148,7 +148,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     id: 'bottom_012',
     category: 'bottom',
     subCategory: '스커트',
-    name: '크림 롱스커트',
+    name: '롱스커트',
     color: '#F3E1C3',
     imagePath: 'assets/avatar/bottom/bottom_012_cream_long_skirt.png',
     styleTags: ['feminine', 'vintage'],
