@@ -1,4 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { router } from 'expo-router'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { SLEEPING_THRESHOLD_DAYS, type SleepingItem } from '../../constants/sleepingWardrobe'
@@ -30,7 +31,7 @@ export default function SleepingItemList({
         <Text style={styles.emptyDesc}>
           {hasActiveFilter
             ? '필터를 줄이거나 다른 카테고리를 선택해보세요.'
-            : `마지막 착용 후 ${SLEEPING_THRESHOLD_DAYS}일이 지난 아이템이 생기면 여기에 모아드려요.`}
+            : `코디를 기록하면, 마지막 착용 후 ${SLEEPING_THRESHOLD_DAYS}일이 지난 옷을 여기 모아 다시 꺼내드려요.`}
         </Text>
         {hasActiveFilter && onClearFilters != null && (
           <TouchableOpacity
@@ -41,6 +42,18 @@ export default function SleepingItemList({
           >
             <Feather name="rotate-ccw" size={13} color={colors.text} />
             <Text style={styles.clearButtonText}>필터 초기화</Text>
+          </TouchableOpacity>
+        )}
+        {!hasActiveFilter && (
+          <TouchableOpacity
+            style={styles.recordButton}
+            onPress={() => router.push('/create')}
+            accessibilityRole="button"
+            accessibilityLabel="오늘 코디 기록하기"
+            accessibilityHint="코디를 기록하는 화면으로 이동합니다."
+          >
+            <Feather name="plus" size={14} color={colors.white} />
+            <Text style={styles.recordButtonText}>오늘 코디 기록하기</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -176,5 +189,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: colors.text,
+  },
+  recordButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    backgroundColor: colors.text,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 9,
+  },
+  recordButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.white,
   },
 })

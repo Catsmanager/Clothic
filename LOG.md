@@ -1,5 +1,21 @@
 # LOG
 
+## 2026-06-23 (feat: 잠자는 옷장 신규 사용자 빈 화면 개선)
+
+### 처리 항목
+- 이슈 #154 / 작업 브랜치: feat/sleeping-empty-state-cta (base: main)
+- 잠자는 옷장은 코디 기록 역산 기반이라 신규 사용자는 가입 직후 빈 화면. 막다른 빈 상태가 이탈 원인이 될 수 있어 안내 + 행동 유도로 개선
+
+### 변경
+- components/sleeping-wardrobe/SleepingItemList.tsx — 필터 아님 빈 상태에:
+  - 설명 문구를 "코디를 기록하면 … 30일 지난 옷을 모아준다"로 변경(언제·왜 채워지는지 안내)
+  - "오늘 코디 기록하기" CTA 버튼 추가 → router.push('/create')
+- 계산 로직/데이터 모델은 변경 없음. 빈 상태 UI만 개선
+- 검토 중 시안 B("아직 안 입은 옷")는 옷장이 고정 카탈로그(buildCatalogItems)라 전체 목록이 노출되어 폐기
+
+### 검증
+- npx tsc --noEmit → exit 0 / npx expo lint → exit 0
+
 ## 2026-06-23 (feat: 아이템 표시 이름 색상 제거 + 선택 그리드 색 스와치)
 
 ### 처리 항목
