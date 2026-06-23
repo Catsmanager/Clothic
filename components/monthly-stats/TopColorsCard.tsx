@@ -7,20 +7,21 @@ import StatsCard from './StatsCard'
 
 interface Props {
   topColors: MonthData['topColors']
+  label?: string
 }
 
-export default function TopColorsCard({ topColors }: Props) {
+export default function TopColorsCard({ topColors, label = '가장 많이 입은 색상' }: Props) {
   // 방어용 빈 상태: 코디가 있어도 아이템이 모두 삭제돼 색상을 못 구한 경우.
   if (topColors.length === 0) {
     return (
-      <StatsCard label="가장 많이 입은 색상">
+      <StatsCard label={label}>
         <Text style={styles.emptyText}>아직 색상 데이터가 없어요.</Text>
       </StatsCard>
     )
   }
 
   return (
-    <StatsCard label="가장 많이 입은 색상">
+    <StatsCard label={label}>
       <View style={styles.colorRow}>
         <DonutChart
           segments={topColors.map((color) => ({ value: color.percent, color: color.color }))}
