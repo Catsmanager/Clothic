@@ -70,7 +70,7 @@ interface MonthlyReport {
   mostWornItems: Array<{ itemId: string; count: number }>
   categoryRatio: Record<Category, number>
   styleRatio: Partial<Record<StyleTag, number>>
-  sleepingItems: string[]   // 30일 이상 미착용 Item.id
+  sleepingItems: string[]   // 마지막 착용일이 오래된 하위 30% Item.id
 }
 ```
 
@@ -163,6 +163,6 @@ auth.users
 
 ## 계산 규칙
 
-- **잠자는 옷장**: outfits에서 item의 마지막 착용일 역산 → `today - lastWornDate > 30일`
+- **잠자는 옷장**: outfits에서 item의 마지막 착용일 역산 → 착용 기록 있는 아이템을 마지막 착용일 오래된 순 정렬 후 하위 30%(`ceil(n × 0.3)`, 최소 1개) 노출. 착용 기록 없는 아이템은 제외
 - **월간 통계**: 해당 month의 outfits 전체를 클라이언트에서 집계
 - MonthlyReport는 DB에 저장하지 않음 — 매번 계산

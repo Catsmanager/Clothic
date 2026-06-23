@@ -1,5 +1,37 @@
 # LOG
 
+## 2026-06-23 (feat: 잠자는 옷장 기준 절대 30일 → 상대 하위 30%)
+
+### 처리 항목
+- 이슈 #156 / 작업 브랜치: feat/sleeping-empty-state-cta (base: main, PR #155에 통합)
+- 절대 30일 기준은 기록이 2~4주뿐인 사용자에게 빈 화면을 만듦. 착용 기록이 있으면 항상 '가장 오래 안 입은 옷'이 보이도록 상대 기준으로 전환
+
+### 변경
+- lib/sleepingWardrobe.ts — 30일 경과 필터 제거. 착용 기록 있는 아이템을 마지막 착용일 오래된 순 정렬 후 하위 30%(ceil(n×0.3), 최소 1개) 반환. today 인자 제거
+- constants/sleepingWardrobe.ts — SLEEPING_THRESHOLD_DAYS(30) → SLEEPING_RATIO(0.3)
+- 문구: SleepingSummaryBanner / SleepingHelpSheet / SleepingItemList 빈 상태를 상대 기준으로 수정
+- docs/PRD.md, docs/DATA_MODEL.md, docs/OVERVIEW.md — '잠자는 옷장' 정의를 하위 30%로 개정
+- 챌린지 '잠자는 옷 깨우기'는 lib/challenges.ts의 독립 30일 로직이라 미변경(완료 조건은 고정 기준이 적절)
+
+### 검증
+- npx tsc --noEmit → exit 0 / npx expo lint → exit 0
+
+## 2026-06-23 (feat: 잠자는 옷장 신규 사용자 빈 화면 개선)
+
+### 처리 항목
+- 이슈 #154 / 작업 브랜치: feat/sleeping-empty-state-cta (base: main)
+- 잠자는 옷장은 코디 기록 역산 기반이라 신규 사용자는 가입 직후 빈 화면. 막다른 빈 상태가 이탈 원인이 될 수 있어 안내 + 행동 유도로 개선
+
+### 변경
+- components/sleeping-wardrobe/SleepingItemList.tsx — 필터 아님 빈 상태에:
+  - 설명 문구를 "코디를 기록하면 … 30일 지난 옷을 모아준다"로 변경(언제·왜 채워지는지 안내)
+  - "오늘 코디 기록하기" CTA 버튼 추가 → router.push('/create')
+- 계산 로직/데이터 모델은 변경 없음. 빈 상태 UI만 개선
+- 검토 중 시안 B("아직 안 입은 옷")는 옷장이 고정 카탈로그(buildCatalogItems)라 전체 목록이 노출되어 폐기
+
+### 검증
+- npx tsc --noEmit → exit 0 / npx expo lint → exit 0
+
 ## 2026-06-23 (feat: 아이템 표시 이름 색상 제거 + 선택 그리드 색 스와치)
 
 ### 처리 항목

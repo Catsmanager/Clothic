@@ -20,13 +20,13 @@ export default function StatsHeader({ onBackPress, onSharePress }: Props) {
       >
         <Feather name="arrow-left" size={22} color={colors.text} />
       </TouchableOpacity>
-      <Text style={styles.headerTitle}>월간 리포트</Text>
+      <Text style={styles.headerTitle}>스타일 리포트</Text>
       <TouchableOpacity
         style={styles.headerBtn}
         onPress={onSharePress}
         hitSlop={8}
         accessibilityRole="button"
-        accessibilityLabel="월간 리포트 공유하기"
+        accessibilityLabel="스타일 리포트 공유하기"
       >
         <Feather name="share" size={20} color={colors.text} />
       </TouchableOpacity>

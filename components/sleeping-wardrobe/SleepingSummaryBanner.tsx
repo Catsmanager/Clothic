@@ -16,7 +16,7 @@ export default function SleepingSummaryBanner({ totalCount }: Props) {
         </View>
         <View style={styles.textBlock}>
           <Text style={styles.title}>잠자는 옷 {totalCount}개</Text>
-          <Text style={styles.desc}>30일 이상 코디에 등장하지 않은 아이템이에요.</Text>
+          <Text style={styles.desc}>코디 기록 중 가장 오래 손이 안 간 옷들이에요.</Text>
         </View>
       </View>
     </View>

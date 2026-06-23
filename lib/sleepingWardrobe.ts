@@ -1,16 +1,12 @@
 import type { CatalogItem } from '../constants/items'
-import { SLEEPING_THRESHOLD_DAYS, type SleepingItem } from '../constants/sleepingWardrobe'
+import { SLEEPING_RATIO, type SleepingItem } from '../constants/sleepingWardrobe'
 import type { Outfit } from '../stores/outfitStore'
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24
 
-// outfits에서 아이템별 마지막 착용일을 역산해, 30일 이상 지난 아이템만 반환한다.
+// outfits에서 아이템별 마지막 착용일을 역산해, 가장 오래 안 입은 하위 비율(SLEEPING_RATIO)만 반환한다.
 // 착용 기록이 없는 아이템은 "잠자는" 판정 기준일이 없으므로 제외한다. (DATA_MODEL.md 계산 규칙)
-export function buildSleepingItems(
-  outfits: Outfit[],
-  items: CatalogItem[],
-  today: Date = new Date()
-): SleepingItem[] {
+export function buildSleepingItems(outfits: Outfit[], items: CatalogItem[]): SleepingItem[] {
   const lastWornByItemId = new Map<string, string>()
   outfits.forEach((outfit) => {
     outfit.itemIds.forEach((itemId) => {
@@ -20,14 +16,12 @@ export function buildSleepingItems(
     })
   })
 
-  const sleepingItems: SleepingItem[] = []
+  const wornItems: SleepingItem[] = []
   items.forEach((item) => {
     const lastWorn = lastWornByItemId.get(item.id)
     if (lastWorn == null) return
 
-    if (getSleepingDays(lastWorn, today) < SLEEPING_THRESHOLD_DAYS) return
-
-    sleepingItems.push({
+    wornItems.push({
       id: item.id,
       name: item.name,
       tags: item.styleTags,
@@ -37,7 +31,13 @@ export function buildSleepingItems(
       category: item.category,
     })
   })
-  return sleepingItems
+
+  if (wornItems.length === 0) return []
+
+  // 마지막 착용일이 오래된 순(YYYY.MM.DD 문자열 오름차순)으로 정렬해 하위 비율만 남긴다. (최소 1개)
+  wornItems.sort((a, b) => a.lastWorn.localeCompare(b.lastWorn))
+  const sleepingCount = Math.max(1, Math.ceil(wornItems.length * SLEEPING_RATIO))
+  return wornItems.slice(0, sleepingCount)
 }
 
 // lastWorn: YYYY-MM-DD 또는 YYYY.MM.DD
