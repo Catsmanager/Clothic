@@ -230,7 +230,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#1C1C1C',
     imagePath: 'assets/avatar/shoes/shoes_002_black.png',
     styleTags: ['street', 'chic'],
-    seasons: ['fall', 'winter'],
+    seasons: ['all'],
   },
   {
     id: 'shoes_007',
