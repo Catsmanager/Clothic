@@ -9,11 +9,20 @@ interface Props {
 }
 
 export default function ChallengeHeader({ onHelpPress }: Props) {
+  const handleBackPress = () => {
+    if (router.canGoBack()) {
+      router.back()
+      return
+    }
+
+    router.replace('/(tabs)')
+  }
+
   return (
     <View style={styles.header}>
       <TouchableOpacity
         style={styles.iconButton}
-        onPress={() => router.back()}
+        onPress={handleBackPress}
         hitSlop={8}
         accessibilityRole="button"
         accessibilityLabel="뒤로 가기"

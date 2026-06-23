@@ -129,9 +129,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   avatar: {
-    width: 124,
-    height: 124,
-    marginTop: -2,
+    width: 64,
+    height: 64,
+    marginTop: -8,
   },
   statRow: {
     flexDirection: 'row',

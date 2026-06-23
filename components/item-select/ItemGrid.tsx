@@ -47,9 +47,12 @@ export default function ItemGrid({ items, onItemPress }: Props) {
           <View style={[styles.itemCard, { width: cardSize, height: cardSize }]}>
             <ItemPreview item={item} itemSize={cardSize} />
           </View>
-          <Text style={styles.itemLabel} numberOfLines={1}>
-            {item.name}
-          </Text>
+          <View style={styles.labelRow}>
+            <View style={[styles.colorDot, { backgroundColor: item.color }]} />
+            <Text style={styles.itemLabel} numberOfLines={1}>
+              {item.name}
+            </Text>
+          </View>
         </TouchableOpacity>
       )}
     />
@@ -83,8 +86,23 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     elevation: 1,
   },
-  itemLabel: {
+  labelRow: {
     marginTop: spacing.xs,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    maxWidth: '100%',
+  },
+  colorDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+  },
+  itemLabel: {
+    flexShrink: 1,
     fontSize: 12,
     color: colors.text,
     textAlign: 'center',

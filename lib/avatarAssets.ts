@@ -55,8 +55,40 @@ const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {
       topScale: -0.62,
     },
   },
+  top_007: {
+    source: require('../assets/avatar/top/top_007_gray_basic_tshirt.png'),
+    preview: {
+      widthScale: 2.0,
+      heightScale: 3.0,
+      topScale: -0.62,
+    },
+  },
+  top_008: {
+    source: require('../assets/avatar/top/top_008_black_blouse.png'),
+    preview: {
+      widthScale: 2.0,
+      heightScale: 3.0,
+      topScale: -0.62,
+    },
+  },
+  top_009: {
+    source: require('../assets/avatar/top/top_009_cream_navy_striped_tshirt.png'),
+    preview: {
+      widthScale: 2.0,
+      heightScale: 3.0,
+      topScale: -0.62,
+    },
+  },
   outer_001: {
     source: require('../assets/avatar/outer/outer_001_cream_cardigan.png'),
+    preview: {
+      widthScale: 2.0,
+      heightScale: 3.0,
+      topScale: -0.62,
+    },
+  },
+  outer_002: {
+    source: require('../assets/avatar/outer/outer_002_cream_hoodie_zipup.png'),
     preview: {
       widthScale: 2.0,
       heightScale: 3.0,
@@ -67,9 +99,18 @@ const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {
     source: require('../assets/avatar/dress/dress_001_cream_onepiece.png'),
     layerOrder: 2,
     preview: {
-      widthScale: 2.0,
-      heightScale: 3.0,
-      topScale: -0.7,
+      widthScale: 1.3,
+      heightScale: 1.95,
+      topScale: -0.4,
+    },
+  },
+  dress_002: {
+    source: require('../assets/avatar/dress/dress_002_cream_long_onepiece.png'),
+    layerOrder: 2,
+    preview: {
+      widthScale: 0.95,
+      heightScale: 1.425,
+      topScale: -0.3,
     },
   },
   bottom_009: {
@@ -120,6 +161,22 @@ const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {
       topScale: -0.78,
     },
   },
+  bottom_015: {
+    source: require('../assets/avatar/bottom/bottom_015_black_h_line_skirt.png'),
+    preview: {
+      widthScale: 1.32,
+      heightScale: 1.98,
+      topScale: -0.78,
+    },
+  },
+  bottom_016: {
+    source: require('../assets/avatar/bottom/bottom_016_gray_pleated_skirt.png'),
+    preview: {
+      widthScale: 1.32,
+      heightScale: 1.98,
+      topScale: -0.78,
+    },
+  },
   shoes_001: {
     source: require('../assets/avatar/shoes/shoes_001_white.png'),
     preview: {
@@ -144,16 +201,56 @@ const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {
       topScale: -3.62,
     },
   },
+  shoes_008: {
+    source: require('../assets/avatar/shoes/shoes_008_black_loafer.png'),
+    preview: {
+      widthScale: 3.1,
+      heightScale: 4.65,
+      topScale: -3.62,
+    },
+  },
   hair_001: {
     source: require('../assets/avatar/hair/hair_001_brown.png'),
     preview: {
-      widthScale: 2.8,
-      heightScale: 4.2,
-      topScale: -0.04,
+      widthScale: 2.5,
+      heightScale: 3.75,
+      topScale: 0.02,
     },
   },
   hair_002: {
     source: require('../assets/avatar/hair/hair_002_brown.png'),
+    preview: {
+      widthScale: 3.15,
+      heightScale: 4.72,
+      topScale: -0.08,
+    },
+  },
+  hair_003: {
+    source: require('../assets/avatar/hair/hair_003_brown_short_cut.png'),
+    preview: {
+      widthScale: 3.15,
+      heightScale: 4.72,
+      topScale: -0.08,
+    },
+  },
+  hair_004: {
+    source: require('../assets/avatar/hair/hair_004_brown_half_up.png'),
+    preview: {
+      widthScale: 1.55,
+      heightScale: 2.325,
+      topScale: 0.05,
+    },
+  },
+  hair_005: {
+    source: require('../assets/avatar/hair/hair_005_dark_brown_long_straight.png'),
+    preview: {
+      widthScale: 1.3,
+      heightScale: 1.95,
+      topScale: 0.04,
+    },
+  },
+  hair_006: {
+    source: require('../assets/avatar/hair/hair_006_dark_brown_short_bob.png'),
     preview: {
       widthScale: 3.15,
       heightScale: 4.72,
@@ -194,8 +291,17 @@ const AVATAR_ITEM_ASSETS: Record<string, AvatarItemAsset> = {
       xOffsetScale: -1.08,
     },
   },
-  accessory_005: {
-    source: require('../assets/avatar/accessory/accessory_005_cap.png'),
+  accessory_006: {
+    source: require('../assets/avatar/accessory/accessory_006_brown_shoulder_bag.png'),
+    preview: {
+      // 원본의 투명 여백이 커서 일반 액세서리 좌표를 쓰면 카드 아래로 밀린다.
+      widthScale: 2.6,
+      heightScale: 3.9,
+      topScale: -1.0,
+    },
+  },
+  accessory_007: {
+    source: require('../assets/avatar/accessory/accessory_007_black_sunglasses.png'),
     preview: {
       widthScale: 3.6,
       heightScale: 5.4,

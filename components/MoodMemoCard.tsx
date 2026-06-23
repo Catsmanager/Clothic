@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import { colors } from '../constants/colors'
 import { spacing, radius } from '../constants/spacing'
 
@@ -21,12 +21,14 @@ export default function MoodMemoCard({ mood, memo }: Props) {
     <View style={styles.card}>
       <View style={styles.row}>
         <Text style={styles.label}>오늘 기분</Text>
-        <Text style={styles.value}>{mood ? (MOOD_LABEL[mood] ?? mood) : '—'}</Text>
+        <Text style={styles.value}>
+          {mood ? (MOOD_LABEL[mood] ?? mood) : '기록을 시작해 볼까요?'}
+        </Text>
       </View>
       <View style={styles.divider} />
       <Text style={styles.label}>오늘 한 줄</Text>
       <Text style={styles.memo} numberOfLines={2}>
-        {memo ?? '오늘의 코디를 기록해보세요'}
+        {memo ?? '오늘의 기록을 시작해 볼까요?'}
       </Text>
     </View>
   )
