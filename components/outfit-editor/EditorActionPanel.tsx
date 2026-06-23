@@ -4,12 +4,14 @@ import { colors } from '../../constants/colors'
 import { radius, spacing } from '../../constants/spacing'
 
 interface Props {
+  canClear: boolean
   canUndo: boolean
+  onClear: () => void
   onRandom: () => void
   onUndo: () => void
 }
 
-export default function EditorActionPanel({ canUndo, onRandom, onUndo }: Props) {
+export default function EditorActionPanel({ canClear, canUndo, onClear, onRandom, onUndo }: Props) {
   return (
     <View style={styles.actionPanel}>
       <View style={styles.actionItem}>
@@ -23,6 +25,21 @@ export default function EditorActionPanel({ canUndo, onRandom, onUndo }: Props) 
           <Feather name="rotate-ccw" size={17} color={canUndo ? colors.text : colors.textMuted} />
         </TouchableOpacity>
         <Text style={[styles.actionLabel, !canUndo && styles.actionLabelDisabled]}>실행 취소</Text>
+      </View>
+
+      <View style={styles.actionItem}>
+        <TouchableOpacity
+          style={[styles.actionBtn, !canClear && styles.actionBtnDisabled]}
+          onPress={onClear}
+          disabled={!canClear}
+          accessibilityRole="button"
+          accessibilityLabel="모두 벗기"
+          accessibilityHint="현재 착용한 모든 아이템을 해제합니다"
+          accessibilityState={{ disabled: !canClear }}
+        >
+          <Feather name="trash-2" size={17} color={canClear ? colors.text : colors.textMuted} />
+        </TouchableOpacity>
+        <Text style={[styles.actionLabel, !canClear && styles.actionLabelDisabled]}>모두 벗기</Text>
       </View>
 
       <View style={styles.actionItem}>
@@ -44,7 +61,7 @@ const styles = StyleSheet.create({
   actionPanel: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: spacing.lg,
+    gap: spacing.md,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.xs,
     paddingBottom: spacing.sm,

@@ -134,6 +134,15 @@ export function useOutfitEditor() {
     setEquipped(history[prev] ?? {})
   }, [history, historyIndex])
 
+  const clearOutfit = useCallback(() => {
+    if (Object.keys(equipped).length === 0) return
+
+    const nextHistory = history.slice(0, historyIndex + 1)
+    setHistory([...nextHistory, {}])
+    setHistoryIndex(nextHistory.length)
+    setEquipped({})
+  }, [equipped, history, historyIndex])
+
   const equippedItemIds = useMemo(
     () =>
       Object.values(equipped).flatMap((value) => {
@@ -154,6 +163,7 @@ export function useOutfitEditor() {
     activeCategory,
     activeSubCategory,
     canUndo: historyIndex > 0,
+    clearOutfit,
     equipped,
     equippedItemIds,
     equippedItems,
