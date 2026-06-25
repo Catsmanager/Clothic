@@ -7,14 +7,29 @@ import StatsCard from './StatsCard'
 
 interface Props {
   topItems: MonthData['topItems']
+  label?: string
+  showRank?: boolean
 }
 
-export default function TopItemsCard({ topItems }: Props) {
+export default function TopItemsCard({
+  topItems,
+  label = '가장 많이 입은 아이템 TOP 5',
+  showRank = false,
+}: Props) {
+  if (topItems.length === 0) {
+    return (
+      <StatsCard label={label}>
+        <Text style={styles.emptyText}>아직 아이템 데이터가 없어요.</Text>
+      </StatsCard>
+    )
+  }
+
   return (
-    <StatsCard label="가장 많이 입은 아이템 TOP 5">
+    <StatsCard label={label}>
       <View style={styles.itemList}>
-        {topItems.map((item) => (
+        {topItems.map((item, index) => (
           <View key={item.id} style={styles.itemRow}>
+            {showRank && <Text style={styles.rank}>{index + 1}</Text>}
             <View style={styles.itemIcon}>
               <ItemPreviewThumb item={item} size={36} />
             </View>
@@ -45,6 +60,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
+  rank: { width: 12, fontSize: 13, color: colors.textMuted, fontWeight: '600' },
   itemName: {
     flex: 1,
     fontSize: 14,
@@ -54,5 +70,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textMuted,
     fontWeight: '500',
+  },
+  emptyText: {
+    fontSize: 13,
+    color: colors.textMuted,
+    lineHeight: 19,
   },
 })

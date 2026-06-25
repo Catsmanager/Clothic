@@ -1,13 +1,11 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { router } from 'expo-router'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
-import { SLEEPING_THRESHOLD_DAYS, type SleepingItem } from '../../constants/sleepingWardrobe'
+import { SLEEPING_TIER_LABELS, type SleepingItem } from '../../constants/sleepingWardrobe'
 import { radius, spacing } from '../../constants/spacing'
 import { getSleepingDays } from '../../lib/sleepingWardrobe'
 import ItemPreviewThumb from '../ItemPreviewThumb'
-
-// 이 일수 이상 잠든 아이템은 배지를 강조색으로 표시한다.
-const LONG_SLEEP_DAYS = 180
 
 interface Props {
   items: SleepingItem[]
@@ -30,7 +28,7 @@ export default function SleepingItemList({
         <Text style={styles.emptyDesc}>
           {hasActiveFilter
             ? '필터를 줄이거나 다른 카테고리를 선택해보세요.'
-            : `마지막 착용 후 ${SLEEPING_THRESHOLD_DAYS}일이 지난 아이템이 생기면 여기에 모아드려요.`}
+            : '코디를 기록하면, 현재 계절에 입은 옷을 미착용 기간 순으로 여기서 확인할 수 있어요.'}
         </Text>
         {hasActiveFilter && onClearFilters != null && (
           <TouchableOpacity
@@ -43,6 +41,18 @@ export default function SleepingItemList({
             <Text style={styles.clearButtonText}>필터 초기화</Text>
           </TouchableOpacity>
         )}
+        {!hasActiveFilter && (
+          <TouchableOpacity
+            style={styles.recordButton}
+            onPress={() => router.push('/create')}
+            accessibilityRole="button"
+            accessibilityLabel="오늘 코디 기록하기"
+            accessibilityHint="코디를 기록하는 화면으로 이동합니다."
+          >
+            <Feather name="plus" size={14} color={colors.white} />
+            <Text style={styles.recordButtonText}>오늘 코디 기록하기</Text>
+          </TouchableOpacity>
+        )}
       </View>
     )
   }
@@ -51,7 +61,7 @@ export default function SleepingItemList({
     <View style={styles.itemList}>
       {items.map((item) => {
         const sleepDays = getSleepingDays(item.lastWorn)
-        const isLongSleep = sleepDays >= LONG_SLEEP_DAYS
+        const isSleeping = item.tier === 'sleeping'
 
         return (
           <View key={item.id} style={styles.itemCard}>
@@ -64,14 +74,18 @@ export default function SleepingItemList({
               </Text>
               <View style={styles.metaRow}>
                 <Feather name="calendar" size={12} color={colors.textMuted} />
-                <Text style={styles.itemLastWornDate}>마지막 착용 {item.lastWorn}</Text>
+                <Text style={styles.itemLastWornDate}>
+                  마지막 착용 {item.lastWorn} · {sleepDays}일째
+                </Text>
               </View>
             </View>
-            <View style={[styles.sleepBadge, isLongSleep && styles.sleepBadgeLong]}>
-              <Text style={[styles.sleepBadgeText, isLongSleep && styles.sleepBadgeTextLong]}>
-                {sleepDays}일째
-              </Text>
-            </View>
+            {item.tier !== 'active' && (
+              <View style={[styles.sleepBadge, isSleeping && styles.sleepBadgeLong]}>
+                <Text style={[styles.sleepBadgeText, isSleeping && styles.sleepBadgeTextLong]}>
+                  {SLEEPING_TIER_LABELS[item.tier]}
+                </Text>
+              </View>
+            )}
           </View>
         )
       })}
@@ -176,5 +190,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: colors.text,
+  },
+  recordButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    backgroundColor: colors.text,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 9,
+  },
+  recordButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.white,
   },
 })

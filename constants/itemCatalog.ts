@@ -1,6 +1,7 @@
 import type { CatalogItem } from './items'
 
 // 실제 PNG 에셋이 제작된 아이템만 등록한다. (목데이터 금지)
+// seasons는 앱 내부 계절 메타데이터다. 사용자가 직접 설정하지 않으며 잠자는 옷장 분류에만 쓰인다.
 export const ITEM_CATALOG: CatalogItem[] = [
   // top
   {
@@ -11,6 +12,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#24231F',
     imagePath: 'assets/avatar/top/top_001_black.png',
     styleTags: ['minimal', 'chic'],
+    seasons: ['summer'],
   },
   {
     id: 'top_002',
@@ -20,6 +22,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#F5F5F5',
     imagePath: 'assets/avatar/top/top_002_white.png',
     styleTags: ['casual', 'minimal'],
+    seasons: ['spring', 'summer', 'fall'],
   },
   {
     id: 'top_003',
@@ -29,6 +32,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#1E2520',
     imagePath: 'assets/avatar/top/top_003_black_crop.png',
     styleTags: ['street', 'chic'],
+    seasons: ['summer'],
   },
   {
     id: 'top_005',
@@ -38,6 +42,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#EFEDE7',
     imagePath: 'assets/avatar/top/top_005_white_sweatshirt.png',
     styleTags: ['casual', 'minimal'],
+    seasons: ['spring', 'fall', 'winter'],
   },
   {
     id: 'top_006',
@@ -47,6 +52,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#FAF8F0',
     imagePath: 'assets/avatar/top/top_006_white_shirt.png',
     styleTags: ['formal', 'minimal'],
+    seasons: ['all'],
   },
   {
     id: 'top_007',
@@ -56,6 +62,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#C9C5C3',
     imagePath: 'assets/avatar/top/top_007_gray_basic_tshirt.png',
     styleTags: ['casual', 'minimal'],
+    seasons: ['spring', 'summer', 'fall'],
   },
   {
     id: 'top_008',
@@ -65,6 +72,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#242225',
     imagePath: 'assets/avatar/top/top_008_black_blouse.png',
     styleTags: ['feminine', 'chic'],
+    seasons: ['spring', 'summer', 'fall'],
   },
   {
     id: 'top_009',
@@ -74,6 +82,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#31476E',
     imagePath: 'assets/avatar/top/top_009_cream_navy_striped_tshirt.png',
     styleTags: ['casual', 'preppy'],
+    seasons: ['spring', 'summer', 'fall'],
   },
 
   // outer
@@ -85,6 +94,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#F4DDB9',
     imagePath: 'assets/avatar/outer/outer_001_cream_cardigan.png',
     styleTags: ['casual', 'feminine'],
+    seasons: ['spring', 'fall'],
   },
   {
     id: 'outer_002',
@@ -94,6 +104,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#E8E0D5',
     imagePath: 'assets/avatar/outer/outer_002_cream_hoodie_zipup.png',
     styleTags: ['casual', 'sporty'],
+    seasons: ['spring', 'fall'],
   },
 
   // dress
@@ -105,6 +116,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#F7E8C8',
     imagePath: 'assets/avatar/dress/dress_001_cream_onepiece.png',
     styleTags: ['feminine', 'vintage'],
+    seasons: ['spring', 'summer'],
   },
   {
     id: 'dress_002',
@@ -114,6 +126,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#F5E9D7',
     imagePath: 'assets/avatar/dress/dress_002_cream_long_onepiece.png',
     styleTags: ['feminine', 'vintage'],
+    seasons: ['spring', 'summer', 'fall'],
   },
 
   // bottom
@@ -125,6 +138,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#9CB8CC',
     imagePath: 'assets/avatar/bottom/bottom_009_blue.png',
     styleTags: ['casual', 'feminine'],
+    seasons: ['spring', 'summer', 'fall'],
   },
   {
     id: 'bottom_010',
@@ -134,6 +148,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#6B8CAE',
     imagePath: 'assets/avatar/bottom/bottom_010_blue.png',
     styleTags: ['casual', 'street'],
+    seasons: ['all'],
   },
   {
     id: 'bottom_011',
@@ -143,6 +158,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#C8C6CA',
     imagePath: 'assets/avatar/bottom/bottom_011_gray.png',
     styleTags: ['casual', 'sporty'],
+    seasons: ['all'],
   },
   {
     id: 'bottom_012',
@@ -152,6 +168,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#F3E1C3',
     imagePath: 'assets/avatar/bottom/bottom_012_cream_long_skirt.png',
     styleTags: ['feminine', 'vintage'],
+    seasons: ['spring', 'summer', 'fall'],
   },
   {
     id: 'bottom_013',
@@ -161,6 +178,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#202020',
     imagePath: 'assets/avatar/bottom/bottom_013_black_slacks.png',
     styleTags: ['formal', 'chic'],
+    seasons: ['all'],
   },
   {
     id: 'bottom_014',
@@ -170,6 +188,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#233B5C',
     imagePath: 'assets/avatar/bottom/bottom_014_blue_shorts.png',
     styleTags: ['casual', 'street'],
+    seasons: ['summer'],
   },
   {
     id: 'bottom_015',
@@ -179,6 +198,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#242424',
     imagePath: 'assets/avatar/bottom/bottom_015_black_h_line_skirt.png',
     styleTags: ['minimal', 'chic'],
+    seasons: ['all'],
   },
   {
     id: 'bottom_016',
@@ -188,6 +208,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#A3A3AA',
     imagePath: 'assets/avatar/bottom/bottom_016_gray_pleated_skirt.png',
     styleTags: ['feminine', 'preppy'],
+    seasons: ['spring', 'fall'],
   },
 
   // shoes
@@ -199,6 +220,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#F0F0F0',
     imagePath: 'assets/avatar/shoes/shoes_001_white.png',
     styleTags: ['casual', 'sporty'],
+    seasons: ['all'],
   },
   {
     id: 'shoes_002',
@@ -208,6 +230,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#1C1C1C',
     imagePath: 'assets/avatar/shoes/shoes_002_black.png',
     styleTags: ['street', 'chic'],
+    seasons: ['all'],
   },
   {
     id: 'shoes_007',
@@ -217,6 +240,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#111111',
     imagePath: 'assets/avatar/shoes/shoes_007_black.png',
     styleTags: ['formal', 'chic'],
+    seasons: ['all'],
   },
   {
     id: 'shoes_008',
@@ -226,6 +250,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#1F1F20',
     imagePath: 'assets/avatar/shoes/shoes_008_black_loafer.png',
     styleTags: ['formal', 'preppy'],
+    seasons: ['spring', 'summer', 'fall'],
   },
 
   // hair
@@ -237,6 +262,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#5A4036',
     imagePath: 'assets/avatar/hair/hair_001_brown.png',
     styleTags: ['casual', 'feminine'],
+    seasons: ['all'],
   },
   {
     id: 'hair_002',
@@ -246,6 +272,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#70482F',
     imagePath: 'assets/avatar/hair/hair_002_brown.png',
     styleTags: ['casual', 'sporty'],
+    seasons: ['all'],
   },
   {
     id: 'hair_003',
@@ -255,6 +282,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#885C4A',
     imagePath: 'assets/avatar/hair/hair_003_brown_short_cut.png',
     styleTags: ['casual', 'minimal'],
+    seasons: ['all'],
   },
   {
     id: 'hair_004',
@@ -264,6 +292,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#A27666',
     imagePath: 'assets/avatar/hair/hair_004_brown_half_up.png',
     styleTags: ['feminine', 'casual'],
+    seasons: ['all'],
   },
   {
     id: 'hair_005',
@@ -273,6 +302,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#4A3023',
     imagePath: 'assets/avatar/hair/hair_005_dark_brown_long_straight.png',
     styleTags: ['feminine', 'minimal'],
+    seasons: ['all'],
   },
   {
     id: 'hair_006',
@@ -282,6 +312,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#584238',
     imagePath: 'assets/avatar/hair/hair_006_dark_brown_short_bob.png',
     styleTags: ['casual', 'minimal'],
+    seasons: ['all'],
   },
 
   // accessory
@@ -293,6 +324,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#8C5B52',
     imagePath: 'assets/avatar/accessory/accessory_001_glasses.png',
     styleTags: ['minimal', 'chic'],
+    seasons: ['all'],
   },
   {
     id: 'accessory_002',
@@ -302,6 +334,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#F5F5F5',
     imagePath: 'assets/avatar/accessory/accessory_002_knee_socks.png',
     styleTags: ['feminine', 'preppy'],
+    seasons: ['fall', 'winter'],
   },
   {
     id: 'accessory_003',
@@ -311,6 +344,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#1F5D99',
     imagePath: 'assets/avatar/accessory/accessory_003_necklace.png',
     styleTags: ['minimal', 'chic'],
+    seasons: ['all'],
   },
   {
     id: 'accessory_004',
@@ -320,6 +354,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#4F5873',
     imagePath: 'assets/avatar/accessory/accessory_004_watch.png',
     styleTags: ['minimal', 'chic'],
+    seasons: ['all'],
   },
   {
     id: 'accessory_006',
@@ -329,6 +364,7 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#9B5A3B',
     imagePath: 'assets/avatar/accessory/accessory_006_brown_shoulder_bag.png',
     styleTags: ['casual', 'chic'],
+    seasons: ['all'],
   },
   {
     id: 'accessory_007',
@@ -338,5 +374,6 @@ export const ITEM_CATALOG: CatalogItem[] = [
     color: '#1F1F20',
     imagePath: 'assets/avatar/accessory/accessory_007_black_sunglasses.png',
     styleTags: ['minimal', 'chic'],
+    seasons: ['spring', 'summer'],
   },
 ]
