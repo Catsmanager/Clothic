@@ -59,6 +59,8 @@ export function userItemToCatalogItem(item: UserItem): CatalogItem {
     color: item.color,
     imagePath: item.imagePath,
     styleTags: item.styleTags,
+    // 사용자 등록 아이템은 계절 메타데이터가 없으므로 사철(all)로 둔다.
+    seasons: ['all'],
   }
 }
 

@@ -1,5 +1,43 @@
 # LOG
 
+## 2026-06-23 (feat: 잠자는 옷장에 현재 계절 코디 아이템 전체 표시)
+
+### 처리 항목
+- 이슈 #159 관련 / 작업 브랜치: feat/sleeping-season-classification (PR #158에 통합)
+- 별도 '내 옷장' 탭 대신, 옷장(잠자는 옷장)에서 코디한 아이템을 상대적(미착용 긴) 순서로 확인하도록 조정
+- (앞서 만든 내 옷장 토글/그리드 작업은 사용자 요청으로 폐기 — 미커밋 상태에서 되돌림)
+
+### 변경
+- constants/sleepingWardrobe.ts — SleepingTier에 'active'(14일 미만, 배지 없음) 추가
+- lib/sleepingWardrobe.ts — 14일 미만 제외 로직 제거. 현재 계절 코디 아이템 전체를 반환, 일수로 active/attention/sleeping 분류
+- components/sleeping-wardrobe/SleepingItemList.tsx — active는 배지 미표시, 빈 상태 문구 보정
+- docs/DATA_MODEL.md — 규칙 갱신(현재 계절 전체 노출 + 14일 미만 배지 없음). 'N벌' 카운트는 30일+ 유지
+- 현재 계절 아님(계절 보관 중)·착용 기록 없음은 계속 제외. 정렬 기본값 미착용 긴 순 유지
+
+### 검증
+- npx tsc --noEmit → exit 0 / 변경 파일 eslint → exit 0
+
+## 2026-06-23 (feat: 잠자는 옷장 계절 메타데이터 기반 분류)
+
+### 처리 항목
+- 이슈 #157 / 작업 브랜치: feat/sleeping-empty-state-cta (PR #155에 통합)
+- 아이템에 내부 계절 메타데이터 추가, 잠자는 옷장을 '현재 계절 + 미착용 일수'로 분류. #156(하위 30%)을 대체
+
+### 변경
+- constants/items.ts — Season 타입('spring'|'summer'|'fall'|'winter'|'all') + CatalogItem.seasons 필드 추가
+- constants/itemCatalog.ts — 36개 아이템에 seasons 배정(옷 종류 기준 제안값)
+- stores/itemStore.ts — 사용자 등록 아이템 기본값 seasons: ['all']
+- lib/season.ts(신규) — getCurrentSeason(월 기준 3-5/6-8/9-11/12-2), isInSeason
+- constants/sleepingWardrobe.ts — SLEEPING_RATIO 제거 → SLEEPING_ATTENTION_DAYS(14)/SLEEPING_DAYS(30), SleepingTier('attention'|'sleeping'), SleepingItem.tier 추가
+- lib/sleepingWardrobe.ts — 현재 계절 아이템만 대상, 14~29일 관심 필요 / 30일+ 잠자는 옷. 14일 미만·비계절·기록 없음은 제외(계절 보관 중 숨김)
+- hooks/useSleepingWardrobe.ts — sleepingCount(30일+) 추가
+- 컴포넌트: SleepingItemList(구간 배지), SleepingSummaryBanner('N벌'+30일+ 카운트), SleepingHelpSheet(계절 안내 문구만), more.tsx(배너에 sleepingCount 전달)
+- docs/PRD.md, docs/DATA_MODEL.md, docs/OVERVIEW.md 개정
+- 주간/월간 통계·챌린지는 계절 무관 → 미변경. 계절 선택/필터 UI 없음(내부 로직 전용)
+
+### 검증
+- npx tsc --noEmit → exit 0 / npx expo lint → exit 0
+
 ## 2026-06-23 (feat: 잠자는 옷장 기준 절대 30일 → 상대 하위 30%)
 
 ### 처리 항목

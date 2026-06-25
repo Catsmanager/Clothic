@@ -9,6 +9,10 @@ import { ITEM_CATALOG } from './itemCatalog'
 
 export type Category = 'top' | 'outer' | 'bottom' | 'dress' | 'shoes' | 'hair' | 'accessory'
 
+// 아이템 계절 메타데이터. 앱 내부 분류 전용이며 사용자가 직접 설정하지 않는다.
+// 'all'은 사철 착용 가능. 여러 계절에 입는 아이템은 복수 값을 가진다.
+export type Season = 'spring' | 'summer' | 'fall' | 'winter' | 'all'
+
 export type StyleTag =
   | 'casual'
   | 'formal'
@@ -42,6 +46,7 @@ export interface CatalogItem {
   color: string // 미리보기/placeholder 색상 (hex)
   imagePath: string // 에셋 경로 (PNG 제작 후 사용). none은 ''
   styleTags: StyleTag[]
+  seasons: Season[] // 내부 계절 메타데이터 (잠자는 옷장 분류용)
 }
 
 export const ITEM_CATEGORIES: Category[] = [

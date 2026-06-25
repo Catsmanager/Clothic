@@ -1,12 +1,24 @@
 import type { CatalogItem } from '../constants/items'
-import { SLEEPING_RATIO, type SleepingItem } from '../constants/sleepingWardrobe'
+import {
+  SLEEPING_ATTENTION_DAYS,
+  SLEEPING_DAYS,
+  type SleepingItem,
+} from '../constants/sleepingWardrobe'
+import { getCurrentSeason, isInSeason } from './season'
 import type { Outfit } from '../stores/outfitStore'
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24
 
-// outfits에서 아이템별 마지막 착용일을 역산해, 가장 오래 안 입은 하위 비율(SLEEPING_RATIO)만 반환한다.
-// 착용 기록이 없는 아이템은 "잠자는" 판정 기준일이 없으므로 제외한다. (DATA_MODEL.md 계산 규칙)
-export function buildSleepingItems(outfits: Outfit[], items: CatalogItem[]): SleepingItem[] {
+// outfits에서 아이템별 마지막 착용일을 역산해, 현재 계절 코디 아이템 전체를 미착용 일수와 함께 반환한다.
+// - 착용 기록이 없는 아이템: 미착용 일수 기준이 없으므로 제외
+// - 현재 계절이 아닌 아이템(계절 보관 중): 제외(숨김)
+// - 14일 미만: active(배지 없음) / 14~29일: 관심 필요 / 30일+: 잠자는 옷
+// (정렬은 hook에서 미착용 긴 순. DATA_MODEL.md 계산 규칙)
+export function buildSleepingItems(
+  outfits: Outfit[],
+  items: CatalogItem[],
+  today: Date = new Date()
+): SleepingItem[] {
   const lastWornByItemId = new Map<string, string>()
   outfits.forEach((outfit) => {
     outfit.itemIds.forEach((itemId) => {
@@ -16,12 +28,17 @@ export function buildSleepingItems(outfits: Outfit[], items: CatalogItem[]): Sle
     })
   })
 
-  const wornItems: SleepingItem[] = []
+  const currentSeason = getCurrentSeason(today)
+  const sleepingItems: SleepingItem[] = []
   items.forEach((item) => {
     const lastWorn = lastWornByItemId.get(item.id)
     if (lastWorn == null) return
+    if (!isInSeason(item.seasons, currentSeason)) return
 
-    wornItems.push({
+    const days = getSleepingDays(lastWorn, today)
+    const tier = days >= SLEEPING_DAYS ? 'sleeping' : days >= SLEEPING_ATTENTION_DAYS ? 'attention' : 'active'
+
+    sleepingItems.push({
       id: item.id,
       name: item.name,
       tags: item.styleTags,
@@ -29,15 +46,11 @@ export function buildSleepingItems(outfits: Outfit[], items: CatalogItem[]): Sle
       color: item.color,
       imagePath: item.imagePath,
       category: item.category,
+      tier,
     })
   })
 
-  if (wornItems.length === 0) return []
-
-  // 마지막 착용일이 오래된 순(YYYY.MM.DD 문자열 오름차순)으로 정렬해 하위 비율만 남긴다. (최소 1개)
-  wornItems.sort((a, b) => a.lastWorn.localeCompare(b.lastWorn))
-  const sleepingCount = Math.max(1, Math.ceil(wornItems.length * SLEEPING_RATIO))
-  return wornItems.slice(0, sleepingCount)
+  return sleepingItems
 }
 
 // lastWorn: YYYY-MM-DD 또는 YYYY.MM.DD

@@ -15,8 +15,8 @@ export default function SleepingSummaryBanner({ totalCount }: Props) {
           <MaterialCommunityIcons name="wardrobe-outline" size={24} color={colors.text} />
         </View>
         <View style={styles.textBlock}>
-          <Text style={styles.title}>잠자는 옷 {totalCount}개</Text>
-          <Text style={styles.desc}>코디 기록 중 가장 오래 손이 안 간 옷들이에요.</Text>
+          <Text style={styles.title}>잠자는 옷 {totalCount}벌</Text>
+          <Text style={styles.desc}>현재 계절 옷 중 30일 이상 입지 않은 옷이에요.</Text>
         </View>
       </View>
     </View>

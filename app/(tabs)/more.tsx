@@ -41,7 +41,7 @@ export default function WardrobeScreen() {
           </View>
           <Feather name="chevron-right" size={20} color={colors.textMuted} />
         </Pressable>
-        <SleepingSummaryBanner totalCount={wardrobe.totalCount} />
+        <SleepingSummaryBanner totalCount={wardrobe.sleepingCount} />
         <SleepingCategoryTabs
           counts={wardrobe.counts}
           selectedCategory={wardrobe.selectedCategory}
