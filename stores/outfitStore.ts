@@ -52,6 +52,10 @@ function mapRow(row: OutfitRow): Outfit {
 }
 
 type Result = { error: string | null }
+type DiaryPatch = {
+  mood?: Mood | null
+  memo?: string | null
+}
 
 interface OutfitState {
   outfits: Outfit[]
@@ -60,6 +64,7 @@ interface OutfitState {
 
   fetchOutfits: () => Promise<void>
   addOutfit: (input: NewOutfit) => Promise<Result>
+  updateDiary: (id: string, patch: DiaryPatch) => Promise<Result>
   toggleFavorite: (id: string, next: boolean) => Promise<Result>
   removeOutfit: (id: string) => Promise<Result>
 }
@@ -104,6 +109,20 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
     const { data, error } = await supabase.from('outfits').insert(payload).select().single()
     if (error) return { error: error.message }
     if (data) set({ outfits: [mapRow(data), ...get().outfits] })
+    return { error: null }
+  },
+
+  updateDiary: async (id, patch) => {
+    const update: OutfitUpdate = {}
+    if (patch.mood !== undefined) update.mood = patch.mood
+    if (patch.memo !== undefined) update.memo = patch.memo
+
+    const { error } = await supabase.from('outfits').update(update).eq('id', id)
+    if (error) return { error: error.message }
+
+    set({
+      outfits: get().outfits.map((outfit) => (outfit.id === id ? { ...outfit, ...patch } : outfit)),
+    })
     return { error: null }
   },
 

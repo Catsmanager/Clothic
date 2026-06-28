@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { Alert, View, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams } from 'expo-router'
 import HomeHeader from '../../components/HomeHeader'
@@ -8,6 +8,7 @@ import HomeMenuSheet from '../../components/HomeMenuSheet'
 import HomeBackgroundSheet from '../../components/HomeBackgroundSheet'
 import AvatarCard from '../../components/AvatarCard'
 import MoodMemoCard from '../../components/MoodMemoCard'
+import TodayRecordSheet from '../../components/TodayRecordSheet'
 import {
   DEFAULT_AVATAR_BACKGROUND_ID,
   getAvatarBackground,
@@ -16,7 +17,7 @@ import {
 import { colors } from '../../constants/colors'
 import { spacing } from '../../constants/spacing'
 import { getTodayDateKey } from '../../lib/date'
-import { useOutfitStore } from '../../stores/outfitStore'
+import { type Mood, useOutfitStore } from '../../stores/outfitStore'
 import { buildCatalogItems, findCatalogItemById, useItemStore } from '../../stores/itemStore'
 
 export default function HomeScreen() {
@@ -24,10 +25,14 @@ export default function HomeScreen() {
   const [backgroundSheetVisible, setBackgroundSheetVisible] = useState(false)
   const [backgroundId, setBackgroundId] = useState<AvatarBackgroundId>(DEFAULT_AVATAR_BACKGROUND_ID)
   const [showSavedFeedback, setShowSavedFeedback] = useState(false)
+  const [recordingMode, setRecordingMode] = useState<'mood' | 'memo' | null>(null)
+  const [recordSaving, setRecordSaving] = useState(false)
   const handledSavedFeedbackId = useRef<string | null>(null)
   const { savedOutfit } = useLocalSearchParams<{ savedOutfit?: string | string[] }>()
   const outfits = useOutfitStore((s) => s.outfits)
   const fetchOutfits = useOutfitStore((s) => s.fetchOutfits)
+  const addOutfit = useOutfitStore((s) => s.addOutfit)
+  const updateDiary = useOutfitStore((s) => s.updateDiary)
   const userItems = useItemStore((s) => s.items)
   const fetchItems = useItemStore((s) => s.fetchItems)
 
@@ -64,6 +69,45 @@ export default function HomeScreen() {
       .filter((item): item is NonNullable<typeof item> => item != null)
   }, [todayOutfit, userItems])
   const selectedBackground = useMemo(() => getAvatarBackground(backgroundId), [backgroundId])
+  async function saveMood(mood: Mood | null) {
+    setRecordSaving(true)
+    const result = todayOutfit
+      ? await updateDiary(todayOutfit.id, { mood })
+      : await addOutfit({
+          date: getTodayDateKey(),
+          mood,
+          memo: null,
+          weather: null,
+          itemIds: [],
+          itemColors: {},
+        })
+    setRecordSaving(false)
+    if (result.error) {
+      Alert.alert('저장 실패', result.error)
+      return
+    }
+    setRecordingMode(null)
+  }
+
+  async function saveMemo(memo: string | null) {
+    setRecordSaving(true)
+    const result = todayOutfit
+      ? await updateDiary(todayOutfit.id, { memo })
+      : await addOutfit({
+          date: getTodayDateKey(),
+          mood: null,
+          memo,
+          weather: null,
+          itemIds: [],
+          itemColors: {},
+        })
+    setRecordSaving(false)
+    if (result.error) {
+      Alert.alert('저장 실패', result.error)
+      return
+    }
+    setRecordingMode(null)
+  }
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -78,7 +122,12 @@ export default function HomeScreen() {
             onBackgroundPress={() => setBackgroundSheetVisible(true)}
           />
         </View>
-        <MoodMemoCard mood={todayOutfit?.mood ?? null} memo={todayOutfit?.memo ?? null} />
+        <MoodMemoCard
+          mood={todayOutfit?.mood ?? null}
+          memo={todayOutfit?.memo ?? null}
+          onMoodPress={() => setRecordingMode('mood')}
+          onMemoPress={() => setRecordingMode('memo')}
+        />
       </View>
       <HomeMenuSheet visible={menuVisible} onClose={() => setMenuVisible(false)} />
       <HomeBackgroundSheet
@@ -86,6 +135,16 @@ export default function HomeScreen() {
         selectedId={backgroundId}
         onClose={() => setBackgroundSheetVisible(false)}
         onSelect={setBackgroundId}
+      />
+      <TodayRecordSheet
+        visible={recordingMode != null}
+        mode={recordingMode ?? 'mood'}
+        mood={todayOutfit?.mood ?? null}
+        memo={todayOutfit?.memo ?? null}
+        saving={recordSaving}
+        onClose={() => setRecordingMode(null)}
+        onSaveMood={saveMood}
+        onSaveMemo={saveMemo}
       />
     </SafeAreaView>
   )
