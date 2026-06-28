@@ -192,10 +192,11 @@ const styles = StyleSheet.create({
   },
   bubbleWrap: {
     position: 'absolute',
-    top: '30%',
+    top: '24%',
     left: 0,
     right: 0,
     alignItems: 'center',
+    zIndex: 2,
   },
   bubble: {
     backgroundColor: colors.white,
@@ -228,10 +229,11 @@ const styles = StyleSheet.create({
   },
   sparkleLayer: {
     position: 'absolute',
-    top: '30%',
+    top: '24%',
     left: 0,
     right: 0,
     height: '36%',
+    zIndex: 1,
   },
   successGlow: {
     position: 'absolute',

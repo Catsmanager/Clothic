@@ -12,7 +12,7 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24
 // outfits에서 아이템별 마지막 착용일을 역산해, 현재 계절 코디 아이템 전체를 미착용 일수와 함께 반환한다.
 // - 착용 기록이 없는 아이템: 미착용 일수 기준이 없으므로 제외
 // - 현재 계절이 아닌 아이템(계절 보관 중): 제외(숨김)
-// - 14일 미만: active(배지 없음) / 14~29일: 관심 필요 / 30일+: 잠자는 옷
+// - 10일 미만: active(배지 없음) / 10~19일: 관심 필요 / 20일+: 잠자는 옷
 // (정렬은 hook에서 미착용 긴 순. DATA_MODEL.md 계산 규칙)
 export function buildSleepingItems(
   outfits: Outfit[],
@@ -36,7 +36,8 @@ export function buildSleepingItems(
     if (!isInSeason(item.seasons, currentSeason)) return
 
     const days = getSleepingDays(lastWorn, today)
-    const tier = days >= SLEEPING_DAYS ? 'sleeping' : days >= SLEEPING_ATTENTION_DAYS ? 'attention' : 'active'
+    const tier =
+      days >= SLEEPING_DAYS ? 'sleeping' : days >= SLEEPING_ATTENTION_DAYS ? 'attention' : 'active'
 
     sleepingItems.push({
       id: item.id,

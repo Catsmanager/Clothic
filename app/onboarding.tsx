@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { colors } from '../constants/colors'
 import { spacing } from '../constants/spacing'
@@ -13,6 +13,7 @@ import { useOnboardingPager } from '../hooks/useOnboardingPager'
 import { useAuthStore } from '../stores/authStore'
 
 export default function OnboardingScreen() {
+  const insets = useSafeAreaInsets()
   const completeOnboarding = useAuthStore((s) => s.completeOnboarding)
   const { currentIndex, goNext, isFirst, isLast, listRef, onScroll } = useOnboardingPager({
     totalSlides: ONBOARDING_SLIDES.length,
@@ -27,7 +28,7 @@ export default function OnboardingScreen() {
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       {!isLast && (
         <TouchableOpacity
-          style={styles.skipBtn}
+          style={[styles.skipBtn, { top: insets.top + spacing.md }]}
           onPress={goStart}
           activeOpacity={0.7}
           accessibilityRole="button"
@@ -76,7 +77,6 @@ const styles = StyleSheet.create({
   },
   skipBtn: {
     position: 'absolute',
-    top: spacing.sm,
     right: spacing.xl,
     zIndex: 10,
     paddingVertical: spacing.xs,

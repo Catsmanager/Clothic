@@ -1,5 +1,13 @@
 import { type ReactNode } from 'react'
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native'
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors } from '../../constants/colors'
 import { spacing } from '../../constants/spacing'
@@ -16,8 +24,20 @@ export default function AuthScreen({ children, footer }: Props) {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={styles.content}>{children}</View>
-        {footer}
+        <ScrollView
+          style={styles.flex}
+          contentContainerStyle={styles.scrollContent}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.scrollInner}>
+              <View style={styles.content}>{children}</View>
+              {footer}
+            </View>
+          </TouchableWithoutFeedback>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   )
@@ -31,8 +51,14 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  scrollInner: {
+    flexGrow: 1,
+  },
   content: {
-    flex: 1,
+    flexGrow: 1,
     paddingHorizontal: spacing.xl,
     justifyContent: 'center',
     gap: spacing.xxl,

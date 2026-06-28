@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -72,7 +73,13 @@ export default function SaveOutfitSheet({ visible, items, saving, onClose, onSav
         : `${items[0].name} 외 ${items.length - 1}개`
 
   function handleSave() {
+    Keyboard.dismiss()
     onSave(buildInput())
+  }
+
+  function handleClose() {
+    Keyboard.dismiss()
+    onClose()
   }
 
   return (
@@ -82,7 +89,7 @@ export default function SaveOutfitSheet({ visible, items, saving, onClose, onSav
       animationType="slide"
       presentationStyle="overFullScreen"
       statusBarTranslucent
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
       <KeyboardAvoidingView
         style={styles.modalRoot}
@@ -90,7 +97,7 @@ export default function SaveOutfitSheet({ visible, items, saving, onClose, onSav
       >
         <Pressable
           style={styles.backdrop}
-          onPress={saving ? undefined : onClose}
+          onPress={saving ? undefined : handleClose}
           accessible={false}
         />
         <View
@@ -111,6 +118,7 @@ export default function SaveOutfitSheet({ visible, items, saving, onClose, onSav
           <ScrollView
             style={styles.content}
             contentContainerStyle={styles.contentContainer}
+            keyboardDismissMode="on-drag"
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
