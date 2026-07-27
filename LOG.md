@@ -1,5 +1,15 @@
 # LOG
 
+## 2026-07-27 (chore: main → TestFlight release pipeline)
+
+- `.github/workflows/eas-build.yml`를 `workflow_run` 기반으로 전환해 `main` CI 성공 커밋만
+  iOS production build를 실행하도록 구성
+- `eas build --wait` 후 `app-store` GitHub Environment 승인 뒤
+  `eas submit --latest --non-interactive`로 TestFlight 업로드
+- `EXPO_TOKEN`, EAS iOS signing/App Store Connect API key, `app-store` Required reviewers를
+  저장소 외부 설정으로 명시
+- App Store 자동 공개가 아니라 TestFlight 업로드 후 Apple 심사가 필요하다는 경계를 문서화
+
 ## 2026-07-27 (feat: 반복 기록 유저 플로우 + 측정 하네스 강화)
 
 ### 목표와 기준선

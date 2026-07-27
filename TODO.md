@@ -87,7 +87,7 @@
   - production: Expo CLI/build chain moderate 10건
   - development: ESLint 전이 `brace-expansion` high
   - 현재 자동 해소안은 Expo 46 다운그레이드/ESLint 10 강제 업그레이드라 미적용
-- [~] Expo EAS Build 설정  ← eas.json·eas-build.yml·docs/CICD.md 작성. 실제 빌드는 Expo/Apple 계정 필요(사용자)
+- [x] Expo EAS Build/TestFlight workflow 설정  ← main CI 성공 → iOS production build → app-store 승인 → TestFlight upload. 실제 credentials 설정은 사용자
 - [ ] App Store 제출  ← docs/CICD.md 체크리스트 참조 (Bundle ID com.clothic.app)
 - [ ] Google Play 제출
 
