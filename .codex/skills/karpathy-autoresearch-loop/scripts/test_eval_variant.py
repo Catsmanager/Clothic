@@ -21,7 +21,10 @@ class EvalVariantTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory(
             prefix="clothic-eval-variant-",
-            dir="/private/tmp",
+            # Use the platform's configured temporary directory.  The
+            # macOS-specific /private/tmp path does not exist on GitHub's
+            # Ubuntu runners.
+            dir=tempfile.gettempdir(),
         )
         self.root = Path(self.temporary.name)
         (self.root / "HARNESS").mkdir()
