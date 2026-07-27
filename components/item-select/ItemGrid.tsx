@@ -43,6 +43,8 @@ export default function ItemGrid({ items, onItemPress }: Props) {
           style={[styles.itemWrapper, { width: cardSize }]}
           onPress={() => onItemPress(item)}
           activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel={`${item.name} 선택`}
         >
           <View style={[styles.itemCard, { width: cardSize, height: cardSize }]}>
             <ItemPreview item={item} itemSize={cardSize} />

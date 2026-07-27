@@ -37,6 +37,9 @@ export default function CategoryRail({ activeCategory, onCategoryPress }: Props)
           key={category}
           style={[styles.categoryItem, activeCategory === category && styles.categoryItemActive]}
           onPress={() => onCategoryPress(category)}
+          accessibilityRole="button"
+          accessibilityLabel={`${CATEGORY_LABELS[category]} 카테고리`}
+          accessibilityState={{ selected: activeCategory === category }}
         >
           <CategoryIcon source={CATEGORY_ICONS[category]} />
           <Text
@@ -60,6 +63,7 @@ function CategoryIcon({ source }: { source: ImageSourcePropType }) {
       style={styles.categoryIcon}
       resizeMode="contain"
       accessibilityIgnoresInvertColors
+      accessible={false}
     />
   )
 }

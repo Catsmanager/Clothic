@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Alert, ScrollView, Share, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
+import CoreDataState from '../../components/CoreDataState'
 import EmptyStatsCard from '../../components/monthly-stats/EmptyStatsCard'
 import ItemCategoryCard from '../../components/monthly-stats/ItemCategoryCard'
 import MonthNavigator from '../../components/monthly-stats/MonthNavigator'
@@ -20,7 +21,9 @@ import WeeklyReport from '../../components/monthly-stats/WeeklyReport'
 import { colors } from '../../constants/colors'
 import { spacing } from '../../constants/spacing'
 import { useMonthNavigation } from '../../hooks/useMonthNavigation'
+import { useCurrentDateKey } from '../../hooks/useCurrentDateKey'
 import { useWeekNavigation } from '../../hooks/useWeekNavigation'
+import { parseDateKey } from '../../lib/date'
 import { buildItemInventoryData } from '../../lib/itemStats'
 import { buildMonthData } from '../../lib/monthlyStats'
 import { buildWeekData } from '../../lib/weeklyStats'
@@ -29,11 +32,19 @@ import { useOutfitStore } from '../../stores/outfitStore'
 
 export default function StatsScreen() {
   const outfits = useOutfitStore((s) => s.outfits)
+  const outfitLoading = useOutfitStore((s) => s.loading)
+  const outfitLoaded = useOutfitStore((s) => s.loaded)
+  const outfitError = useOutfitStore((s) => s.error)
   const fetchOutfits = useOutfitStore((s) => s.fetchOutfits)
   const items = useItemStore((s) => s.items)
+  const itemLoading = useItemStore((s) => s.loading)
+  const itemLoaded = useItemStore((s) => s.loaded)
+  const itemError = useItemStore((s) => s.error)
   const fetchItems = useItemStore((s) => s.fetchItems)
-  const monthNav = useMonthNavigation()
-  const weekNav = useWeekNavigation()
+  const currentDateKey = useCurrentDateKey()
+  const currentDate = useMemo(() => parseDateKey(currentDateKey) ?? new Date(), [currentDateKey])
+  const monthNav = useMonthNavigation(currentDate)
+  const weekNav = useWeekNavigation(currentDate)
   const [period, setPeriod] = useState<ReportPeriod>('week')
 
   useEffect(() => {
@@ -47,21 +58,23 @@ export default function StatsScreen() {
     () => buildMonthData(outfits, catalogItems, monthNav.year, monthNav.month),
     [catalogItems, monthNav.month, monthNav.year, outfits]
   )
-  const inventoryData = useMemo(() => buildItemInventoryData(items), [items])
+  const inventoryData = useMemo(
+    () => buildItemInventoryData(items, currentDate),
+    [currentDate, items]
+  )
   const weekData = useMemo(
     () => buildWeekData(outfits, catalogItems, weekNav.weekStart),
     [catalogItems, outfits, weekNav.weekStart]
   )
 
-  const today = new Date()
   const isCurrentMonth =
-    monthNav.year === today.getFullYear() && monthNav.month === today.getMonth()
+    monthNav.year === currentDate.getFullYear() && monthNav.month === currentDate.getMonth()
   const currentWeekStart = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate() - today.getDay()
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    currentDate.getDate() - currentDate.getDay()
   )
-  const isCurrentWeek = weekNav.weekStart.getTime() >= currentWeekStart.getTime()
+  const isCurrentWeek = weekNav.weekStart.getTime() === currentWeekStart.getTime()
 
   async function handleShare() {
     const monthLabel = `${monthNav.year}년 ${monthNav.month + 1}월`
@@ -116,35 +129,44 @@ export default function StatsScreen() {
         />
       )}
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+      <CoreDataState
+        loading={outfitLoading || itemLoading}
+        error={outfitError ?? itemError}
+        ready={outfitLoaded && itemLoaded}
+        onRetry={() => {
+          void Promise.all([fetchOutfits(), fetchItems()])
+        }}
       >
-        {period === 'week' ? (
-          <WeeklyReport data={weekData} weekStart={weekNav.weekStart} />
-        ) : data == null ? (
-          <EmptyStatsCard />
-        ) : (
-          <>
-            <TotalOutfitsCard
-              diffFromLastMonth={data.diffFromLastMonth}
-              totalOutfits={data.totalOutfits}
-            />
-            <TopColorsCard topColors={data.topColors} />
-            <TopItemsCard topItems={data.topItems} />
-            <TopStylesCard topStyles={data.topStyles} />
-            <StatsTipCard />
-          </>
-        )}
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {period === 'week' ? (
+            <WeeklyReport data={weekData} weekStart={weekNav.weekStart} />
+          ) : data == null ? (
+            <EmptyStatsCard />
+          ) : (
+            <>
+              <TotalOutfitsCard
+                diffFromLastMonth={data.diffFromLastMonth}
+                totalOutfits={data.totalOutfits}
+              />
+              <TopColorsCard topColors={data.topColors} />
+              <TopItemsCard topItems={data.topItems} />
+              <TopStylesCard topStyles={data.topStyles} />
+              <StatsTipCard />
+            </>
+          )}
 
-        {period === 'month' && inventoryData.totalItems > 0 && (
-          <>
-            <ItemCategoryCard data={inventoryData} />
-            <UploadTrendCard monthlyUploads={inventoryData.monthlyUploads} />
-          </>
-        )}
-      </ScrollView>
+          {period === 'month' && inventoryData.totalItems > 0 && (
+            <>
+              <ItemCategoryCard data={inventoryData} />
+              <UploadTrendCard monthlyUploads={inventoryData.monthlyUploads} />
+            </>
+          )}
+        </ScrollView>
+      </CoreDataState>
     </SafeAreaView>
   )
 }

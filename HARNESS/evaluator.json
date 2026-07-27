@@ -1,0 +1,40 @@
+{
+  "id": "habit-journey-v1",
+  "version": 1,
+  "purpose": "Synthetic proxy for Clothic's first-record to repeat-record user journey",
+  "primaryMetric": {
+    "name": "flow_contract_assertions",
+    "direction": "higher",
+    "epsilon": 0,
+    "target": 8
+  },
+  "fixedContext": {
+    "timezone": "Asia/Seoul",
+    "clock": "2026-07-27T12:00:00+09:00",
+    "seed": 20260727,
+    "users": ["user-a", "user-b"],
+    "windowDays": 30
+  },
+  "fixtureFiles": [
+    "HARNESS/fixtures/habit-journey-v1.json",
+    "scripts/check-user-flow-contract.mjs",
+    "tests/retentionLogic.test.mjs",
+    "package.json"
+  ],
+  "commands": {
+    "primary": "npm run flow:check",
+    "core": "npm run test:core",
+    "static": "npm run verify:static",
+    "environment": "npm run verify:environment"
+  },
+  "requiredGates": [
+    "core tests pass",
+    "typecheck, lint, format and avatar checks pass",
+    "no cross-account state",
+    "no item-less diary row counted as a styled outfit"
+  ],
+  "limitations": [
+    "This is a deterministic product-flow proxy, not observed D7 retention.",
+    "Browser interaction and device accessibility remain separate manual gates when no session is available."
+  ]
+}

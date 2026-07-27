@@ -1,6 +1,6 @@
 name: CI
 
-# PR 검증 + develop/main 푸시 시 정적 검사를 수행한다.
+# PR 검증 + develop/main 푸시 시 결정론적 정적·핵심 흐름 검사를 수행한다.
 on:
   push:
     branches: [main, develop]
@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   verify:
-    name: Typecheck · Lint · Format
+    name: Static · Core flow · Habit proxy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,11 +29,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Format check
-        run: npm run format:check
+      - name: Verify deterministic release gates
+        run: npm run check

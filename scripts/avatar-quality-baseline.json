@@ -1,0 +1,20 @@
+{
+  "assets": {
+    "assets/avatar/bottom/bottom_009_blue.png": {
+      "sha256": "57f5a9a016901ec8e6330a63d104069bdeef3ec5b5af4c1b62af2db68efff606",
+      "allowedIssues": ["distant-small-components"]
+    },
+    "assets/avatar/bottom/bottom_010_blue.png": {
+      "sha256": "25c912dede014c08bea483cd503bcddf87e4b8e0a663d095652e05aff08e1b9c",
+      "allowedIssues": ["distant-small-components"]
+    },
+    "assets/avatar/bottom/bottom_011_gray.png": {
+      "sha256": "e61bbd85bb789d856493d8c7e0240a08a2105a876c75cf5b9f09f24d58fdf74d",
+      "allowedIssues": ["distant-small-components"]
+    },
+    "assets/avatar/hair/hair_001_brown.png": {
+      "sha256": "06085692be311fd9e0410a6e2b7a9dbce1df7bc5a60f47fdc15ae364272c9cfc",
+      "allowedIssues": ["visible-border"]
+    }
+  }
+}

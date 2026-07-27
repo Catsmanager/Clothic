@@ -26,9 +26,11 @@ export interface UserItem {
 interface ItemState {
   items: UserItem[]
   loading: boolean
+  loaded: boolean
   error: string | null
 
   fetchItems: () => Promise<void>
+  reset: () => void
 }
 
 function sanitizeStyleTags(tags: string[] | null): StyleTag[] {
@@ -72,12 +74,24 @@ export function findCatalogItemById(items: CatalogItem[], id: string): CatalogIt
   return items.find((item) => item.id === id)
 }
 
+let storeGeneration = 0
+let fetchSequence = 0
+
 export const useItemStore = create<ItemState>((set) => ({
   items: [],
   loading: false,
+  loaded: false,
   error: null,
 
+  reset: () => {
+    storeGeneration += 1
+    fetchSequence += 1
+    set({ items: [], loading: false, loaded: false, error: null })
+  },
+
   fetchItems: async () => {
+    const generation = storeGeneration
+    const requestSequence = (fetchSequence += 1)
     set({ loading: true, error: null })
     const { data, error } = await supabase
       .from('items')
@@ -85,13 +99,17 @@ export const useItemStore = create<ItemState>((set) => ({
       .order('created_at', { ascending: false })
 
     if (error) {
+      if (generation !== storeGeneration || requestSequence !== fetchSequence) return
       set({ loading: false, error: error.message })
       return
     }
 
+    if (generation !== storeGeneration || requestSequence !== fetchSequence) return
     set({
       items: (data ?? []).map(mapRow).filter((item): item is UserItem => item != null),
       loading: false,
+      loaded: true,
+      error: null,
     })
   },
 }))

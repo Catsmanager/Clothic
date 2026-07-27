@@ -83,7 +83,24 @@ export function useOutfitEditor() {
       setHistoryIndex(nextHistory.length)
       setEquipped(next)
     },
-    [catalogItems, equipped, history, historyIndex]
+    [equipped, history, historyIndex]
+  )
+
+  const equipItemById = useCallback(
+    (itemId: string): boolean => {
+      const item = catalogItems.find((candidate) => candidate.id === itemId)
+      if (!item) return false
+
+      setActiveCategory(item.category)
+      setActiveSubCategory('전체')
+      const alreadyEquipped =
+        item.category === 'accessory'
+          ? (equipped.accessory ?? []).includes(item.id)
+          : equipped[item.category] === item.id
+      if (!alreadyEquipped) equipItem(item)
+      return true
+    },
+    [catalogItems, equipItem, equipped]
   )
 
   const randomizeOutfit = useCallback(() => {
@@ -174,6 +191,7 @@ export function useOutfitEditor() {
     subCategories,
     undo,
     equipItem,
+    equipItemById,
   }
 }
 

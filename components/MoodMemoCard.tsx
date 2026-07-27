@@ -12,13 +12,14 @@ const MOOD_LABEL: Record<string, string> = {
 }
 
 interface Props {
+  hasOutfit: boolean
   mood: string | null
   memo: string | null
   onMoodPress: () => void
   onMemoPress: () => void
 }
 
-export default function MoodMemoCard({ mood, memo, onMoodPress, onMemoPress }: Props) {
+export default function MoodMemoCard({ hasOutfit, mood, memo, onMoodPress, onMemoPress }: Props) {
   return (
     <View style={styles.card}>
       <TouchableOpacity
@@ -26,11 +27,18 @@ export default function MoodMemoCard({ mood, memo, onMoodPress, onMemoPress }: P
         onPress={onMoodPress}
         activeOpacity={0.7}
         accessibilityRole="button"
-        accessibilityLabel="오늘 기분 기록하기"
+        accessibilityLabel={
+          hasOutfit ? '오늘 기분 기록하기' : '코디를 먼저 만들고 오늘 기분 기록하기'
+        }
+        accessibilityHint={!hasOutfit ? '코디 만들기 화면으로 이동합니다' : undefined}
       >
         <Text style={styles.label}>오늘 기분</Text>
         <Text style={styles.value}>
-          {mood ? (MOOD_LABEL[mood] ?? mood) : '지금 기분은 어떤가요?'}
+          {mood
+            ? (MOOD_LABEL[mood] ?? mood)
+            : hasOutfit
+              ? '지금 기분은 어떤가요?'
+              : '코디를 기록하고 기분도 남겨보세요.'}
         </Text>
       </TouchableOpacity>
       <View style={styles.divider} />
@@ -39,11 +47,15 @@ export default function MoodMemoCard({ mood, memo, onMoodPress, onMemoPress }: P
         onPress={onMemoPress}
         activeOpacity={0.7}
         accessibilityRole="button"
-        accessibilityLabel="오늘 한 줄 기록하기"
+        accessibilityLabel={
+          hasOutfit ? '오늘 한 줄 기록하기' : '코디를 먼저 만들고 오늘 한 줄 기록하기'
+        }
+        accessibilityHint={!hasOutfit ? '코디 만들기 화면으로 이동합니다' : undefined}
       >
         <Text style={styles.label}>오늘 한 줄</Text>
         <Text style={styles.memo} numberOfLines={2}>
-          {memo ?? '오늘을 한 문장으로 남겨보세요.'}
+          {memo ??
+            (hasOutfit ? '오늘을 한 문장으로 남겨보세요.' : '코디를 기록하고 하루도 남겨보세요.')}
         </Text>
       </TouchableOpacity>
     </View>

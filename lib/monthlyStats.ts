@@ -2,6 +2,7 @@ import { resolvePaletteColor } from '../constants/colorPalette'
 import { isColorCategory, type CatalogItem } from '../constants/items'
 import type { Outfit } from '../stores/outfitStore'
 import { getMonthKey } from './date'
+import { getPrimaryStyledOutfits } from './outfitRecords'
 
 export interface MonthData {
   totalOutfits: number
@@ -20,8 +21,9 @@ export function buildMonthData(
   const currentKey = getMonthKey(year, month)
   const prevDate = new Date(year, month - 1, 1)
   const previousKey = getMonthKey(prevDate.getFullYear(), prevDate.getMonth())
-  const currentOutfits = outfits.filter((outfit) => outfit.date.startsWith(currentKey))
-  const previousCount = outfits.filter((outfit) => outfit.date.startsWith(previousKey)).length
+  const styledOutfits = getPrimaryStyledOutfits(outfits)
+  const currentOutfits = styledOutfits.filter((outfit) => outfit.date.startsWith(currentKey))
+  const previousCount = styledOutfits.filter((outfit) => outfit.date.startsWith(previousKey)).length
 
   if (currentOutfits.length === 0) return null
 

@@ -17,7 +17,12 @@ export default function OutfitAvatar({ style, items = [] }: Props) {
 
   return (
     <View style={[styles.root, style]}>
-      <Image source={BASE_AVATAR} style={styles.layerImage} resizeMode="contain" />
+      <Image
+        source={BASE_AVATAR}
+        style={styles.layerImage}
+        resizeMode="contain"
+        accessible={false}
+      />
       {layeredItems.map((item) => {
         const source = getItemImageSource(item)
         if (source == null) return null
@@ -28,6 +33,7 @@ export default function OutfitAvatar({ style, items = [] }: Props) {
             source={source}
             style={[styles.layerImage, getItemLayerStyle(item)]}
             resizeMode="contain"
+            accessible={false}
           />
         )
       })}

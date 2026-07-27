@@ -6,14 +6,13 @@ Clothic의 지속적 통합(CI)과 EAS 빌드/제출(CD) 구성 문서.
 
 PR 및 `develop`/`main` 푸시 시 자동 실행:
 
-| 단계      | 명령                                       | 목적                |
-| --------- | ------------------------------------------ | ------------------- |
-| Install   | `npm ci`                                   | lockfile 기준 설치  |
-| Typecheck | `npm run typecheck` (`tsc --noEmit`)       | 타입 오류 차단      |
-| Lint      | `npm run lint` (`expo lint`)               | 코드 규칙 검사      |
-| Format    | `npm run format:check` (`prettier --check`)| 포맷 정합           |
+| 단계    | 명령            | 목적                                                         |
+| ------- | --------------- | ------------------------------------------------------------ |
+| Install | `npm ci`        | lockfile 기준 설치                                           |
+| Verify  | `npm run check` | 타입·lint·format·avatar·핵심 로직·합성 habit-flow 회귀 차단 |
 
-> 추가 설정 불필요 — 푸시/PR 시 바로 동작한다.
+`expo-doctor`와 `expo install --check`는 환경·네트워크 영향을 받을 수 있어
+`npm run verify:environment`로 분리한다. 의존성 변경 PR과 출시 전 로컬에서 실행한다.
 
 ## 2. CD — EAS Build / Submit
 

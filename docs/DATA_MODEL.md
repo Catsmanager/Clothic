@@ -5,7 +5,7 @@
 ### Category
 
 ```ts
-type Category = 'top' | 'bottom' | 'shoes' | 'bag' | 'accessory'
+type Category = 'top' | 'outer' | 'bottom' | 'dress' | 'shoes' | 'hair' | 'accessory'
 ```
 
 ### StyleTag
@@ -164,5 +164,8 @@ auth.users
 ## 계산 규칙
 
 - **잠자는 옷장**: outfits에서 item의 마지막 착용일 역산. 아이템 `seasons` 메타데이터로 현재 계절(`all` 포함) 코디 아이템 전체를 미착용 긴 순으로 노출. 미착용 10일 미만 = 배지 없음, 10~19일 = 관심 필요, 20일+ = 잠자는 옷. 현재 계절 아님(계절 보관 중)·착용 기록 없음은 제외. 현재 계절 판정은 월 기준(3-5 봄/6-8 여름/9-11 가을/12-2 겨울). 계절은 내부 로직 전용(사용자 선택 UI 없음). `sleepingItems`(월간 리포트)는 20일+ 만 카운트
-- **월간 통계**: 해당 month의 outfits 전체를 클라이언트에서 집계
+- **날짜별 대표 코디(임시 안전 정책)**: 아이템이 있는 row 중 `createdAt`이 가장 최신인
+  1건을 홈·캘린더·월간/주간 통계·챌린지에서 공통 사용한다. timestamp가 같으면 `id`로
+  결정한다. 기존 같은 날짜 row는 목록/상세에서 보존하며 삭제·병합하지 않는다.
+- **월간 통계**: 해당 month의 날짜별 대표 코디를 클라이언트에서 집계
 - MonthlyReport는 DB에 저장하지 않음 — 매번 계산

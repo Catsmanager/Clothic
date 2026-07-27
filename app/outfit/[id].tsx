@@ -1,5 +1,13 @@
-import { useEffect, useMemo, useState, useCallback } from 'react'
-import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Feather, Ionicons } from '@expo/vector-icons'
@@ -13,16 +21,47 @@ import { formatFullDateWithWeekday } from '../../lib/date'
 export default function OutfitDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const outfit = useOutfitStore((s) => s.outfits.find((o) => o.id === id))
+  const fetchOutfitById = useOutfitStore((s) => s.fetchOutfitById)
   const toggleFavorite = useOutfitStore((s) => s.toggleFavorite)
   const removeOutfit = useOutfitStore((s) => s.removeOutfit)
   const userItems = useItemStore((s) => s.items)
   const fetchItems = useItemStore((s) => s.fetchItems)
   const [busy, setBusy] = useState(false)
+  const deleteInFlight = useRef(false)
+  const [lookupAttempt, setLookupAttempt] = useState(0)
+  const [lookup, setLookup] = useState<{
+    id: string | undefined
+    state: 'loading' | 'ready'
+    error: string | null
+  }>({ id, state: outfit ? 'ready' : 'loading', error: null })
   const catalogItems = useMemo(() => buildCatalogItems(userItems), [userItems])
+  const lookupState = lookup.id === id ? lookup.state : 'loading'
+  const lookupError = lookup.id === id ? lookup.error : null
+  const leaveDetail = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back()
+      return
+    }
+    router.replace('/outfits')
+  }, [])
 
   useEffect(() => {
     fetchItems()
   }, [fetchItems])
+
+  useEffect(() => {
+    if (deleteInFlight.current || outfit || !id) return
+
+    let active = true
+    void fetchOutfitById(id).then(({ error }) => {
+      if (!active) return
+      setLookup({ id, state: 'ready', error })
+    })
+
+    return () => {
+      active = false
+    }
+  }, [fetchOutfitById, id, lookupAttempt, outfit])
 
   const items = useMemo(
     () =>
@@ -50,37 +89,67 @@ export default function OutfitDetailScreen() {
         text: '삭제',
         style: 'destructive',
         onPress: async () => {
+          deleteInFlight.current = true
           setBusy(true)
           const { error } = await removeOutfit(outfit.id)
           setBusy(false)
           if (error) {
+            deleteInFlight.current = false
             Alert.alert('삭제 실패', error)
             return
           }
-          router.back()
+          leaveDetail()
         },
       },
     ])
-  }, [outfit, removeOutfit])
+  }, [leaveDetail, outfit, removeOutfit])
 
-  // 목록에서 진입하지 않았거나 데이터가 비어있는 경우(예: 새로고침)
+  if (id && lookupState === 'loading' && !outfit) {
+    return (
+      <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+        <Header onBack={leaveDetail} onDelete={undefined} />
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.text} />
+          <Text style={styles.emptySub}>코디를 불러오고 있어요.</Text>
+        </View>
+      </SafeAreaView>
+    )
+  }
+
   if (!outfit) {
     return (
-      <SafeAreaView style={styles.screen} edges={['top']}>
-        <Header onDelete={undefined} />
+      <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+        <Header onBack={leaveDetail} onDelete={undefined} />
         <View style={styles.center}>
-          <Text style={styles.emptyText}>코디를 찾을 수 없어요.</Text>
-          <Text style={styles.emptySub}>목록에서 다시 열어주세요.</Text>
+          <Text style={styles.emptyText}>
+            {lookupError ? '코디를 불러오지 못했어요.' : '코디를 찾을 수 없어요.'}
+          </Text>
+          <Text style={styles.emptySub}>
+            {lookupError ?? '삭제되었거나 접근할 수 없는 기록이에요.'}
+          </Text>
+          {lookupError ? (
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={() => {
+                setLookup({ id, state: 'loading', error: null })
+                setLookupAttempt((attempt) => attempt + 1)
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="코디 다시 불러오기"
+            >
+              <Text style={styles.retryButtonText}>다시 시도</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       </SafeAreaView>
     )
   }
 
   return (
-    <SafeAreaView style={styles.screen} edges={['top']}>
-      <Header onDelete={busy ? undefined : onDelete} />
+    <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+      <Header onBack={leaveDetail} onDelete={busy ? undefined : onDelete} />
 
-      <View style={styles.body}>
+      <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         {/* 아바타 카드 */}
         <View style={styles.avatarCard}>
           <OutfitAvatar items={items} style={styles.avatar} />
@@ -131,24 +200,29 @@ export default function OutfitDetailScreen() {
             <View style={styles.itemRow}>
               {items.map((it) => (
                 <View key={it.id} style={styles.itemChip}>
-                  <View style={[styles.itemSwatch, { backgroundColor: it.color }]} />
+                  <View
+                    style={[
+                      styles.itemSwatch,
+                      { backgroundColor: outfit.itemColors[it.id] ?? it.color },
+                    ]}
+                  />
                   <Text style={styles.itemName}>{it.name}</Text>
                 </View>
               ))}
             </View>
           )}
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   )
 }
 
-function Header({ onDelete }: { onDelete: (() => void) | undefined }) {
+function Header({ onBack, onDelete }: { onBack: () => void; onDelete: (() => void) | undefined }) {
   return (
     <View style={styles.header}>
       <TouchableOpacity
         style={styles.headerBtn}
-        onPress={() => router.back()}
+        onPress={onBack}
         hitSlop={8}
         accessibilityRole="button"
         accessibilityLabel="뒤로 가기"
@@ -195,8 +269,8 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   body: {
-    flex: 1,
     padding: spacing.md,
+    paddingBottom: spacing.xl,
     gap: spacing.md,
   },
   avatarCard: {
@@ -295,5 +369,21 @@ const styles = StyleSheet.create({
   emptySub: {
     fontSize: 12,
     color: colors.textMuted,
+    textAlign: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  retryButton: {
+    minHeight: 44,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.full,
+    backgroundColor: colors.text,
+  },
+  retryButtonText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '600',
   },
 })

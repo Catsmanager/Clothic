@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import CoreDataState from '../components/CoreDataState'
 import BadgeListSheet from '../components/challenge/BadgeListSheet'
 import ChallengeHeader from '../components/challenge/ChallengeHeader'
 import ChallengeHelpSheet from '../components/challenge/ChallengeHelpSheet'
@@ -12,7 +13,9 @@ import ChallengeBottomBanner from '../components/challenge/ChallengeBottomBanner
 import type { Challenge } from '../constants/challenges'
 import { colors } from '../constants/colors'
 import { spacing } from '../constants/spacing'
+import { useCurrentDateKey } from '../hooks/useCurrentDateKey'
 import { buildChallengeData } from '../lib/challenges'
+import { parseDateKey } from '../lib/date'
 import { buildCatalogItems, useItemStore } from '../stores/itemStore'
 import { useOutfitStore } from '../stores/outfitStore'
 
@@ -21,9 +24,17 @@ export default function ChallengeScreen() {
   const [helpVisible, setHelpVisible] = useState(false)
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null)
   const outfits = useOutfitStore((s) => s.outfits)
+  const outfitLoading = useOutfitStore((s) => s.loading)
+  const outfitLoaded = useOutfitStore((s) => s.loaded)
+  const outfitError = useOutfitStore((s) => s.error)
   const fetchOutfits = useOutfitStore((s) => s.fetchOutfits)
   const items = useItemStore((s) => s.items)
+  const itemLoading = useItemStore((s) => s.loading)
+  const itemLoaded = useItemStore((s) => s.loaded)
+  const itemError = useItemStore((s) => s.error)
   const fetchItems = useItemStore((s) => s.fetchItems)
+  const currentDateKey = useCurrentDateKey()
+  const currentDate = useMemo(() => parseDateKey(currentDateKey) ?? new Date(), [currentDateKey])
 
   useEffect(() => {
     fetchOutfits()
@@ -32,35 +43,44 @@ export default function ChallengeScreen() {
 
   const catalogItems = useMemo(() => buildCatalogItems(items), [items])
   const challengeData = useMemo(
-    () => buildChallengeData(outfits, catalogItems),
-    [catalogItems, outfits]
+    () => buildChallengeData(outfits, catalogItems, currentDate),
+    [catalogItems, currentDate, outfits]
   )
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ChallengeHeader onHelpPress={() => setHelpVisible(true)} />
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
+      <CoreDataState
+        loading={outfitLoading || itemLoading}
+        error={outfitError ?? itemError}
+        ready={outfitLoaded && itemLoaded}
+        onRetry={() => {
+          void Promise.all([fetchOutfits(), fetchItems()])
+        }}
       >
-        <ChallengeHeroCard
-          activeCount={challengeData.summary.activeCount}
-          streakDays={challengeData.summary.streakDays}
-          weekRecorded={challengeData.summary.weekRecorded}
-          weekGoal={challengeData.summary.weekGoal}
-        />
-        <ChallengeList
-          challenges={challengeData.challenges}
-          onChallengePress={setSelectedChallenge}
-        />
-        <BadgeShelf
-          badges={challengeData.badges}
-          onViewAllPress={() => setBadgeListVisible(true)}
-        />
-        <ChallengeBottomBanner />
-      </ScrollView>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          <ChallengeHeroCard
+            activeCount={challengeData.summary.activeCount}
+            streakDays={challengeData.summary.streakDays}
+            weekRecorded={challengeData.summary.weekRecorded}
+            weekGoal={challengeData.summary.weekGoal}
+          />
+          <ChallengeList
+            challenges={challengeData.challenges}
+            onChallengePress={setSelectedChallenge}
+          />
+          <BadgeShelf
+            badges={challengeData.badges}
+            onViewAllPress={() => setBadgeListVisible(true)}
+          />
+          <ChallengeBottomBanner />
+        </ScrollView>
+      </CoreDataState>
       <ChallengeDetailSheet
         challenge={selectedChallenge}
         visible={selectedChallenge != null}

@@ -6,10 +6,21 @@ import ItemSelectHeader from '../components/item-select/ItemSelectHeader'
 import ItemSubCategoryTabs from '../components/item-select/ItemSubCategoryTabs'
 import { colors } from '../constants/colors'
 import { useItemSelect } from '../hooks/useItemSelect'
+import type { CatalogItem } from '../constants/items'
 
 export default function ItemSelectScreen() {
   const params = useLocalSearchParams<{ category?: string }>()
   const itemSelect = useItemSelect(params)
+
+  const selectItem = (item: CatalogItem) => {
+    router.dismissTo({
+      pathname: '/create',
+      params: {
+        selectedItemId: item.id,
+        selectionToken: `${Date.now()}-${item.id}`,
+      },
+    })
+  }
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -19,7 +30,7 @@ export default function ItemSelectScreen() {
         subCategories={itemSelect.subCategories}
         onSubCategoryPress={itemSelect.setActiveSubCategory}
       />
-      <ItemGrid items={itemSelect.filteredItems} onItemPress={() => router.back()} />
+      <ItemGrid items={itemSelect.filteredItems} onItemPress={selectItem} />
     </SafeAreaView>
   )
 }

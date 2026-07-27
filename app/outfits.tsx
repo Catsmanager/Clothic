@@ -18,6 +18,7 @@ import { colors } from '../constants/colors'
 import { spacing, radius } from '../constants/spacing'
 import OutfitAvatar from '../components/OutfitAvatar'
 import { formatShortDateWithWeekday } from '../lib/date'
+import { isStyledOutfit } from '../lib/outfitRecords'
 import type { CatalogItem } from '../constants/items'
 import { buildCatalogItems, findCatalogItemById, useItemStore } from '../stores/itemStore'
 import { useOutfitStore, type Outfit } from '../stores/outfitStore'
@@ -47,10 +48,10 @@ export default function OutfitsScreen() {
 
   const catalogItems = useMemo(() => buildCatalogItems(userItems), [userItems])
 
-  const visible = useMemo(
-    () => (tab === '즐겨찾기' ? outfits.filter((o) => o.isFavorite) : outfits),
-    [tab, outfits]
-  )
+  const visible = useMemo(() => {
+    const styledOutfits = outfits.filter(isStyledOutfit)
+    return tab === '즐겨찾기' ? styledOutfits.filter((outfit) => outfit.isFavorite) : styledOutfits
+  }, [tab, outfits])
 
   const onToggleFav = useCallback(
     async (o: Outfit) => {

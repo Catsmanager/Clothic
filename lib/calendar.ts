@@ -1,9 +1,44 @@
-import { formatDateKey } from './date'
+import { formatDateKey, parseDateKey } from './date'
 
 export interface CalendarCell {
   date: Date
   key: string
   isCurrentMonth: boolean
+}
+
+export interface CalendarViewState {
+  month: number
+  selectedKey: string
+  year: number
+}
+
+export function syncCalendarViewToToday(
+  current: CalendarViewState,
+  previousTodayKey: string,
+  todayKey: string
+): CalendarViewState {
+  const previousToday = parseDateKey(previousTodayKey)
+  const today = parseDateKey(todayKey)
+  if (previousToday == null || today == null) return current
+
+  const wasViewingCurrentMonth =
+    current.year === previousToday.getFullYear() && current.month === previousToday.getMonth()
+  if (!wasViewingCurrentMonth) {
+    return current.selectedKey === previousTodayKey
+      ? { ...current, selectedKey: todayKey }
+      : current
+  }
+
+  const year = today.getFullYear()
+  const month = today.getMonth()
+  const didMonthChange = year !== current.year || month !== current.month
+
+  return {
+    year,
+    month,
+    selectedKey:
+      didMonthChange || current.selectedKey === previousTodayKey ? todayKey : current.selectedKey,
+  }
 }
 
 export function buildCalendarCells(year: number, month: number): CalendarCell[] {

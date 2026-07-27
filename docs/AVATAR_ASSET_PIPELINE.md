@@ -14,32 +14,37 @@ Add avatar clothing layers with one command, keeping these files in sync:
 - PNG with transparent background
 - Same alignment as `assets/avatar/base/base_female_01.png`
 - Full avatar canvas, not a cropped clothing thumbnail
-- Recommended source ratio: `1:2`
+- Exact current canvas: `1024x1536` (`2:3`)
 
-The pipeline normalizes the final clothing asset to the current base avatar size.
-Right now that means matching `assets/avatar/base/base_female_01.png`.
+The pipeline validates against the current base avatar. It does not force-resize a cropped or
+misaligned source because that can distort the garment.
 
 ## Add An Item
 
 ```bash
 npm run avatar:add -- \
-  --source assets/raw/black_sleeveless.png \
+  --source assets/staging/black_sleeveless.png \
   --id top_011 \
   --category top \
   --subCategory 나시 \
   --name "블랙 민소매 2" \
   --color "#1C1C1C" \
   --colorKey black \
-  --styles minimal,chic
+  --styles minimal,chic \
+  --seasons summer \
+  --preview-from top_009 \
+  --dry-run
 ```
 
-This creates:
+Remove `--dry-run` after reviewing the plan. This creates:
 
 ```text
 assets/avatar/top/top_011_black.png
 ```
 
-It also registers the item so it appears in the picker and can render on the avatar.
+It also registers the item so it appears in the picker and can render on the avatar. Existing IDs
+or paths require the explicit `--replace` flag. New IDs require `--preview-from` pointing to an
+approved item in the same category.
 
 ## Alignment
 
@@ -63,7 +68,24 @@ The check verifies every mapped clothing layer is:
 
 - present on disk
 - the same size as `assets/avatar/base/base_female_01.png`
-- PNG with alpha
+- valid non-interlaced 8-bit RGBA PNG with decodable pixels and real transparency
+- matched to its category/id directory and filename
+- synchronized 1:1 across the catalog, static asset map, and files on disk
+- free of duplicate IDs/paths and unregistered layer PNGs
+
+The scripts use Node's PNG parser and work on macOS and Linux without `sips`.
+
+## Generate Without Hand Drawing
+
+Use the project skill:
+
+```text
+$clothic-avatar-pipeline
+```
+
+The skill uses `$imagegen` with the base and an approved same-category layer as references, removes
+a flat chroma key, validates the full canvas, and requires visual approval before registration.
+Image generation produces candidates; it does not guarantee pixel-perfect alignment.
 
 ## Notes
 
@@ -79,5 +101,8 @@ npm run avatar:add -- \
   --name "블랙 민소매" \
   --color "#1C1C1C" \
   --colorKey black \
-  --styles minimal,chic
+  --styles minimal,chic \
+  --seasons summer \
+  --replace \
+  --dry-run
 ```

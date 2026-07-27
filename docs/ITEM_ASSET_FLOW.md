@@ -36,25 +36,47 @@ assets/avatar/outer/outer_###_<color>.png
 assets/avatar/bottom/bottom_###_<color>.png
 assets/avatar/dress/dress_###_<color>.png
 assets/avatar/shoes/shoes_###_<color>.png
+assets/avatar/hair/hair_###_<color>.png
+assets/avatar/accessory/accessory_###_<color>.png
 ```
 
 2. PNG는 아래 조건을 만족해야 합니다.
 
-- 투명 배경
-- 기본 아바타와 같은 캔버스 비율
+- 1024×1536(2:3) 8-bit RGBA PNG
+- 실제로 보이는 픽셀과 투명 픽셀이 모두 존재
 - 착장 위치가 기본 아바타에 맞게 정렬됨
 - 검은 배경이 실제 픽셀로 남아 있지 않음
 
-3. `constants/itemCatalog.ts`에 카탈로그 항목을 추가합니다.
+3. 먼저 안전 등록기의 dry-run을 실행합니다.
 
-- `id`는 파일명 prefix와 일치시킵니다. 예: `bottom_012`
-- `category`, `subCategory`, `name`, `color`, `imagePath`, `styleTags`를 채웁니다.
+```bash
+npm run avatar:add -- \
+  --source assets/staging/top_010_cream_knit.png \
+  --id top_010 \
+  --category top \
+  --subCategory 니트 \
+  --name "크림 니트" \
+  --color "#E8DDC8" \
+  --colorKey cream_knit \
+  --styles casual,minimal \
+  --seasons spring,fall,winter \
+  --preview-from top_009 \
+  --dry-run
+```
 
-4. `lib/avatarAssets.ts`에 같은 `id`로 source를 등록합니다.
+4. 사람의 투명도·정렬·스타일 검수를 통과하면 `--dry-run`만 빼고 다시 실행합니다.
 
-- `source: require('../assets/avatar/...')`
-- 정사각형 선택창에서 잘 보이도록 `preview.widthScale`, `preview.heightScale`, `preview.topScale`을 조정합니다.
-- full-canvas가 아닌 특수 레이어라면 `layerStyle`도 함께 조정합니다.
+등록기는 아래를 한 번에 동기화하고 전체 검사가 실패하면 원상 복구합니다.
+
+- `assets/avatar/{category}/...png`
+- `constants/itemCatalog.ts` (`category`, `subCategory`, `name`, `color`, `imagePath`,
+  `styleTags`, `seasons`)
+- `constants/items.ts`의 하위 분류
+- `lib/avatarAssets.ts`
+
+신규 ID의 `--preview-from`은 같은 카테고리의 승인된 기준 아이템이어야 하며 해당
+`preview` 값을 복사합니다. 기존 ID/파일을 의도적으로 바꿀 때만 `--replace`를 추가합니다.
+직접 수정이 필요한 특수 `preview`/`layerStyle` 보정은 등록 성공 후 `lib/avatarAssets.ts`에서 조정합니다.
 
 5. 화면 파일에는 별도 require를 추가하지 않습니다.
 
@@ -99,8 +121,10 @@ data:image/...
 코드 변경 후 최소 아래를 실행합니다.
 
 ```bash
+npm run avatar:check
 npm run typecheck
-npx prettier --check <changed-files>
+npm run lint
+npm run format:check
 ```
 
 Expo web까지 확인할 수 있으면 아래도 실행합니다.

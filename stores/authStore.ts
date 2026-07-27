@@ -7,6 +7,10 @@ import * as Crypto from 'expo-crypto'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { isOnboardingDone, setOnboardingDone } from '../lib/onboarding'
+import { useItemStore } from './itemStore'
+import { useNotificationPrefsStore } from './notificationPrefsStore'
+import { useNotificationStore } from './notificationStore'
+import { useOutfitStore } from './outfitStore'
 
 // 인증 액션 결과: 화면에서 에러 메시지 표시에 사용한다.
 type AuthResult = { error: string | null }
@@ -56,6 +60,13 @@ interface AuthState {
 
 let authSubscription: { unsubscribe: () => void } | null = null
 
+function resetUserScopedStores(): void {
+  useOutfitStore.getState().reset()
+  useItemStore.getState().reset()
+  useNotificationStore.getState().reset()
+  useNotificationPrefsStore.getState().reset()
+}
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   session: null,
   user: null,
@@ -83,6 +94,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (authSubscription) return
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      const previousUserId = get().user?.id ?? null
+      const nextUserId = session?.user.id ?? null
+
+      // null → user는 앱 시작 시 저장된 세션을 복원하는 정상 흐름이므로 유지한다.
+      // 이미 로그인한 사용자가 로그아웃하거나 다른 계정으로 바뀔 때만 사용자별 데이터를 비운다.
+      if (previousUserId !== null && previousUserId !== nextUserId) {
+        resetUserScopedStores()
+      }
       set({ session, user: session?.user ?? null })
     })
     authSubscription = data.subscription
@@ -234,10 +253,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
-    set({ session: null, user: null })
-
     const { error } = await supabase.auth.signOut({ scope: 'local' })
-    return { error: error?.message ?? null }
+    if (error) return { error: error.message }
+
+    // signOut 실패 시 Supabase의 로컬 세션은 여전히 유효할 수 있다. 성공이 확정된 뒤에만
+    // 앱 인증 상태를 비워야 이전 세션이 백그라운드 fetch를 다시 허용하지 않는다.
+    resetUserScopedStores()
+    set({ session: null, user: null })
+    return { error: null }
   },
 
   // 계정 영구 삭제: Edge Function(delete-account)이 데이터+auth 계정을 삭제한다.
@@ -245,8 +268,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   deleteAccount: async () => {
     const { error } = await supabase.functions.invoke('delete-account')
     if (error) return { error: error.message }
-    await supabase.auth.signOut({ scope: 'local' })
+    resetUserScopedStores()
     set({ session: null, user: null })
+    await supabase.auth.signOut({ scope: 'local' })
     return { error: null }
   },
 }))

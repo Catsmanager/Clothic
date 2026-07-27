@@ -11,7 +11,10 @@ function getUploadMonthLabel(date: Date): string {
   return `${date.getMonth() + 1}월`
 }
 
-export function buildItemInventoryData(items: UserItem[]): ItemInventoryData {
+export function buildItemInventoryData(
+  items: UserItem[],
+  today: Date = new Date()
+): ItemInventoryData {
   const totalItems = items.length
   const counts = new Map<Category, number>()
 
@@ -28,7 +31,6 @@ export function buildItemInventoryData(items: UserItem[]): ItemInventoryData {
     }
   }).filter((item) => item.count > 0)
 
-  const today = new Date()
   const monthKeys = Array.from({ length: 6 }, (_, index) => {
     const date = new Date(today.getFullYear(), today.getMonth() - (5 - index), 1)
     return {

@@ -44,8 +44,8 @@ CRITICAL: 옷/신발/하의/상의 에셋 추가 또는 아이템 미리보기 �
 
 ## 검증 명령어
 완료 선언 전 아래를 실행하고 결과를 보고한다.
-- `npx tsc --noEmit`
-- `npx expo lint`
+- `npm run check` (typecheck, lint, format, avatar, core logic, user-flow proxy)
+- 의존성·Expo 환경을 변경한 경우 `npm run verify:environment`
 
 문서만 변경한 경우 생략할 수 있다. 이때 "코드 변경 없음"을 명시한다.
 

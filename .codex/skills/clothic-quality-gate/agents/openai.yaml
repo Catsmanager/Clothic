@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Clothic Quality Gate'
+  short_description: 'Release-focused product, code, UX, and asset audit'
+  default_prompt: 'Use $clothic-quality-gate to audit Clothic and report prioritized release risks with evidence.'

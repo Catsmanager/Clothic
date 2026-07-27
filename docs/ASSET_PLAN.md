@@ -1,79 +1,49 @@
 # Asset Plan
 
-## 아트 스타일
-- 스타일: 픽셀 아트 (라이프스타일 앱 감성, 게임 감성 금지)
-- 캔버스 크기: 아바타 기준 64×128px (2x 해상도 제공: 128×256px)
-- 파일 형식: PNG (투명 배경)
-- 색상 모드: 32비트 RGBA
+## 아트 방향
 
-## 아바타 레이어 구조
+- 스타일: 차분한 semi-pixel 패션 일러스트
+- canonical canvas: 1024×1536px (2:3)
+- 형식: 8-bit RGBA PNG
+- 배경: 레이어 바깥 완전 투명
+- 정렬 기준: `assets/avatar/base/base_female_01.png`
 
-렌더링 순서 (아래 → 위):
+현재 base와 등록된 착장 레이어가 모두 이 규격을 사용한다. 과거의 64×128, 1:2, `@2x` 규칙은 폐기한다. 앱용 해상도를 낮추려면 개별 파일이 아니라 전체 에셋을 같은 2:3 비율로 일괄 마이그레이션한다.
 
-1. `base` — 아바타 기본 체형 (고정, 1종)
-2. `bottom` — 하의
-3. `shoes` — 신발
-4. `top` — 상의
-5. `bag` — 가방
-6. `accessory` — 액세서리
+## 카테고리
 
-## 파일 네이밍 규칙
-
-패턴: `{category}_{id:03d}_{colorKey}.png`
-
-예시:
-- `top_001_white.png`
-- `top_002_black.png`
-- `bottom_001_denim.png`
-- `shoes_001_white.png`
-- `bag_001_beige.png`
-- `accessory_001_hat.png`
-- `base_female_01.png`
-
-## MVP 에셋 수량 계획
-
-| 카테고리 | MVP 수량 | 예시 |
-|---------|---------|------|
-| base | 1 | 여성형 단일 체형 |
-| top | 10 | 티셔츠, 블라우스, 니트, 재킷 등 |
-| bottom | 8 | 팬츠, 스커트, 쇼츠, 레깅스 등 |
-| shoes | 6 | 스니커즈, 힐, 로퍼, 부츠 등 |
-| bag | 5 | 숄더백, 토트, 크로스백 등 |
-| accessory | 4 | 모자, 선글라스, 스카프 + none(미착용) |
-
-총 **34개** 에셋
-
-## 저장 위치
-
-```
-assets/
-  avatar/
-    base/
-      base_female_01.png
-      base_female_01@2x.png
-    top/
-      top_001_white.png
-      top_001_white@2x.png
-      ...
-    bottom/
-    shoes/
-    bag/
-    accessory/
+```text
+top / outer / bottom / dress / shoes / hair / accessory
 ```
 
-## 제작 워크플로우
+가방은 `accessory`의 하위 분류다. 실제 목록과 렌더 순서는 각각 `constants/itemCatalog.ts`, `constants/items.ts`를 단일 진실 공급원으로 사용한다.
 
-1. 기본 체형(base) 제작
-2. 카테고리별 레이어 제작 (base 위에 합성 테스트)
-3. 모든 조합 스크린샷으로 시각 확인
-4. `assets/avatar/` 에 배치
-5. `constants/items.ts` 에 메타데이터 등록
+## 파일명과 저장 위치
 
-## 색상 키 목록
+```text
+assets/avatar/{category}/{category}_###_{color-or-kind}.png
+```
 
-`white` `black` `gray` `navy` `beige` `brown` `pink` `blue` `green` `red` `yellow` `purple` `denim` `stripe` `check` `floral`
+예:
 
-## 금지사항
-- 배경 있는 PNG 사용 금지
-- 레이어 크기 불일치 금지 (모든 레이어는 동일한 캔버스 크기 유지)
-- 64×128px 미만 해상도 금지
+- `assets/avatar/top/top_010_cream_knit.png`
+- `assets/avatar/shoes/shoes_008_black_loafer.png`
+- `assets/avatar/accessory/accessory_006_brown_shoulder_bag.png`
+
+## 제작 워크플로
+
+1. base와 승인된 같은 카테고리 에셋을 스타일·정렬 기준으로 사용한다.
+2. full-canvas 레이어 후보를 만든다. 직접 그리지 않을 때는 `$clothic-avatar-pipeline`과 `$imagegen`을 사용한다.
+3. 투명도, stray pixel, halo, 어깨·허리·손·발 정렬을 육안 확인한다.
+4. `npm run avatar:add -- ... --dry-run`으로 메타데이터와 입력을 검사한다.
+5. 승인 후 dry-run을 제거해 등록한다.
+6. `npm run avatar:check`, typecheck, lint, 앱 화면 조합 QA를 실행한다.
+
+## 금지
+
+- crop된 의상 이미지를 착장 레이어로 등록
+- base와 다른 canvas 또는 비율 사용
+- catalog와 asset map을 화면 코드에서 별도로 우회
+- 승인 없이 기존 ID에 `--replace` 사용
+- ImageGen 결과를 합성 확인 없이 바로 production에 등록
+- 출처·도구·프롬프트를 확인할 수 없는 외부 에셋 사용

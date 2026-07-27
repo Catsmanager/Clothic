@@ -1,6 +1,7 @@
 import type { Badge, Challenge, ChallengeSummary } from '../constants/challenges'
 import type { CatalogItem } from '../constants/items'
 import { getMonthKey, parseDateKey } from './date'
+import { getPrimaryStyledOutfits } from './outfitRecords'
 import type { Outfit } from '../stores/outfitStore'
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -156,8 +157,9 @@ export function buildChallengeData(
   catalogItems: CatalogItem[],
   today = new Date()
 ): { badges: Badge[]; challenges: Challenge[]; summary: ChallengeSummary } {
-  const dateKeys = getUniqueSortedDateKeys(outfits)
-  const currentMonthOutfits = getCurrentMonthOutfits(outfits, today)
+  const styledOutfits = getPrimaryStyledOutfits(outfits)
+  const dateKeys = getUniqueSortedDateKeys(styledOutfits)
+  const currentMonthOutfits = getCurrentMonthOutfits(styledOutfits, today)
   const latestStreak = getLatestStreak(dateKeys, today)
   const bestStreak = getBestStreak(dateKeys)
   const uniqueCombosThisMonth = new Set(
@@ -165,11 +167,11 @@ export function buildChallengeData(
       .map((outfit) => getComboKey(outfit.itemIds))
       .filter((comboKey) => comboKey.length > 0)
   )
-  const awakened = getAwakenedSleepingItems(outfits, today)
-  const firstRainyOutfit = outfits
+  const awakened = getAwakenedSleepingItems(styledOutfits, today)
+  const firstRainyOutfit = styledOutfits
     .filter((outfit) => outfit.weather === 'rainy')
     .sort((a, b) => a.date.localeCompare(b.date))[0]
-  const usedStyleTagCount = getUsedStyleTagCount(outfits, catalogItems)
+  const usedStyleTagCount = getUsedStyleTagCount(styledOutfits, catalogItems)
 
   const challenges: Challenge[] = [
     {
