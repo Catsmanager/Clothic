@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "timezone": "Asia/Seoul",
+  "now": "2026-07-27T12:00:00+09:00",
+  "users": {
+    "primary": "user-a",
+    "secondary": "user-b"
+  },
+  "items": [
+    {
+      "id": "top_001",
+      "category": "top",
+      "subCategory": "티셔츠",
+      "name": "기본 티셔츠",
+      "color": "#F5F5F5",
+      "imagePath": "assets/avatar/top/top_001.png",
+      "styleTags": ["casual"],
+      "seasons": ["all"]
+    }
+  ],
+  "records": [
+    {
+      "id": "styled-previous-month",
+      "userId": "user-a",
+      "date": "2026-06-27",
+      "mood": null,
+      "weather": null,
+      "memo": null,
+      "itemIds": ["top_001"],
+      "itemColors": {},
+      "isFavorite": false,
+      "createdAt": "2026-06-27T03:00:00.000Z"
+    },
+    {
+      "id": "styled-yesterday",
+      "userId": "user-a",
+      "date": "2026-07-26",
+      "mood": "happy",
+      "weather": "sunny",
+      "memo": "첫 코디",
+      "itemIds": ["top_001"],
+      "itemColors": {},
+      "isFavorite": false,
+      "createdAt": "2026-07-26T03:00:00.000Z"
+    },
+    {
+      "id": "diary-only-today",
+      "userId": "user-a",
+      "date": "2026-07-27",
+      "mood": "calm",
+      "weather": null,
+      "memo": "기분만 기록",
+      "itemIds": [],
+      "itemColors": {},
+      "isFavorite": false,
+      "createdAt": "2026-07-27T03:00:00.000Z"
+    },
+    {
+      "id": "other-account",
+      "userId": "user-b",
+      "date": "2026-07-27",
+      "mood": "happy",
+      "weather": "sunny",
+      "memo": null,
+      "itemIds": ["top_001"],
+      "itemColors": {},
+      "isFavorite": false,
+      "createdAt": "2026-07-27T03:00:00.000Z"
+    }
+  ],
+  "boundaryDates": {
+    "nineDaysAgo": "2026-07-18",
+    "tenDaysAgo": "2026-07-17",
+    "nineteenDaysAgo": "2026-07-08",
+    "twentyDaysAgo": "2026-07-07"
+  },
+  "networkScenarios": ["slow-fetch", "failed-fetch", "response-reversal", "account-switch"]
+}

@@ -18,6 +18,8 @@ interface Props {
   savedFeedback?: boolean
   background: AvatarBackground
   onBackgroundPress: () => void
+  onOutfitPress: () => void
+  onRecordPress: () => void
 }
 
 export default function AvatarCard({
@@ -25,12 +27,16 @@ export default function AvatarCard({
   savedFeedback = false,
   background,
   onBackgroundPress,
+  onOutfitPress,
+  onRecordPress,
 }: Props) {
   const [bubbleProgress] = useState(() => new Animated.Value(1))
   const [sparkleProgress] = useState(() => new Animated.Value(0))
   const isEmpty = items == null
   const showBubble = isEmpty || savedFeedback
-  const bubbleMessage = savedFeedback ? '오늘의 코디 저장 완료!' : '오늘의 코디를 기록해볼까요?'
+  const bubbleMessage = savedFeedback
+    ? '저장 완료! 코디를 눌러 확인해보세요.'
+    : '오늘의 코디를 기록해볼까요?'
 
   useEffect(() => {
     if (!savedFeedback) return
@@ -145,13 +151,33 @@ export default function AvatarCard({
         </View>
       )}
 
-      <View style={styles.avatarArea}>
+      <TouchableOpacity
+        style={styles.avatarArea}
+        onPress={isEmpty ? onRecordPress : onOutfitPress}
+        activeOpacity={0.88}
+        accessibilityRole="button"
+        accessibilityLabel={isEmpty ? '오늘 코디 기록하기' : '오늘 코디 상세 보기'}
+        accessibilityHint={
+          isEmpty ? '코디 만들기 화면으로 이동합니다' : '저장한 오늘 코디의 상세 화면을 엽니다'
+        }
+      >
         {isEmpty ? (
-          <Image source={MOSAIC_AVATAR} style={styles.avatarImage} resizeMode="contain" />
+          <Image
+            source={MOSAIC_AVATAR}
+            style={styles.avatarImage}
+            resizeMode="contain"
+            accessible={false}
+          />
         ) : (
           <OutfitAvatar style={styles.avatarImage} items={items} />
         )}
-      </View>
+        <View style={styles.avatarAction} pointerEvents="none">
+          <Feather name={isEmpty ? 'plus' : 'arrow-right'} size={15} color={colors.white} />
+          <Text style={styles.avatarActionText}>
+            {isEmpty ? '오늘 코디 기록하기' : '오늘 코디 보기'}
+          </Text>
+        </View>
+      </TouchableOpacity>
     </View>
   )
 }
@@ -298,5 +324,24 @@ const styles = StyleSheet.create({
   avatarImage: {
     width: '55%',
     height: '70%',
+  },
+  avatarAction: {
+    position: 'absolute',
+    left: '18%',
+    right: '18%',
+    bottom: spacing.md,
+    minHeight: 44,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.full,
+    backgroundColor: colors.text,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+  },
+  avatarActionText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.white,
   },
 })

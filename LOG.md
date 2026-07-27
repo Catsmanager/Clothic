@@ -1,5 +1,125 @@
 # LOG
 
+## 2026-07-27 (feat: 반복 기록 유저 플로우 + 측정 하네스 강화)
+
+### 목표와 기준선
+
+- 목표: 첫 코디 저장 → 다음날 재방문 → 캘린더/통계 확인 → 다시 코디 만들기 흐름의 막힘 제거
+- 실제 D1/D7 analytics는 개인정보 범위가 정해지지 않아 수집하지 않음
+- 고정 `habit-journey` fixture와 evaluator를 합성 리텐션 proxy로 사용
+- 최초 기록(후속 감사에서 v1-v3는 비재현 legacy로 강등):
+  - v1 `FLOW_SCORE=0/8`, core logic 0/3
+  - v2 복구/알림 정직성 `8/10`
+  - v3 반복 행동 CTA `10/12`
+
+### 채택한 개선
+
+- 날짜/재방문
+  - `useCurrentDateKey`: 로컬 자정 timer + AppState active 동기화
+  - 홈·날짜 바·캘린더·통계·챌린지·잠자는 옷장이 같은 live date를 사용
+  - 캘린더 월 이동 시 선택일을 해당 월 오늘/1일로 재설정
+- 데이터 신뢰
+  - 실제 아이템이 있는 row만 월·주 통계와 챌린지·코디 목록·캘린더에 포함
+  - 코디가 없을 때 홈 기분/메모가 빈 outfit row를 만들지 않고 코디 작성으로 연결
+- 복구/다음 행동
+  - 홈의 첫 기록 CTA와 저장된 오늘 코디 상세 CTA
+  - 홈·캘린더·통계·챌린지·잠자는 옷장 공통 loading/error/retry 상태
+  - 알림 센터 retry 추가
+  - 실제 producer가 없는 알림 설정은 준비 중/비활성으로 표시해 자동 발송 오해 제거
+  - 잠자는 옷장 추천 아이템을 착용한 상태로 편집기 시작
+  - 챌린지 안내에서 코디 작성으로 직접 이동
+- 하네스/skill
+  - versioned evaluator manifest·30일 fixture·core test·flow contract 추가
+  - schema-v4 AutoResearch runner가 manifest의 명령·metric·환경·gate만 사용하고,
+    pair 사전 검증·finite metric·process-group timeout·runtime/worktree/surface hash를 기록
+  - `HARNESS`를 Baseline → Candidate → Compare → Adopt/Reject → Stop 계약으로 강화
+  - `npm run check`와 CI가 정적·avatar·core logic·habit-flow proxy를 모두 실행
+  - `.autoresearch/experiments.jsonl` append-only 기록과 resume state 추가
+- 아바타 파이프라인 안전성
+  - `avatar:add` unknown/duplicate/positional/boolean 값 오용 거부
+  - 신규 ID의 같은 카테고리 `--preview-from` 복사와 checker 검증
+  - alpha coverage·corner/border·원거리 소형 component 검사 및 SHA 고정 legacy warning
+  - malformed/alpha254/single-pixel/detached-component 회귀 테스트
+
+### 실험 결과
+
+- v1-v3의 3개 adopted 기록은 CLI-controlled evaluator와 mutable alias 때문에 비재현 legacy
+- 현재 상태: `habit-journey-v4` baseline 기록 전(`.autoresearch/state.json`)
+- core/avatar logic: 18/18 PASS, source-contract-v4: 8/8 PASS
+- runner 회귀: pair preflight·gate failure·환경 고정·metric·output 경로·timeout 6/6 PASS
+
+### 남은 결정/한계
+
+- 하루 한 코디 vs 복수 코디 및 기존 diary-only row 저장 모델은 제품/스키마 결정 필요
+- 실제 D1/D7 측정은 analytics 이벤트·동의·보관기간·개인정보 정책 승인 전 미수집
+- 자동 인앱 알림 producer와 푸시/로컬 알림은 없음. 푸시는 MVP 제외
+- Browser session이 없어 실제 클릭·320pt·200% 글자·스크린리더 검증은 미실행
+- GitHub 인증 문제로 issue/commit/push/PR은 진행하지 않음
+
+## 2026-07-26 (fix: 핵심 흐름 안정화 + 아바타/품질 skill 자동화)
+
+### 처리 항목
+
+- 작업 브랜치: `fix/core-flow-avatar-pipeline`
+- 전체 UX·코드·아바타 감사를 병렬 수행하고 MVP 성공 흐름과 계정 격리 문제를 우선 수정
+- GitHub 이슈 생성은 GitHub App 404 및 로컬 `gh` 토큰 만료로 실패해 로컬 브랜치에서만 진행
+
+### 변경
+
+- 계정 격리
+  - outfit/item/notification/notification-prefs store에 reset 추가
+  - 로그아웃·계정 삭제·사용자 변경 시 사용자별 메모리 상태 초기화
+  - reset 전 시작된 비동기 응답이 새 계정 store를 다시 채우지 않도록 generation guard 추가
+  - 계정 전환 중 코디 저장은 DB insert 전에 중단
+  - 로그아웃 실패 시 기존 세션을 유지하고, 성공이 확정된 뒤에만 인증/store를 초기화
+  - 동일 필드 쓰기는 key별 queue로 DB 순서를 보장하고 version·confirmed 값으로 최신 rollback만 반영
+  - 전체 조회는 request sequence로 latest-wins 처리하고 pending favorite/read/prefs를 merge
+- 코디 흐름
+  - 전체 아이템 보기의 선택 결과를 기존 편집 초안에 1회 반영
+  - 카테고리·하위 분류·아이템 버튼의 접근성 role/label/selected 상태 보강
+  - 상세 딥링크/웹 새로고침 시 ID 단건 재조회, loading/error/retry/not-found 상태 추가
+  - 삭제 중 재조회 tombstone과 history 없는 직접 링크의 목록 fallback 추가
+  - 상세를 스크롤 가능하게 하고 저장된 색상 override swatch 반영
+- 아바타 파이프라인
+  - 실제 규격을 1024×1536(2:3) RGBA full canvas로 확정하고 상충 문서/캘린더 비율 동기화
+  - `avatar:add`를 현재 7개 카테고리, seasons, dry-run, 명시적 replace, 사전 검증, 실패 rollback 방식으로 재작성
+  - `sips` 의존 제거. checker를 catalog ↔ map ↔ disk 1:1, 중복/고아 PNG,
+    category/path, CRC/IDAT/IEND, 실제 RGBA decode·투명/가시 픽셀 검사로 강화
+  - CRLF 입력, 새 colorKey replace의 이전 파일 정리, 메타데이터 제어문자 방어
+  - `$clothic-avatar-pipeline`: ImageGen 후보 생성 → chroma 제거 → 사람 승인 → 안전 등록 workflow
+  - `$clothic-quality-gate`: PRD·계정 격리·UX/접근성·에셋 비용·빌드 release audit workflow
+- 문서
+  - ASSET_PLAN, avatar README/pipeline/scale roadmap, DATA_MODEL, DESIGN_SYSTEM, TEST_PLAN, TODO, USER_ACTION_ITEMS 갱신
+- 빌드 상태
+  - Expo SDK 56 권장 패치 버전에 맞춰 Expo 계열 6개 패키지와 react-native-screens 갱신
+  - 비강제 `npm audit fix`로 프로덕션 high 취약점 제거
+
+### 리뷰에서 확인한 후속 위험
+
+- 계정 삭제 Edge Function은 auth 삭제 전에 데이터를 순차 삭제해 중간 실패 시 부분 유실 가능
+- fresh migration은 profiles 생성 전에 alter를 실행하는 순서 문제
+- 하루 한 코디/복수 코디와 mood·memo-only row 집계 정책 미확정
+- Web export asset 비용이 크며 full-canvas layer용 별도 썸네일 필요
+- textMuted/accent 버튼 색 대비와 주요 화면 loading/error 처리는 후속 개선 필요
+- 프로덕션 audit에는 Expo CLI/build 체인의 moderate 10건이 남음. npm의 자동 해소안은
+  Expo 46 강제 다운그레이드라 적용하지 않음
+- 개발 의존성에는 ESLint 전이 `brace-expansion` high가 남음. ESLint 10 강제 업그레이드가
+  필요하므로 Expo 호환성 확인 후 별도 처리
+
+### 검증
+
+- `npm run typecheck` → PASS
+- `npm run lint` → PASS
+- `npm run format:check` → PASS
+- `npm run avatar:check` → PASS (36 assets, 1024×1536, catalog/map/files synchronized)
+- `npm run expo:check` → PASS (Dependencies are up to date)
+- `npm run doctor` → PASS (21/21)
+- `avatar:add` dry-run / temp fixture 신규 등록 / replace / checker 실패 rollback → PASS
+- 손상 CRC/IHDR-only PNG 거부 / CRLF 등록 / 새 colorKey replace 이전 파일 정리 → PASS
+- 두 신규 skill `quick_validate.py` + 독립 forward test → PASS
+- Expo Web export → PASS (95 assets, 약 33MB, JS 2.2MB)
+- 인앱 Browser 세션이 없어 실제 클릭 기반 시각 회귀 검증은 미실행
+
 ## 2026-06-23 (feat: 잠자는 옷장에 현재 계절 코디 아이템 전체 표시)
 
 ### 처리 항목

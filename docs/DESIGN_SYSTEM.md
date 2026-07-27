@@ -69,9 +69,9 @@ const radius = {
 - focus 시 border=accent
 
 ### Avatar Viewer
-- bg=secondary, 비율 고정 1:2 (width:height)
+- bg=secondary, 원본 비율 2:3 (width:height)
 - 레이어 Image: `position: absolute`, 모두 동일한 크기
-- 레이어 순서: base → bottom → shoes → top → bag → accessory
+- 기본 레이어 순서: base → shoes → bottom → dress → top → outer → hair → accessory
 
 ### Tag / Chip
 - bg=primary, radius=full, paddingVertical=4, paddingHorizontal=10

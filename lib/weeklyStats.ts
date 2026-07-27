@@ -1,6 +1,7 @@
 import { resolvePaletteColor } from '../constants/colorPalette'
 import { isColorCategory, type CatalogItem } from '../constants/items'
 import { formatDateKey } from './date'
+import { getPrimaryStyledOutfits } from './outfitRecords'
 import type { Outfit } from '../stores/outfitStore'
 
 export interface WeekData {
@@ -26,8 +27,9 @@ export function buildWeekData(outfits: Outfit[], items: CatalogItem[], weekStart
   const dateKeys = weekDates.map(formatDateKey)
   const dateSet = new Set(dateKeys)
   const previousDateSet = new Set(getWeekDates(addDays(weekStart, -7)).map(formatDateKey))
-  const currentOutfits = outfits.filter((outfit) => dateSet.has(outfit.date))
-  const previousCount = outfits.filter((outfit) => previousDateSet.has(outfit.date)).length
+  const styledOutfits = getPrimaryStyledOutfits(outfits)
+  const currentOutfits = styledOutfits.filter((outfit) => dateSet.has(outfit.date))
+  const previousCount = styledOutfits.filter((outfit) => previousDateSet.has(outfit.date)).length
   const itemCounts = new Map<
     string,
     { id: string; label: string; color: string; imagePath?: string; count: number }

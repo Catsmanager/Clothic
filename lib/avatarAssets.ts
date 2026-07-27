@@ -9,6 +9,7 @@ interface AvatarItemPreview {
 
 interface AvatarItemAsset {
   source: ImageSourcePropType
+  previewSourceId?: string
   layerOrder?: number
   layerStyle?: ImageStyle
   preview?: AvatarItemPreview

@@ -1,0 +1,44 @@
+{
+  "id": "habit-journey-v3",
+  "version": 3,
+  "purpose": "Synthetic proxy for Clothic's first-record, recovery and repeat-record action journey",
+  "primaryMetric": {
+    "name": "flow_contract_assertions",
+    "direction": "higher",
+    "epsilon": 0,
+    "target": 12
+  },
+  "fixedContext": {
+    "timezone": "Asia/Seoul",
+    "clock": "2026-07-27T12:00:00+09:00",
+    "seed": 20260727,
+    "users": ["user-a", "user-b"],
+    "windowDays": 30
+  },
+  "fixtureFiles": [
+    "HARNESS/fixtures/habit-journey-v1.json",
+    "scripts/check-user-flow-contract.mjs",
+    "scripts/check-user-flow-contract-v2.mjs",
+    "scripts/check-user-flow-contract-v3.mjs",
+    "tests/retentionLogic.test.mjs",
+    "package.json"
+  ],
+  "commands": {
+    "primary": "npm run flow:check",
+    "core": "npm run test:core",
+    "static": "npm run verify:static",
+    "environment": "npm run verify:environment"
+  },
+  "requiredGates": [
+    "all v2 habit journey assertions pass",
+    "sleeping wardrobe recommendation preserves the selected item",
+    "challenge screen offers an explicit recording action",
+    "core tests pass",
+    "typecheck, lint, format and avatar checks pass"
+  ],
+  "limitations": [
+    "This is a deterministic product-flow proxy, not observed D7 retention.",
+    "Visual clarity and tap behavior require Browser or device verification.",
+    "The app has no push or background reminder producer in the MVP."
+  ]
+}

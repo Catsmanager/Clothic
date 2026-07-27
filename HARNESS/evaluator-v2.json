@@ -1,0 +1,44 @@
+{
+  "id": "habit-journey-v2",
+  "version": 2,
+  "purpose": "Synthetic proxy for Clothic's first-record to repeat-record journey and recovery states",
+  "primaryMetric": {
+    "name": "flow_contract_assertions",
+    "direction": "higher",
+    "epsilon": 0,
+    "target": 10
+  },
+  "fixedContext": {
+    "timezone": "Asia/Seoul",
+    "clock": "2026-07-27T12:00:00+09:00",
+    "seed": 20260727,
+    "users": ["user-a", "user-b"],
+    "windowDays": 30
+  },
+  "fixtureFiles": [
+    "HARNESS/fixtures/habit-journey-v1.json",
+    "scripts/check-user-flow-contract.mjs",
+    "scripts/check-user-flow-contract-v2.mjs",
+    "tests/retentionLogic.test.mjs",
+    "package.json"
+  ],
+  "commands": {
+    "primary": "npm run flow:check",
+    "core": "npm run test:core",
+    "static": "npm run verify:static",
+    "environment": "npm run verify:environment"
+  },
+  "requiredGates": [
+    "all v1 habit journey assertions pass",
+    "wardrobe loading and fetch failures are recoverable",
+    "notification errors are recoverable",
+    "unavailable reminder delivery is not promised",
+    "core tests pass",
+    "typecheck, lint, format and avatar checks pass"
+  ],
+  "limitations": [
+    "This is a deterministic product-flow proxy, not observed D7 retention.",
+    "The app has no push or background reminder producer in the MVP.",
+    "Browser interaction and device accessibility remain separate manual gates when no session is available."
+  ]
+}

@@ -9,14 +9,15 @@ Run a constrained self-improvement loop inspired by `karpathy/autoresearch`: def
 
 ## Start Here
 
-1. Translate the user's goal into a scalar metric and non-negotiable gates.
-2. Identify the smallest editable surface for the next experiment.
-3. Record a baseline before editing.
-4. Make one candidate change.
-5. Run the exact same evaluator against the candidate.
-6. Adopt only if the candidate passes all gates and improves the target metric.
-7. Commit and push adopted work when the user asked for that behavior and the environment permits it.
-8. Continue with the next hypothesis until the user explicitly says to stop, the platform stops the turn, or no meaningful experiment can be run.
+1. Translate the user's goal into one scalar proxy metric and non-negotiable gates. Label synthetic product metrics as proxies, not observed retention.
+2. Create or select a versioned evaluator manifest whose fixed clock, timezone, seed, fixtures, command, direction, epsilon, and gates are explicit.
+3. Identify the smallest editable surface for the next experiment.
+4. Record a baseline before editing.
+5. Make one candidate change.
+6. Run the exact same manifest, fixtures, command, repeat count, and metric parser against the candidate.
+7. Adopt only if the candidate passes all gates and improves the target metric by more than epsilon.
+8. Commit and push adopted work when the user asked for that behavior and the environment permits it.
+9. Continue until a stop condition is reached.
 
 Use [references/github-projects.md](references/github-projects.md) when you need the current map of related AutoResearch/self-improvement projects and search terms to refresh it.
 
@@ -26,7 +27,9 @@ Keep the loop honest:
 
 - **Editable surface**: one feature, file cluster, prompt, skill section, or benchmark target per iteration.
 - **Frozen evaluator**: do not change tests, scoring code, fixtures, or benchmark data in the same iteration unless the experiment is specifically about improving the evaluator.
+- **Frozen identity**: use a schema-v4 manifest for command, metric parser, direction, epsilon, repeat, timeout, CWD, environment, and gates. The runner hashes the manifest, fixtures, and itself, then rejects runtime or environment drift before executing a candidate.
 - **Single primary metric**: choose one direction, such as fewer failing tests, lower latency, smaller bundle, higher eval score, fewer lint errors, better screenshot diff, or lower validation loss.
+- **Metric completeness**: treat a missing or non-numeric primary metric as evaluator failure, never as a successful run.
 - **Guardrail gates**: include correctness tests, type checks, lint, security checks, visual verification, or manual inspection when they are relevant.
 - **Revert rule**: if a candidate fails a gate or does not improve the metric, revert only that candidate's changes and keep the experiment log.
 - **Adoption rule**: if the candidate improves the primary metric and preserves gates, keep it, document the evidence, then commit/push if requested.
@@ -45,14 +48,29 @@ Maintain `.autoresearch/experiments.jsonl` or `.autoresearch/notes.md` in the re
 - adopted/rejected decision
 - commit hash if adopted
 
-For lightweight command timing and pass/fail measurement, use:
+Use a repo-contained schema-v4 manifest. Pass only experiment metadata and repo-contained editable paths on the CLI:
 
 ```bash
 python .codex/skills/karpathy-autoresearch-loop/scripts/eval_variant.py \
-  --label baseline --repeat 3 -- npm test
+  --experiment-id first-record-cta-v1 \
+  --label baseline \
+  --hypothesis "An explicit CTA improves the deterministic flow score" \
+  --surface components/AvatarCard.tsx \
+  --surface 'app/(tabs)/index.tsx' \
+  --manifest HARNESS/evaluator-v4.json
+
+python .codex/skills/karpathy-autoresearch-loop/scripts/eval_variant.py \
+  --experiment-id first-record-cta-v1 \
+  --label candidate \
+  --hypothesis "An explicit CTA improves the deterministic flow score" \
+  --surface components/AvatarCard.tsx \
+  --surface 'app/(tabs)/index.tsx' \
+  --manifest HARNESS/evaluator-v4.json
 ```
 
-Use `--metric-regex` when command output contains a numeric score.
+Keep the manifest and output under the repository; output must be a direct `.autoresearch/*.jsonl` file. The runner requires exactly one finite metric match, runs every manifest gate, kills the process group on timeout, locks the append-only log, and records evaluator, runtime, environment, worktree, and surface hashes. A candidate is adopted only when its command and gates pass and its improvement is greater than epsilon.
+
+Treat `HARNESS/evaluator.json`, `evaluator-v2.json`, and `evaluator-v3.json` plus their historical log entries as legacy non-reproducible evidence. Do not pair new candidates with them. Use `HARNESS/evaluator-v4.json` or create a later schema-v4 manifest.
 
 ## A/B Testing Patterns
 
@@ -81,4 +99,12 @@ For rejected candidates, restore only files touched by that candidate. Do not us
 
 ## Stop Conditions
 
-The user's explicit stop command takes priority. Otherwise, keep making concrete progress while feasible. If an iteration is impossible because the evaluator is missing, create the smallest reasonable evaluator first, then continue the loop.
+The user's explicit stop command takes priority. Before a campaign, choose explicit limits; defaults are:
+
+- target metric or all required assertions reached
+- three consecutive rejected candidates
+- six iterations
+- 90 minutes of wall-clock work
+- a product-policy decision is required before an expected result can be frozen
+
+If an evaluator is missing, make evaluator creation its own iteration, validate it against one known-pass and one known-fail fixture, then freeze it before changing the candidate surface.

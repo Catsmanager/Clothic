@@ -54,7 +54,15 @@ export default function NotificationCenterScreen() {
         <View style={styles.empty}>
           <Feather name="alert-circle" size={32} color={colors.textMuted} />
           <Text style={styles.emptyText}>알림을 불러오지 못했어요</Text>
-          <Text style={styles.errorText}>{error}</Text>
+          <Text style={styles.errorText}>연결을 확인하고 다시 시도해주세요.</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => fetchNotifications()}
+            accessibilityRole="button"
+            accessibilityLabel="알림 다시 불러오기"
+          >
+            <Text style={styles.retryText}>다시 시도</Text>
+          </TouchableOpacity>
         </View>
       ) : notifications.length === 0 ? (
         <View style={styles.empty}>
@@ -112,5 +120,19 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: colors.textMuted,
     textAlign: 'center',
+  },
+  retryButton: {
+    minHeight: 44,
+    marginTop: spacing.xs,
+    paddingHorizontal: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 999,
+    backgroundColor: colors.text,
+  },
+  retryText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.white,
   },
 })

@@ -5,14 +5,24 @@ import {
   type SortOrder,
 } from '../constants/sleepingWardrobe'
 import { buildSleepingItems } from '../lib/sleepingWardrobe'
+import { parseDateKey } from '../lib/date'
 import { buildCatalogItems, useItemStore } from '../stores/itemStore'
 import { useOutfitStore } from '../stores/outfitStore'
+import { useCurrentDateKey } from './useCurrentDateKey'
 
 export function useSleepingWardrobe() {
   const outfits = useOutfitStore((s) => s.outfits)
+  const outfitLoading = useOutfitStore((s) => s.loading)
+  const outfitLoaded = useOutfitStore((s) => s.loaded)
+  const outfitError = useOutfitStore((s) => s.error)
   const fetchOutfits = useOutfitStore((s) => s.fetchOutfits)
   const userItems = useItemStore((s) => s.items)
+  const itemLoading = useItemStore((s) => s.loading)
+  const itemLoaded = useItemStore((s) => s.loaded)
+  const itemError = useItemStore((s) => s.error)
   const fetchItems = useItemStore((s) => s.fetchItems)
+  const currentDateKey = useCurrentDateKey()
+  const currentDate = useMemo(() => parseDateKey(currentDateKey) ?? new Date(), [currentDateKey])
 
   const [selectedCategory, setSelectedCategory] = useState<SleepingCategory>('전체')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
@@ -24,8 +34,8 @@ export function useSleepingWardrobe() {
   }, [fetchItems, fetchOutfits])
 
   const sleepingItems = useMemo(
-    () => buildSleepingItems(outfits, buildCatalogItems(userItems)),
-    [outfits, userItems]
+    () => buildSleepingItems(outfits, buildCatalogItems(userItems), currentDate),
+    [currentDate, outfits, userItems]
   )
 
   // '잠자는 옷 N벌' 헤드라인: 현재 계절 아이템 중 30일+(tier === 'sleeping')만 센다.
@@ -93,12 +103,20 @@ export function useSleepingWardrobe() {
     setSelectedTags([])
   }, [])
 
+  const retry = useCallback(() => {
+    void Promise.all([fetchOutfits(), fetchItems()])
+  }, [fetchItems, fetchOutfits])
+
   return {
     activeFilterCount: selectedTags.length + (selectedCategory === '전체' ? 0 : 1),
     availableTags,
     clearFilters,
     counts,
+    error: outfitError ?? itemError,
     items,
+    loading: outfitLoading || itemLoading,
+    ready: outfitLoaded && itemLoaded,
+    retry,
     selectedCategory,
     selectedTags,
     setSelectedCategory: selectCategory,

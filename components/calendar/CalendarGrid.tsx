@@ -153,11 +153,11 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: '700',
   },
-  // 아바타(원본 1:2 portrait)를 셀의 남은 세로 공간에 맞춰 채운다.
+  // 아바타(원본 2:3 portrait)를 셀의 남은 세로 공간에 맞춰 채운다.
   // 박스를 portrait 비율로 두어 contain 렌더 시 아바타가 작게 보이지 않도록 한다.
   miniAvatar: {
     flex: 1,
-    aspectRatio: 887 / 1774,
+    aspectRatio: 2 / 3,
     marginTop: 2,
     marginBottom: 4,
     alignSelf: 'center',

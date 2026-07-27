@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { Feather } from '@expo/vector-icons'
+import CoreDataState from '../../components/CoreDataState'
 import SleepingBottomBanner from '../../components/sleeping-wardrobe/SleepingBottomBanner'
 import SleepingCategoryTabs from '../../components/sleeping-wardrobe/SleepingCategoryTabs'
 import SleepingFilterSheet from '../../components/sleeping-wardrobe/SleepingFilterSheet'
@@ -24,42 +25,49 @@ export default function WardrobeScreen() {
     <SafeAreaView style={styles.container}>
       <WardrobeHeader onHelpPress={() => setHelpVisible(true)} />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        <Pressable
-          style={({ pressed }) => [styles.savedOutfitsCard, pressed && styles.pressedCard]}
-          onPress={() => router.push('/outfits')}
-          accessibilityRole="button"
-          accessibilityLabel="저장한 코디 보기"
-          accessibilityHint="기록해둔 코디 목록 화면으로 이동합니다."
-        >
-          <View style={styles.savedOutfitsIcon}>
-            <Feather name="image" size={20} color={colors.text} />
-          </View>
-          <View style={styles.savedOutfitsText}>
-            <Text style={styles.savedOutfitsTitle}>저장한 코디</Text>
-            <Text style={styles.savedOutfitsSubtitle}>기록해둔 코디를 한눈에 모아봐요.</Text>
-          </View>
-          <Feather name="chevron-right" size={20} color={colors.textMuted} />
-        </Pressable>
-        <SleepingSummaryBanner totalCount={wardrobe.sleepingCount} />
-        <SleepingCategoryTabs
-          counts={wardrobe.counts}
-          selectedCategory={wardrobe.selectedCategory}
-          onCategoryPress={wardrobe.setSelectedCategory}
-        />
-        <SleepingToolbar
-          activeFilterCount={wardrobe.activeFilterCount}
-          sortOrder={wardrobe.sortOrder}
-          onFilterPress={() => setFilterVisible(true)}
-          onSortPress={wardrobe.toggleSort}
-        />
-        <SleepingItemList
-          items={wardrobe.items}
-          hasActiveFilter={wardrobe.activeFilterCount > 0}
-          onClearFilters={wardrobe.clearFilters}
-        />
-        <SleepingBottomBanner />
-      </ScrollView>
+      <CoreDataState
+        loading={wardrobe.loading}
+        error={wardrobe.error}
+        onRetry={wardrobe.retry}
+        ready={wardrobe.ready}
+      >
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+          <Pressable
+            style={({ pressed }) => [styles.savedOutfitsCard, pressed && styles.pressedCard]}
+            onPress={() => router.push('/outfits')}
+            accessibilityRole="button"
+            accessibilityLabel="저장한 코디 보기"
+            accessibilityHint="기록해둔 코디 목록 화면으로 이동합니다."
+          >
+            <View style={styles.savedOutfitsIcon}>
+              <Feather name="image" size={20} color={colors.text} />
+            </View>
+            <View style={styles.savedOutfitsText}>
+              <Text style={styles.savedOutfitsTitle}>저장한 코디</Text>
+              <Text style={styles.savedOutfitsSubtitle}>기록해둔 코디를 한눈에 모아봐요.</Text>
+            </View>
+            <Feather name="chevron-right" size={20} color={colors.textMuted} />
+          </Pressable>
+          <SleepingSummaryBanner totalCount={wardrobe.sleepingCount} />
+          <SleepingCategoryTabs
+            counts={wardrobe.counts}
+            selectedCategory={wardrobe.selectedCategory}
+            onCategoryPress={wardrobe.setSelectedCategory}
+          />
+          <SleepingToolbar
+            activeFilterCount={wardrobe.activeFilterCount}
+            sortOrder={wardrobe.sortOrder}
+            onFilterPress={() => setFilterVisible(true)}
+            onSortPress={wardrobe.toggleSort}
+          />
+          <SleepingItemList
+            items={wardrobe.items}
+            hasActiveFilter={wardrobe.activeFilterCount > 0}
+            onClearFilters={wardrobe.clearFilters}
+          />
+          <SleepingBottomBanner suggestedItem={wardrobe.items[0]} />
+        </ScrollView>
+      </CoreDataState>
       <SleepingFilterSheet
         availableTags={wardrobe.availableTags}
         selectedCategory={wardrobe.selectedCategory}

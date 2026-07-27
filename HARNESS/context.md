@@ -4,12 +4,22 @@
 - 어떤 docs 파일을 사용할지
 - 어떤 source 파일을 사용할지
 - 어떤 기존 코드를 참고할지
+- 사용자가 실제로 밟는 entry → action → persisted result → recovery → return 경로
 ## 제외할 정보
 - 이번 작업과 무관한 파일
 - MVP 범위 밖 기능
 - 과거에 폐기된 결정
+
+## 측정 컨텍스트
+- 현재 브랜치와 baseline Git SHA
+- 실험 ID와 수정 가능한 파일 범위(editable surface)
+- schema-v4 evaluator manifest/fixture 경로와 evaluator·runtime·environment bundle hash
+- primary metric의 방향·epsilon·목표값
+- 필수 gate와 현재 iteration/연속 기각 횟수
 ## 규칙
 - 모든 파일을 무작정 읽지 않는다.
 - 필요한 정보만 사용한다.
 - 문서 우선순위: PRD(범위·기능) > ADR(기술 결정) > 기타 docs.
 - 문서와 코드가 서로 다르면 임의로 맞추지 말고 어느 쪽을 고칠지 먼저 확인받는다.
+- 실제 D7 리텐션 데이터가 없으면 합성 유저 플로우 점수는 `retention proxy`로만 표현한다.
+- v1-v3 evaluator와 그 experiment 기록은 비재현 legacy로만 읽고 새 baseline/candidate 비교에 사용하지 않는다.

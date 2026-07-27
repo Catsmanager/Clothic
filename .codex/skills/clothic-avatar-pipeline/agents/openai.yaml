@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Clothic Avatar Pipeline'
+  short_description: 'AI-assisted avatar asset generation and safe registration'
+  default_prompt: 'Use $clothic-avatar-pipeline to generate, validate, and register a new Clothic avatar asset.'

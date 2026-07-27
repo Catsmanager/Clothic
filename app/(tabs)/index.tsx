@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, View, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import HomeHeader from '../../components/HomeHeader'
 import DateWeatherBar from '../../components/DateWeatherBar'
 import HomeMenuSheet from '../../components/HomeMenuSheet'
 import HomeBackgroundSheet from '../../components/HomeBackgroundSheet'
 import AvatarCard from '../../components/AvatarCard'
+import CoreDataState from '../../components/CoreDataState'
 import MoodMemoCard from '../../components/MoodMemoCard'
 import TodayRecordSheet from '../../components/TodayRecordSheet'
 import {
@@ -16,7 +17,8 @@ import {
 } from '../../constants/avatarBackgrounds'
 import { colors } from '../../constants/colors'
 import { spacing } from '../../constants/spacing'
-import { getTodayDateKey } from '../../lib/date'
+import { useCurrentDateKey } from '../../hooks/useCurrentDateKey'
+import { indexPrimaryStyledOutfitsByDate } from '../../lib/outfitRecords'
 import { type Mood, useOutfitStore } from '../../stores/outfitStore'
 import { buildCatalogItems, findCatalogItemById, useItemStore } from '../../stores/itemStore'
 
@@ -30,11 +32,17 @@ export default function HomeScreen() {
   const handledSavedFeedbackId = useRef<string | null>(null)
   const { savedOutfit } = useLocalSearchParams<{ savedOutfit?: string | string[] }>()
   const outfits = useOutfitStore((s) => s.outfits)
+  const outfitLoading = useOutfitStore((s) => s.loading)
+  const outfitLoaded = useOutfitStore((s) => s.loaded)
+  const outfitError = useOutfitStore((s) => s.error)
   const fetchOutfits = useOutfitStore((s) => s.fetchOutfits)
-  const addOutfit = useOutfitStore((s) => s.addOutfit)
   const updateDiary = useOutfitStore((s) => s.updateDiary)
   const userItems = useItemStore((s) => s.items)
+  const itemLoading = useItemStore((s) => s.loading)
+  const itemLoaded = useItemStore((s) => s.loaded)
+  const itemError = useItemStore((s) => s.error)
   const fetchItems = useItemStore((s) => s.fetchItems)
+  const currentDateKey = useCurrentDateKey()
 
   useEffect(() => {
     fetchOutfits()
@@ -56,8 +64,8 @@ export default function HomeScreen() {
   }, [savedOutfit])
 
   const todayOutfit = useMemo(
-    () => outfits.find((outfit) => outfit.date === getTodayDateKey()) ?? null,
-    [outfits]
+    () => indexPrimaryStyledOutfitsByDate(outfits).get(currentDateKey) ?? null,
+    [currentDateKey, outfits]
   )
 
   // 오늘 코디가 있으면 착용 아이템을 카탈로그로 풀어 아바타에 입힌다. 없으면 null(빈 상태).
@@ -69,18 +77,23 @@ export default function HomeScreen() {
       .filter((item): item is NonNullable<typeof item> => item != null)
   }, [todayOutfit, userItems])
   const selectedBackground = useMemo(() => getAvatarBackground(backgroundId), [backgroundId])
+
+  function openDiaryEditor(mode: 'mood' | 'memo') {
+    if (!todayOutfit) {
+      router.push('/(tabs)/create')
+      return
+    }
+    setRecordingMode(mode)
+  }
+
   async function saveMood(mood: Mood | null) {
+    if (!todayOutfit) {
+      setRecordingMode(null)
+      router.push('/(tabs)/create')
+      return
+    }
     setRecordSaving(true)
-    const result = todayOutfit
-      ? await updateDiary(todayOutfit.id, { mood })
-      : await addOutfit({
-          date: getTodayDateKey(),
-          mood,
-          memo: null,
-          weather: null,
-          itemIds: [],
-          itemColors: {},
-        })
+    const result = await updateDiary(todayOutfit.id, { mood })
     setRecordSaving(false)
     if (result.error) {
       Alert.alert('저장 실패', result.error)
@@ -90,17 +103,13 @@ export default function HomeScreen() {
   }
 
   async function saveMemo(memo: string | null) {
+    if (!todayOutfit) {
+      setRecordingMode(null)
+      router.push('/(tabs)/create')
+      return
+    }
     setRecordSaving(true)
-    const result = todayOutfit
-      ? await updateDiary(todayOutfit.id, { memo })
-      : await addOutfit({
-          date: getTodayDateKey(),
-          mood: null,
-          memo,
-          weather: null,
-          itemIds: [],
-          itemColors: {},
-        })
+    const result = await updateDiary(todayOutfit.id, { memo })
     setRecordSaving(false)
     if (result.error) {
       Alert.alert('저장 실패', result.error)
@@ -113,22 +122,36 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.screen} edges={['top']}>
       <HomeHeader onMenuPress={() => setMenuVisible(true)} />
       <DateWeatherBar />
-      <View style={styles.content}>
-        <View style={styles.avatarWrap}>
-          <AvatarCard
-            items={todayItems}
-            savedFeedback={showSavedFeedback}
-            background={selectedBackground}
-            onBackgroundPress={() => setBackgroundSheetVisible(true)}
+      <CoreDataState
+        loading={outfitLoading || itemLoading}
+        error={outfitError ?? itemError}
+        ready={outfitLoaded && itemLoaded}
+        onRetry={() => {
+          void Promise.all([fetchOutfits(), fetchItems()])
+        }}
+      >
+        <View style={styles.content}>
+          <View style={styles.avatarWrap}>
+            <AvatarCard
+              items={todayItems}
+              savedFeedback={showSavedFeedback}
+              background={selectedBackground}
+              onBackgroundPress={() => setBackgroundSheetVisible(true)}
+              onRecordPress={() => router.push('/(tabs)/create')}
+              onOutfitPress={() => {
+                if (todayOutfit) router.push(`/outfit/${todayOutfit.id}`)
+              }}
+            />
+          </View>
+          <MoodMemoCard
+            hasOutfit={todayOutfit != null}
+            mood={todayOutfit?.mood ?? null}
+            memo={todayOutfit?.memo ?? null}
+            onMoodPress={() => openDiaryEditor('mood')}
+            onMemoPress={() => openDiaryEditor('memo')}
           />
         </View>
-        <MoodMemoCard
-          mood={todayOutfit?.mood ?? null}
-          memo={todayOutfit?.memo ?? null}
-          onMoodPress={() => setRecordingMode('mood')}
-          onMemoPress={() => setRecordingMode('memo')}
-        />
-      </View>
+      </CoreDataState>
       <HomeMenuSheet visible={menuVisible} onClose={() => setMenuVisible(false)} />
       <HomeBackgroundSheet
         visible={backgroundSheetVisible}

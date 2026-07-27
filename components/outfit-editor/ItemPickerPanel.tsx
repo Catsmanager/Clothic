@@ -52,6 +52,9 @@ export default function ItemPickerPanel({
               key={subCategory}
               style={[styles.subTab, activeSubCategory === subCategory && styles.subTabActive]}
               onPress={() => onSubCategoryPress(subCategory)}
+              accessibilityRole="button"
+              accessibilityLabel={`${subCategory} 하위 분류`}
+              accessibilityState={{ selected: activeSubCategory === subCategory }}
             >
               <Text
                 style={[
@@ -96,6 +99,9 @@ export default function ItemPickerPanel({
               isEquipped(equipped, item) && styles.itemCardSelected,
             ]}
             onPress={() => onItemPress(item)}
+            accessibilityRole="button"
+            accessibilityLabel={`${item.name} ${isEquipped(equipped, item) ? '해제' : '착용'}`}
+            accessibilityState={{ selected: isEquipped(equipped, item) }}
           >
             <ItemPreview item={item} itemSize={itemSize} />
           </TouchableOpacity>

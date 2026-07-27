@@ -32,34 +32,28 @@
 - [x] 카카오 OAuth Supabase 연동 설정  ← 코드 완료. Supabase/Kakao 콘솔 기본 설정 완료, 인증창 도달 확인. 잔여: KOE205 — account_email은 Supabase(GoTrue)가 기본 주입하므로 코드 제거 불가, **카카오 콘솔 동의항목에서 account_email "선택 동의" 활성화**로 해소(사용자). 웹 SecureStore 크래시는 lib/onboarding.ts에서 수정 완료
 
 ## Phase 3: 에셋 제작
-> ⚠️ 제작 규칙(2026-06-11 결정): 모든 의류 PNG는 **"틴트 가능한 구조"**로 제작한다.
-> 색을 PNG에 굽지 말고, **색 영역 레이어 + 음영/아웃라인 오버레이 레이어**를 분리한다.
-> 색 영역은 흰색/회색 단색으로 그려 `tintColor`로 어떤 색이든 입힐 수 있게 하고,
-> 음영·아웃라인은 별도 오버레이로 얹어 단색 뭉개짐을 막는다.
-> 이렇게 해두면 향후 "옷 색 선택" 기능을 에셋 재제작 없이 코드만으로 붙일 수 있다.
-> (색을 PNG에 구우면 색 선택 기능 추가 시 33종 전부 재제작 필요)
-- [x] 에셋 폴더 구조 + 네이밍 가이드 (assets/avatar/{cat}/, README 체크리스트)
-- [x] 아바타 base 이미지 제작 (64×128px)  (base_female_01.png)
-- [ ] 상의 10종 제작  ← 1종 완료(top_002). 나머지 PNG 미제작 (디자이너/툴 작업 필요)
-- [ ] 하의 8종 제작  ← 3종 완료(bottom_009/010/011)
-- [ ] 신발 6종 제작  ← 3종 완료(shoes_001/002/007)
-- [ ] 헤어 제작  ← 2026-06-12 카테고리 개편: 가방 카테고리를 헤어로 교체(상의 위 레이어), 가방은 악세서리 서브카테고리로 이동 (이슈 #76)
-- [ ] 액세서리 제작 (가방 포함)  ← 미제작. 빈 카테고리는 "추후 업데이트" 문구 표시
-- [x] constants/items.ts 에 메타데이터 등록  ← 2026-06-12 목데이터 제거, 실제 에셋 보유 7종만 등록
-- [ ] 상의 10종 제작  ← 틴트 구조(색 영역+음영 분리)로 제작. 경로는 items.ts에 예약됨
-- [ ] 하의 8종 제작  ← 틴트 구조로 제작
-- [ ] 신발 6종 제작  ← 틴트 구조로 제작
-- [ ] 가방 5종 제작  ← 틴트 구조로 제작
-- [ ] 액세서리 4종 제작 (none 포함)  ← 틴트 구조로 제작
-- [x] constants/items.ts 에 메타데이터 등록  ← 33종, imagePath는 문자열 경로(빌드 안전)
+> 2026-07-26 실제 파일 기준: canonical canvas는 **1024×1536px (2:3) RGBA full canvas**다.
+> 현재 에셋은 완성형 단일 PNG이며 tint mask/overlay는 구현되지 않았다. 향후 tint 구조를
+> 채택할지 결정하기 전에는 신규 에셋에 서로 다른 방식을 섞지 않는다.
+- [x] 에셋 폴더 구조 + 현재 규격/네이밍 가이드 동기화
+- [x] 아바타 base 1종 + 실제 착장 레이어 36종 등록
+  - top 8 / outer 2 / dress 2 / bottom 8 / shoes 4 / hair 6 / accessory 6
+- [x] catalog ↔ asset map ↔ disk 동기화 검사 (`npm run avatar:check`)
+- [x] cross-platform avatar 등록기 (dry-run, seasons, 현 카테고리, rollback)
+- [x] strict CLI + 동일 카테고리 preview 복사 + PNG alpha/component 품질 gate 회귀 테스트
+- [x] 직접 드로잉 없는 ImageGen 후보 생성·검수·등록 skill (`$clothic-avatar-pipeline`)
+- [ ] 카테고리별 ImageGen 3종 파일럿 후 스타일 기준 확정
+- [ ] full-canvas 레이어와 256×256 선택 썸네일 분리
+- [ ] 에셋 provenance(제작자/도구/프롬프트/권리/승인) manifest 도입
+- [ ] tint mask + shade/outline overlay 채택 여부 결정
 
 ## Phase 4: 핵심 화면
 - [x] 온보딩 화면  ← 2026-05-31 6컷 시안 반영 재작업 (LOG 참조)
 - [x] 홈 화면
 - [x] 코디 생성 화면 (아바타 레이어 렌더러)
-- [x] 아이템 선택 (카테고리별 탭)
+- [x] 아이템 선택 (카테고리별 탭 + 전체 보기 선택 결과 편집기에 반영)
 - [x] 코디 저장 (mood, weather, memo)  ← components/SaveOutfitSheet.tsx + outfitStore.addOutfit + create.tsx 연결. Supabase insert. 잔여: is_favorite 마이그레이션·실키 필요
-- [x] 코디 목록 / 상세 조회  ← app/outfits.tsx·app/outfit/[id].tsx·stores/outfitStore.ts (Supabase 연동, 즐겨찾기 포함). 잔여: is_favorite 컬럼 마이그레이션(사용자), 저장 기능 미구현이라 실데이터 빈 상태
+- [x] 코디 목록 / 상세 조회  ← Supabase 연동, 즐겨찾기, 상세 딥링크/새로고침 복구. 잔여: is_favorite 컬럼 마이그레이션(사용자)
 - [x] 캘린더 화면  (Supabase outfits 기반)
 - [x] 월간 통계 화면  (Supabase outfits 기반 클라이언트 계산)
 - [x] 잠자는 옷장 화면  ← 2026-06-12 mock 제거, outfits 실데이터 역산으로 전환 (이슈 #80)
@@ -82,7 +76,17 @@
 
 ## Phase 5: 검증 및 출시
 - [ ] TEST_PLAN.md 기준 전체 검증
-- [x] CI 구축 (GitHub Actions: typecheck/lint/format)  ← .github/workflows/ci.yml
+- [x] CI 구축 (정적 검사 + core logic + versioned habit-flow proxy)  ← `.github/workflows/ci.yml`, `HARNESS/evaluator-v4.json`
+- [x] 자정/foreground 날짜 갱신 + diary-only 통계 제외 + 핵심 화면 loading/error/retry
+- [x] 같은 날짜 복수 row의 대표 코디 결정론·통계 중복 방지 + 저장 이중 탭 guard
+- [x] 홈 첫 기록/상세 CTA + 잠자는 옷 추천 handoff + 챌린지 기록 CTA
+- [x] AutoResearch schema-v4 runner(manifest-authoritative gate/hash/timeout/pair preflight)와 append-only 실험 로그
+- [ ] 실제 D1/D7 반복 기록률 측정 정책·개인정보 범위 결정
+- [x] Expo SDK 의존성 정합성 (`expo:check`, `expo-doctor` 21/21)
+- [ ] Expo/ESLint upstream audit 잔여 경고 재점검
+  - production: Expo CLI/build chain moderate 10건
+  - development: ESLint 전이 `brace-expansion` high
+  - 현재 자동 해소안은 Expo 46 다운그레이드/ESLint 10 강제 업그레이드라 미적용
 - [~] Expo EAS Build 설정  ← eas.json·eas-build.yml·docs/CICD.md 작성. 실제 빌드는 Expo/Apple 계정 필요(사용자)
 - [ ] App Store 제출  ← docs/CICD.md 체크리스트 참조 (Bundle ID com.clothic.app)
 - [ ] Google Play 제출

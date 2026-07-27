@@ -3,17 +3,25 @@ import { StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { colors } from '../../constants/colors'
+import CoreDataState from '../../components/CoreDataState'
 import CalendarGrid from '../../components/calendar/CalendarGrid'
 import CalendarHeader from '../../components/calendar/CalendarHeader'
 import SelectedOutfitCard from '../../components/calendar/SelectedOutfitCard'
 import { useCalendarMonth } from '../../hooks/useCalendarMonth'
+import { indexPrimaryStyledOutfitsByDate } from '../../lib/outfitRecords'
 import { buildCatalogItems, findCatalogItemById, useItemStore } from '../../stores/itemStore'
 import { useOutfitStore } from '../../stores/outfitStore'
 
 export default function CalendarScreen() {
   const outfits = useOutfitStore((s) => s.outfits)
+  const outfitLoading = useOutfitStore((s) => s.loading)
+  const outfitLoaded = useOutfitStore((s) => s.loaded)
+  const outfitError = useOutfitStore((s) => s.error)
   const fetchOutfits = useOutfitStore((s) => s.fetchOutfits)
   const items = useItemStore((s) => s.items)
+  const itemLoading = useItemStore((s) => s.loading)
+  const itemLoaded = useItemStore((s) => s.loaded)
+  const itemError = useItemStore((s) => s.error)
   const fetchItems = useItemStore((s) => s.fetchItems)
   const { cells, month, nextMonth, prevMonth, selectedKey, setSelectedKey, todayKey, year } =
     useCalendarMonth()
@@ -26,11 +34,7 @@ export default function CalendarScreen() {
   const catalogItems = useMemo(() => buildCatalogItems(items), [items])
 
   const outfitsByDate = useMemo(() => {
-    const latestByDate = new Map<string, (typeof outfits)[number]>()
-    outfits.forEach((outfit) => {
-      if (!latestByDate.has(outfit.date)) latestByDate.set(outfit.date, outfit)
-    })
-    return latestByDate
+    return indexPrimaryStyledOutfitsByDate(outfits)
   }, [outfits])
   const selectedOutfit = outfitsByDate.get(selectedKey) ?? null
   const selectedItems = useMemo(
@@ -44,22 +48,31 @@ export default function CalendarScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <CalendarHeader month={month} year={year} onNextMonth={nextMonth} onPrevMonth={prevMonth} />
-      <CalendarGrid
-        cells={cells}
-        catalogItems={catalogItems}
-        outfitsByDate={outfitsByDate}
-        selectedKey={selectedKey}
-        todayKey={todayKey}
-        onSelectDate={setSelectedKey}
-      />
-      {selectedOutfit && (
-        <SelectedOutfitCard
-          dateKey={selectedKey}
-          items={selectedItems}
-          outfit={selectedOutfit}
-          onPress={() => router.push(`/outfit/${selectedOutfit.id}`)}
+      <CoreDataState
+        loading={outfitLoading || itemLoading}
+        error={outfitError ?? itemError}
+        ready={outfitLoaded && itemLoaded}
+        onRetry={() => {
+          void Promise.all([fetchOutfits(), fetchItems()])
+        }}
+      >
+        <CalendarGrid
+          cells={cells}
+          catalogItems={catalogItems}
+          outfitsByDate={outfitsByDate}
+          selectedKey={selectedKey}
+          todayKey={todayKey}
+          onSelectDate={setSelectedKey}
         />
-      )}
+        {selectedOutfit && (
+          <SelectedOutfitCard
+            dateKey={selectedKey}
+            items={selectedItems}
+            outfit={selectedOutfit}
+            onPress={() => router.push(`/outfit/${selectedOutfit.id}`)}
+          />
+        )}
+      </CoreDataState>
     </SafeAreaView>
   )
 }

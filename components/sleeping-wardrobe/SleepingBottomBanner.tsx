@@ -2,9 +2,29 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { router } from 'expo-router'
 import { Feather } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
+import type { SleepingItem } from '../../constants/sleepingWardrobe'
 import { radius, spacing } from '../../constants/spacing'
 
-export default function SleepingBottomBanner() {
+interface Props {
+  suggestedItem?: Pick<SleepingItem, 'id' | 'name'>
+}
+
+export default function SleepingBottomBanner({ suggestedItem }: Props) {
+  function startSuggestedOutfit() {
+    if (!suggestedItem) {
+      router.push('/(tabs)/create')
+      return
+    }
+
+    router.push({
+      pathname: '/(tabs)/create',
+      params: {
+        selectedItemId: suggestedItem.id,
+        selectionToken: Date.now().toString(),
+      },
+    })
+  }
+
   return (
     <View style={styles.bottomBanner}>
       <View style={styles.bottomBannerLeft}>
@@ -13,10 +33,21 @@ export default function SleepingBottomBanner() {
         </View>
         <View>
           <Text style={styles.bottomBannerTitle}>잠자는 옷으로 새 코디 만들기</Text>
-          <Text style={styles.bottomBannerDesc}>아이템을 골라 바로 조합해보세요.</Text>
+          <Text style={styles.bottomBannerDesc} numberOfLines={1}>
+            {suggestedItem
+              ? `${suggestedItem.name}을 입힌 상태로 시작해요.`
+              : '아이템을 골라 바로 조합해보세요.'}
+          </Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.recommendButton} onPress={() => router.push('/create')}>
+      <TouchableOpacity
+        style={styles.recommendButton}
+        onPress={startSuggestedOutfit}
+        accessibilityRole="button"
+        accessibilityLabel={
+          suggestedItem ? `${suggestedItem.name}으로 새 코디 시작하기` : '새 코디 시작하기'
+        }
+      >
         <Text style={styles.recommendButtonText}>시작</Text>
         <Feather name="arrow-right" size={14} color={colors.white} />
       </TouchableOpacity>

@@ -1,64 +1,61 @@
-# 아바타 에셋 제작 체크리스트
+# Clothic 아바타 에셋 규격
 
-> 이 폴더에 들어갈 PNG 스프라이트 명세. `docs/ASSET_PLAN.md` 와 `constants/items.ts` 의 `imagePath` 가 이 목록과 1:1로 일치해야 한다.
+`assets/avatar/base/base_female_01.png`를 canonical canvas로 사용한다.
 
 ## 공통 규격
-- 캔버스: 64×128px (2x: 128×256px, `@2x` 접미사)
-- 형식: PNG, 투명 배경, 32비트 RGBA
-- 모든 레이어 동일 캔버스 크기 (정렬 일치)
-- 배경 있는 PNG 금지
 
-## 레이어 렌더 순서 (아래 → 위)
-1. base → 2. bottom → 3. shoes → 4. top → 5. bag → 6. accessory
-(`constants/items.ts` 의 `RENDER_ORDER` 와 동일)
+- 캔버스: 1024×1536px (2:3)
+- 형식: 8-bit RGBA PNG
+- 배경: 레이어 바깥은 투명
+- 정렬: 모든 착장 레이어의 좌상단 기준점은 `(0, 0)`
+- 범위: 의상만 crop하지 않고 full canvas를 유지
+- 앱 등록 목록: `constants/itemCatalog.ts`
+- 정적 이미지 매핑: `lib/avatarAssets.ts`
 
-## 파일 네이밍
-`{category}/{category}_{id:03d}_{key}.png` — clothing은 `key`=색상키, accessory는 `key`=종류
+캔버스 규격을 바꾸려면 base와 등록된 모든 레이어를 한 번에 마이그레이션해야 한다. 새 에셋 하나를 다른 비율로 추가하지 않는다.
 
-## 제작 목록 (총 33종 + base 1)
+## 카테고리와 렌더 순서
 
-### base (완료)
-- [x] `base/base_female_01.png`
+현재 카테고리는 `top`, `outer`, `bottom`, `dress`, `shoes`, `hair`, `accessory`다. 가방은 별도 카테고리가 아니라 `accessory`의 하위 분류다.
 
-### top (10)
-- [ ] `top/top_001_black.png` — 블랙 민소매
-- [ ] `top/top_002_white.png` — 화이트 티
-- [ ] `top/top_003_gray.png` — 그레이 민소매
-- [ ] `top/top_004_stripe.png` — 스트라이프
-- [ ] `top/top_005_gray.png` — 그레이 티
-- [ ] `top/top_006_black.png` — 블랙 티
-- [ ] `top/top_007_beige.png` — 베이지 가디건
-- [ ] `top/top_008_white.png` — 화이트 블라우스
-- [ ] `top/top_009_beige.png` — 크림 니트
-- [ ] `top/top_010_navy.png` — 네이비 니트
+기본 렌더 순서는 `constants/items.ts`의 `RENDER_ORDER`를 따른다:
 
-### bottom (8)
-- [ ] `bottom/bottom_001_denim.png` — 데님 쇼츠
-- [ ] `bottom/bottom_002_black.png` — 블랙 팬츠
-- [ ] `bottom/bottom_003_beige.png` — 베이지 스커트
-- [ ] `bottom/bottom_004_gray.png` — 그레이 팬츠
-- [ ] `bottom/bottom_005_black.png` — 블랙 레깅스
-- [ ] `bottom/bottom_006_white.png` — 화이트 미니스커트
-- [ ] `bottom/bottom_007_green.png` — 카키 쇼츠
-- [ ] `bottom/bottom_008_beige.png` — 크림 팬츠
+```text
+base → shoes → bottom → dress → top → outer → hair → accessory
+```
 
-### shoes (6)
-- [ ] `shoes/shoes_001_white.png` — 화이트 스니커즈
-- [ ] `shoes/shoes_002_black.png` — 블랙 부츠
-- [ ] `shoes/shoes_003_beige.png` — 베이지 로퍼
-- [ ] `shoes/shoes_004_beige.png` — 누드 힐
-- [ ] `shoes/shoes_005_black.png` — 블랙 스니커즈
-- [ ] `shoes/shoes_006_brown.png` — 브라운 부츠
+아이템별 예외는 `lib/avatarAssets.ts`의 `layerOrder`로만 관리한다.
 
-### bag (5)
-- [ ] `bag/bag_001_beige.png` — 베이지 숄더백
-- [ ] `bag/bag_002_beige.png` — 크림 토트
-- [ ] `bag/bag_003_black.png` — 블랙 크로스백
-- [ ] `bag/bag_004_brown.png` — 브라운 숄더백
-- [ ] `bag/bag_005_white.png` — 화이트 클러치
+## 파일명
 
-### accessory (4, none 포함)
-- [ ] `accessory/accessory_001_hat.png` — 베레모
-- [ ] `accessory/accessory_002_sunglasses.png` — 선글라스
-- [ ] `accessory/accessory_003_scarf.png` — 스카프
-- [x] none(미착용) — 이미지 없음 (`imagePath: ''`)
+```text
+{category}/{category}_###_{color-or-kind}.png
+```
+
+예:
+
+- `top/top_010_cream_knit.png`
+- `bottom/bottom_016_gray_pleated_skirt.png`
+- `accessory/accessory_006_brown_shoulder_bag.png`
+
+## 등록과 검증
+
+직접 그리지 않는 ImageGen 후보 생성부터 검수·등록까지는 `$clothic-avatar-pipeline` skill을 사용한다.
+
+새 파일은 먼저 dry-run으로 확인한다:
+
+```bash
+npm run avatar:add -- <metadata...> --preview-from <same-category-id> --dry-run
+```
+
+승인 후 등록하고 전체 동기화를 검사한다:
+
+```bash
+npm run avatar:add -- <metadata...>
+npm run avatar:check
+```
+
+`avatar:check`는 catalog ↔ asset map ↔ disk의 1:1 동기화, 중복/고아 파일,
+category/id ↔ 경로/파일명, PNG CRC·필수 chunk·1024×1536 canvas·8-bit RGBA,
+실제 투명/가시 픽셀을 검사한다. 정렬·halo·stray pixel은 자동 검사를 보완하는 사람의
+overlay 검수가 필요하다.

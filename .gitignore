@@ -5,6 +5,7 @@ node_modules/
 .expo/
 dist/
 web-build/
+assets/staging/
 
 # env (실제 키 보호 — .env.example만 커밋)
 .env.local
