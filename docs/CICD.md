@@ -22,19 +22,19 @@ App Store 출시까지의 빌드·제출은 [EAS](https://docs.expo.dev/eas/)를
 ### 사전 준비 (사용자 작업, 외부 계정 필요)
 
 1. **Expo 계정**: <https://expo.dev> 가입 후
-   - `npx eas login`
-   - `npx eas init` — 프로젝트를 Expo에 연결(`app.json`에 `extra.eas.projectId` 추가됨)
+   - `npx eas-cli@latest login`
+   - `npx eas-cli@latest init` — 프로젝트를 Expo에 연결(`app.json`에 `extra.eas.projectId` 추가됨)
 2. **Apple Developer 계정**: 연 $99 멤버십(App Store 제출 필수)
-3. **자격증명**: `npx eas credentials` 또는 빌드 시 EAS가 대화형으로 생성/관리
+3. **자격증명**: `npx eas-cli@latest credentials` 또는 빌드 시 EAS가 대화형으로 생성/관리
 
 ### 로컬에서 빌드/제출
 
 ```bash
 # iOS production 빌드 (클라우드)
-npx eas build --platform ios --profile production --wait
+npx eas-cli@latest build --platform ios --profile production --wait
 
 # 최신 빌드를 TestFlight에 업로드
-npx eas submit --platform ios --profile production --latest --non-interactive
+npx eas-cli@latest submit --platform ios --profile production --latest --non-interactive
 ```
 
 `eas.json`의 `submit.production.ios`는 App Store Connect 앱 ID와 팀을 가리킨다.
@@ -57,7 +57,7 @@ Apple/TestFlight 업로드 전에 반드시 승인을 받는다.
 1. Expo에서 액세스 토큰 발급: <https://expo.dev/accounts/[account]/settings/access-tokens>
 2. GitHub 저장소 → Settings → Secrets and variables → Actions → **`EXPO_TOKEN`** 등록
 3. Expo 프로젝트에서 iOS signing과 App Store Connect API key를 설정한다:
-   `eas credentials --platform ios`
+   `npx eas-cli@latest credentials --platform ios`
 4. GitHub 저장소 → Settings → Environments → **`app-store`** 생성 후 Required reviewers 지정
 
 App Store Connect API key는 EAS에 저장하는 방식을 권장한다. Apple 인증 정보나 `.p8` 키를
