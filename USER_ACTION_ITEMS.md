@@ -63,6 +63,9 @@ npm run avatar:check
 ## 빌드와 배포
 
 - [ ] Expo 계정 로그인 및 EAS 권한 확인
+- [ ] GitHub Actions secret `EXPO_TOKEN` 등록
+- [ ] EAS iOS signing credentials와 App Store Connect API key 등록
+- [ ] GitHub `app-store` Environment 생성 및 Required reviewer 지정
 - [ ] iOS Bundle ID / Android package `com.clothic.app` 확인
 - [ ] iOS·Android production build
 - [ ] App Store Connect·Google Play Console 앱 생성

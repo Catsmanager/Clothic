@@ -31,39 +31,52 @@ App Store 출시까지의 빌드·제출은 [EAS](https://docs.expo.dev/eas/)를
 
 ```bash
 # iOS production 빌드 (클라우드)
-npx eas build --platform ios --profile production
+npx eas build --platform ios --profile production --wait
 
-# 빌드 완료 후 App Store Connect 제출
-npx eas submit --platform ios --profile production
+# 최신 빌드를 TestFlight에 업로드
+npx eas submit --platform ios --profile production --latest --non-interactive
 ```
 
-`eas.json`의 `submit.production.ios`에는 플레이스홀더가 들어 있다 — 실제 값으로 교체:
+`eas.json`의 `submit.production.ios`는 App Store Connect 앱 ID와 팀을 가리킨다.
+제출 인증은 저장소 파일이 아니라 EAS에 등록한 App Store Connect API key를 사용한다.
 
-- `appleId`: Apple 계정 이메일
-- `ascAppId`: App Store Connect 앱의 숫자 ID
-- `appleTeamId`: Apple Developer 팀 ID
+### GitHub Actions에서 자동 release (`.github/workflows/eas-build.yml`)
 
-### GitHub Actions에서 빌드 (`.github/workflows/eas-build.yml`)
+`main`의 CI가 성공하면 다음 순서로 실행된다.
 
-수동 트리거(`workflow_dispatch`)로 production 빌드를 실행한다.
+1. 같은 커밋에서 `npm run check` 재검증
+2. EAS iOS production 빌드 완료까지 대기
+3. `app-store` 환경 승인 후 최신 빌드를 TestFlight에 업로드
+
+수동 실행도 가능하다. Actions → **Release iOS to TestFlight** → Run workflow에서
+`submit`을 선택하면 된다. `app-store` 환경에 Required reviewers를 설정하면 main 병합 후
+Apple/TestFlight 업로드 전에 반드시 승인을 받는다.
+
+필수 설정:
 
 1. Expo에서 액세스 토큰 발급: <https://expo.dev/accounts/[account]/settings/access-tokens>
-2. GitHub 저장소 → Settings → Secrets and variables → Actions →
-   **`EXPO_TOKEN`** 으로 등록
-3. Actions 탭 → "EAS Build (production)" → Run workflow → 플랫폼 선택
+2. GitHub 저장소 → Settings → Secrets and variables → Actions → **`EXPO_TOKEN`** 등록
+3. Expo 프로젝트에서 iOS signing과 App Store Connect API key를 설정한다:
+   `eas credentials --platform ios`
+4. GitHub 저장소 → Settings → Environments → **`app-store`** 생성 후 Required reviewers 지정
+
+App Store Connect API key는 EAS에 저장하는 방식을 권장한다. Apple 인증 정보나 `.p8` 키를
+저장소·workflow 파일에 직접 넣지 않는다.
 
 ## 3. App Store 출시 체크리스트
 
-- [ ] Expo 계정 + `eas init` 완료 (`projectId` 발급)
+- [x] Expo 계정 + `eas init` 완료 (`app.json`에 `extra.eas.projectId` 존재)
 - [ ] Apple Developer 멤버십 활성화
-- [ ] `eas.json` submit 플레이스홀더를 실제 값으로 교체
+- [ ] EAS에 iOS signing credentials와 App Store Connect API key 등록
+- [ ] GitHub Actions secret `EXPO_TOKEN` 등록
+- [ ] GitHub `app-store` environment Required reviewers 설정
 - [ ] 앱 아이콘/스플래시 최종본 적용 (현재 `assets/` placeholder)
-- [ ] App Store Connect에 앱 레코드 생성 (Bundle ID `com.clothic.app`)
-- [ ] `eas build --platform ios --profile production`
-- [ ] `eas submit --platform ios --profile production`
-- [ ] TestFlight 검증 → 심사 제출
+- [x] App Store Connect 앱 ID와 Bundle ID 설정 (`eas.json`, `app.json`)
+- [ ] TestFlight 검증 → App Store 심사 제출
 
 ## 4. 한계
 
-코드/설정/문서까지는 구축됨. **실제 빌드와 App Store 제출은 Expo·Apple 계정과
-EXPO_TOKEN 등 자격증명이 등록돼야 동작**하며, 이는 사용자만 수행할 수 있다.
+코드/workflow 구성은 완료됐다. **실제 자동 빌드·TestFlight 업로드는 Expo·Apple 계정,
+EAS credentials, `EXPO_TOKEN`, `app-store` environment 승인이 등록돼야 동작**한다.
+TestFlight에 업로드된 빌드를 실제 App Store에 공개하려면 App Store Connect에서
+메타데이터를 확인하고 Apple 심사를 제출해야 한다. EAS Submit만으로는 심사를 우회할 수 없다.
