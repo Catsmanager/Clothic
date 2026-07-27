@@ -2,7 +2,7 @@
   "expo": {
     "name": "Clothic",
     "slug": "clothic",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "scheme": "clothic",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
