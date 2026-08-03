@@ -7,6 +7,7 @@ import {
 
 export interface ItemVisualInput {
   id: string
+  assetId?: string
   color: string
   imagePath?: string
 }
@@ -21,7 +22,8 @@ function getRenderableUri(path?: string): string | null {
 }
 
 export function getItemImageSource(item: ItemVisualInput): ImageSourcePropType | null {
-  const asset = getAvatarItemAsset(item.id)
+  const assetId = item.assetId ?? item.id
+  const asset = getAvatarItemAsset(assetId)
   if (asset) return asset.source
 
   const uri = getRenderableUri(item.imagePath)
@@ -29,16 +31,17 @@ export function getItemImageSource(item: ItemVisualInput): ImageSourcePropType |
 }
 
 export function getItemLayerStyle(item: ItemVisualInput): ImageStyle | undefined {
-  return getAvatarItemAsset(item.id)?.layerStyle
+  return getAvatarItemAsset(item.assetId ?? item.id)?.layerStyle
 }
 
 export function getItemLayerOrder(item: ItemVisualInput): number | null {
-  return getAvatarItemLayerOrder(item.id)
+  return getAvatarItemLayerOrder(item.assetId ?? item.id)
 }
 
 export function getItemPreviewImageStyle(item: ItemVisualInput, itemSize: number): ImageStyle {
-  if (getAvatarItemAsset(item.id)) {
-    return getAvatarItemPreviewStyle(item.id, itemSize)
+  const assetId = item.assetId ?? item.id
+  if (getAvatarItemAsset(assetId)) {
+    return getAvatarItemPreviewStyle(assetId, itemSize)
   }
 
   return {

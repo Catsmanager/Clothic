@@ -30,6 +30,7 @@ create table if not exists profiles (
 create table if not exists items (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users not null,
+  catalog_item_id text,
   name text not null,
   category text not null,
   image_path text not null default '',
@@ -83,6 +84,13 @@ alter table outfits
 alter table profiles
   add column if not exists daily_reminder_enabled boolean not null default true,
   add column if not exists sleeping_wardrobe_enabled boolean not null default false;
+
+alter table items
+  add column if not exists catalog_item_id text;
+
+create unique index if not exists items_user_catalog_item_unique_idx
+  on items (user_id, catalog_item_id)
+  where catalog_item_id is not null;
 ```
 
 `item_ids`는 `top_002`, `bottom_010` 같은 카탈로그 문자열 ID를 저장하므로 `uuid[]`가 아니라 `text[]`여야 합니다.

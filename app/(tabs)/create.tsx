@@ -107,7 +107,13 @@ export default function CreateScreen() {
         onFullViewPress={() =>
           router.push({
             pathname: '/item-select',
-            params: { category: editor.activeCategory },
+            params: { category: editor.activeCategory, mode: 'closet' },
+          })
+        }
+        onBrowseCatalogPress={() =>
+          router.push({
+            pathname: '/item-select',
+            params: { category: editor.activeCategory, mode: 'catalog' },
           })
         }
         onItemPress={editor.equipItem}

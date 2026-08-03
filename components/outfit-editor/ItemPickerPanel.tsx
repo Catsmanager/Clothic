@@ -22,6 +22,7 @@ interface Props {
   equipped: EquippedItems
   items: CatalogItem[]
   subCategories: string[]
+  onBrowseCatalogPress: () => void
   onFullViewPress: () => void
   onItemPress: (item: CatalogItem) => void
   onSubCategoryPress: (subCategory: string) => void
@@ -32,6 +33,7 @@ export default function ItemPickerPanel({
   equipped,
   items,
   subCategories,
+  onBrowseCatalogPress,
   onFullViewPress,
   onItemPress,
   onSubCategoryPress,
@@ -86,9 +88,15 @@ export default function ItemPickerPanel({
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>
-              추후 업데이트될 예정입니다{'\n'}조금만 기다려주세요
-            </Text>
+            <Text style={styles.emptyStateText}>내 옷장에 이 카테고리 옷이 없어요.</Text>
+            <TouchableOpacity
+              style={styles.browseButton}
+              onPress={onBrowseCatalogPress}
+              accessibilityRole="button"
+              accessibilityLabel="기본 옷 둘러보기"
+            >
+              <Text style={styles.browseButtonText}>기본 옷 둘러보기</Text>
+            </TouchableOpacity>
           </View>
         }
         renderItem={({ item }) => (
@@ -195,5 +203,19 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: colors.textMuted,
     textAlign: 'center',
+  },
+  browseButton: {
+    minHeight: 44,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.full,
+    backgroundColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  browseButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.white,
   },
 })

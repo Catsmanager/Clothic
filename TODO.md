@@ -52,6 +52,10 @@
 - [x] 홈 화면
 - [x] 코디 생성 화면 (아바타 레이어 렌더러)
 - [x] 아이템 선택 (카테고리별 탭 + 전체 보기 선택 결과 편집기에 반영)
+- [x] 기본 의상 카탈로그와 사용자 내 옷장 분리 + 템플릿 빠른 추가
+  - 사용자 `items.catalog_item_id`로 소유 확인
+  - 신규 코디는 사용자 item UUID 저장, 기존 정적 id는 조회 호환
+  - 통계·챌린지·잠자는 옷장은 확인된 사용자 아이템만 분석
 - [x] 코디 저장 (mood, weather, memo)  ← components/SaveOutfitSheet.tsx + outfitStore.addOutfit + create.tsx 연결. Supabase insert. 잔여: is_favorite 마이그레이션·실키 필요
 - [x] 코디 목록 / 상세 조회  ← Supabase 연동, 즐겨찾기, 상세 딥링크/새로고침 복구. 잔여: is_favorite 컬럼 마이그레이션(사용자)
 - [x] 캘린더 화면  (Supabase outfits 기반)
@@ -68,6 +72,9 @@
 > 사용 피로감 최소화가 핵심 원칙.
 
 ## Post-MVP (MVP 이후 검토)
+- [ ] 실제 의류 사진 업로드 + 기본 템플릿 매핑
+- [ ] 공유 카드 → 공개 챌린지 순서의 커뮤니티 수요 검증 (이슈 #166)
+- [ ] 정식 커뮤니티 도입 전 신고·차단·공개 범위·운영 정책 확정
 - [~] 옷 색 변경(확장 B) — 코디 저장 시 색 override + 통계 집계  ← 이슈 #87 (사용자 요청, 2026-06-12)
   - [x] 데이터: 코디 저장 시 아이템별 색 저장 (Outfit.itemColors, outfits.item_colors jsonb) — 스키마 변경 필요(사용자)
   - [x] UI: 저장 시트에 아이템별 8색 팔레트(기본값=아이템 원래 색, 강제 선택 없음)
