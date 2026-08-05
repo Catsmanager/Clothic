@@ -20,7 +20,11 @@ import { spacing } from '../../constants/spacing'
 import { useCurrentDateKey } from '../../hooks/useCurrentDateKey'
 import { indexPrimaryStyledOutfitsByDate } from '../../lib/outfitRecords'
 import { type Mood, useOutfitStore } from '../../stores/outfitStore'
-import { buildCatalogItems, findCatalogItemById, useItemStore } from '../../stores/itemStore'
+import {
+  buildResolvableCatalogItems,
+  findCatalogItemById,
+  useItemStore,
+} from '../../stores/itemStore'
 
 export default function HomeScreen() {
   const [menuVisible, setMenuVisible] = useState(false)
@@ -71,7 +75,7 @@ export default function HomeScreen() {
   // 오늘 코디가 있으면 착용 아이템을 카탈로그로 풀어 아바타에 입힌다. 없으면 null(빈 상태).
   const todayItems = useMemo(() => {
     if (todayOutfit == null) return null
-    const catalog = buildCatalogItems(userItems)
+    const catalog = buildResolvableCatalogItems(userItems)
     return todayOutfit.itemIds
       .map((id) => findCatalogItemById(catalog, id))
       .filter((item): item is NonNullable<typeof item> => item != null)

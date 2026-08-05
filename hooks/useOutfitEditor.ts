@@ -5,7 +5,7 @@ import {
   type Category,
   SUB_CATEGORIES,
 } from '../constants/items'
-import { buildCatalogItems, useItemStore } from '../stores/itemStore'
+import { buildOwnedCatalogItems, useItemStore } from '../stores/itemStore'
 
 type SingleEquipCategory = Exclude<Category, 'accessory'>
 
@@ -22,13 +22,8 @@ export function useOutfitEditor() {
   const [history, setHistory] = useState<EquippedItems[]>([{}])
   const [historyIndex, setHistoryIndex] = useState(0)
 
-  const catalogItems = useMemo(() => buildCatalogItems(userItems), [userItems])
-  const hasUserItems = catalogItems.some(
-    (item) => item.category === activeCategory && item.subCategory === '내 아이템'
-  )
-  const subCategories = hasUserItems
-    ? [...SUB_CATEGORIES[activeCategory], '내 아이템']
-    : SUB_CATEGORIES[activeCategory]
+  const catalogItems = useMemo(() => buildOwnedCatalogItems(userItems), [userItems])
+  const subCategories = SUB_CATEGORIES[activeCategory]
 
   useEffect(() => {
     fetchItems()

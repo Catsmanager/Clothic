@@ -16,11 +16,24 @@ const CARD_GAP = spacing.sm
 const HORIZONTAL_PADDING = spacing.md
 
 interface Props {
+  disabledItemId?: string | null
+  emptyActionLabel?: string
+  emptyMessage: string
+  getItemActionLabel?: (item: CatalogItem) => string | null
   items: CatalogItem[]
+  onEmptyActionPress?: () => void
   onItemPress: (item: CatalogItem) => void
 }
 
-export default function ItemGrid({ items, onItemPress }: Props) {
+export default function ItemGrid({
+  disabledItemId,
+  emptyActionLabel,
+  emptyMessage,
+  getItemActionLabel,
+  items,
+  onEmptyActionPress,
+  onItemPress,
+}: Props) {
   const { width } = useWindowDimensions()
   const cardSize = (width - HORIZONTAL_PADDING * 2 - CARD_GAP * (COLUMN_COUNT - 1)) / COLUMN_COUNT
 
@@ -33,30 +46,45 @@ export default function ItemGrid({ items, onItemPress }: Props) {
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>
-            추후 업데이트될 예정입니다{'\n'}조금만 기다려주세요
-          </Text>
+          <Text style={styles.emptyStateText}>{emptyMessage}</Text>
+          {emptyActionLabel && onEmptyActionPress && (
+            <TouchableOpacity
+              style={styles.emptyAction}
+              onPress={onEmptyActionPress}
+              accessibilityRole="button"
+              accessibilityLabel={emptyActionLabel}
+            >
+              <Text style={styles.emptyActionText}>{emptyActionLabel}</Text>
+            </TouchableOpacity>
+          )}
         </View>
       }
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          style={[styles.itemWrapper, { width: cardSize }]}
-          onPress={() => onItemPress(item)}
-          activeOpacity={0.8}
-          accessibilityRole="button"
-          accessibilityLabel={`${item.name} 선택`}
-        >
-          <View style={[styles.itemCard, { width: cardSize, height: cardSize }]}>
-            <ItemPreview item={item} itemSize={cardSize} />
-          </View>
-          <View style={styles.labelRow}>
-            <View style={[styles.colorDot, { backgroundColor: item.color }]} />
-            <Text style={styles.itemLabel} numberOfLines={1}>
-              {item.name}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      )}
+      renderItem={({ item }) => {
+        const actionLabel = getItemActionLabel?.(item) ?? null
+        const disabled = disabledItemId === item.id
+        return (
+          <TouchableOpacity
+            style={[styles.itemWrapper, { width: cardSize }, disabled && styles.itemDisabled]}
+            onPress={() => onItemPress(item)}
+            disabled={disabled}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={`${item.name} ${actionLabel ?? '선택'}`}
+            accessibilityState={{ disabled }}
+          >
+            <View style={[styles.itemCard, { width: cardSize, height: cardSize }]}>
+              <ItemPreview item={item} itemSize={cardSize} />
+            </View>
+            <View style={styles.labelRow}>
+              <View style={[styles.colorDot, { backgroundColor: item.color }]} />
+              <Text style={styles.itemLabel} numberOfLines={1}>
+                {item.name}
+              </Text>
+            </View>
+            {actionLabel && <Text style={styles.actionLabel}>{actionLabel}</Text>}
+          </TouchableOpacity>
+        )
+      }}
     />
   )
 }
@@ -75,6 +103,9 @@ const styles = StyleSheet.create({
     marginRight: CARD_GAP,
     marginBottom: spacing.xs,
     alignItems: 'center',
+  },
+  itemDisabled: {
+    opacity: 0.5,
   },
   itemCard: {
     backgroundColor: colors.white,
@@ -110,6 +141,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '400',
   },
+  actionLabel: {
+    marginTop: 2,
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.accent,
+  },
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -120,5 +157,19 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: colors.textMuted,
     textAlign: 'center',
+  },
+  emptyAction: {
+    minHeight: 44,
+    marginTop: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.full,
+    backgroundColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyActionText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.white,
   },
 })

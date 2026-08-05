@@ -27,7 +27,7 @@ import { parseDateKey } from '../../lib/date'
 import { buildItemInventoryData } from '../../lib/itemStats'
 import { buildMonthData } from '../../lib/monthlyStats'
 import { buildWeekData } from '../../lib/weeklyStats'
-import { buildCatalogItems, useItemStore } from '../../stores/itemStore'
+import { buildAnalyticsCatalogItems, useItemStore } from '../../stores/itemStore'
 import { useOutfitStore } from '../../stores/outfitStore'
 
 export default function StatsScreen() {
@@ -52,7 +52,7 @@ export default function StatsScreen() {
     fetchItems()
   }, [fetchItems, fetchOutfits])
 
-  const catalogItems = useMemo(() => buildCatalogItems(items), [items])
+  const catalogItems = useMemo(() => buildAnalyticsCatalogItems(items), [items])
 
   const data = useMemo(
     () => buildMonthData(outfits, catalogItems, monthNav.year, monthNav.month),

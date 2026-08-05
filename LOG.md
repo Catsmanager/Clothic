@@ -1,5 +1,42 @@
 # LOG
 
+## 2026-08-03 (feat: 기본 카탈로그와 사용자 내 옷장 분리)
+
+### 목표와 결정
+
+- 이슈 #165 / 브랜치 `agent/wardrobe-ownership`
+- 정적 아바타 카탈로그는 둘러보기 템플릿, Supabase `items`는 사용자가 보유를 확인한
+  실제 내 옷장으로 역할을 분리
+- 실제 의류 사진 업로드와 커뮤니티는 PRD 제외 범위를 유지하고 후속 검증 항목으로 기록
+
+### 변경
+
+- `items.catalog_item_id` 추가 마이그레이션과 사용자별 템플릿 중복 방지 인덱스
+- 코디 편집기는 사용자 소유 아이템만 표시하고, 빈 상태에서 기본 옷 둘러보기로 연결
+- 아이템 선택 화면에 `내 옷장`/`기본 옷 둘러보기`를 분리하고 템플릿 탭 한 번으로
+  사용자 item을 저장한 뒤 바로 착용
+- 신규 코디는 사용자 item UUID를 저장
+- 홈·캘린더·코디 목록/상세는 기존 정적 catalog id도 계속 렌더링
+- 통계·챌린지·잠자는 옷장은 소유가 확인된 아이템만 분석하며, 같은 템플릿을 추가한 경우
+  과거 정적 id 기록을 분석 alias로 연결
+- 사용자 item UUID가 선택한 정적 아바타 레이어를 재사용하도록 `assetId` 렌더링 경로 추가
+- item fetch와 추가 액션은 계정 reset generation을 확인하고 중복 추가를 복구
+
+### 측정·검증
+
+- `wardrobe-ownership-v5` evaluator를 기능 변경 전에 별도 커밋으로 고정
+- 알려진 실패/통과 합성 입력 evaluator 테스트 2/2 PASS
+- AutoResearch `wardrobe-ownership-20260803-v2`: `0/8 → 8/8`, gate 통과로 채택
+- 옷장 카탈로그·과거 ID 호환·미소유 분석 제외 core test 4/4 PASS
+- `npm run typecheck`, `npm run lint`, source-contract-v4 8/8 PASS
+- `npm run check` PASS: 정적 검사, avatar gate, core test 24/24, v4 flow 8/8,
+  AutoResearch runner 회귀 6/6
+- Expo Web export PASS: 95 assets, 약 33MB, JS 2.2MB
+- Supabase migration dry-run 후 remote 적용 및 local/remote `20260803000100` 일치 확인
+- `verify:environment`: 온라인 검사에서 `expo` 56.0.17→56.0.18,
+  `expo-router` 56.2.16→56.2.17 권장 패치 차이로 실패. 기능 범위 밖 의존성 변경은 미적용
+- Browser session이 없어 실제 클릭·320pt·200% 글자·스크린리더 검증은 미실행
+
 ## 2026-07-27 (chore: main → TestFlight release pipeline)
 
 - `.github/workflows/eas-build.yml`를 `workflow_run` 기반으로 전환해 `main` CI 성공 커밋만
