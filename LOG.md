@@ -1,5 +1,13 @@
 # LOG
 
+## 2026-11-10 — F-13 본인 프로필 조회·변경 서버 API (#207)
+
+- 기준: main 082d751, 원격 feat/207-profile-api 동일 SHA 확인 후 편집. 선행 F-02 병합 확인.
+- profile 패키지: Profile 엔티티(profiles, 읽기 + 두 불리언 설정만 변경), ProfileRepository(findById·save), ProfileService(본인 ID 조건), ProfileController GET/PATCH /api/profile. PATCH 본문은 Map으로 받아 허용 키 2개·불리언 타입을 직접 검사(Jackson 3의 미지 필드 기본 허용에 의존하지 않음). 행 없음은 404, 생성하지 않음.
+- 테스트 DB 권한에 profiles select/update 추가. ProfileApiTest 5개: 가입 트리거가 만든 행 조회(username null, 기본값 true/false), 변경→재조회 복원·부분 변경 유지·타 사용자 불변, 빈/미지 키/비불리언/비JSON 400, 401, 404.
+- 검증: Maven verify 32개 통과. 첫 실행에서 @JsonIgnoreProperties(ignoreUnknown=false)가 미지 키를 거부하지 않아(200) 명시적 키 검사로 교체 후 통과.
+- 미확인: 앱의 알림 설정 화면 전환·재로그인 복원(F-14), 실제 Supabase DB 역할. 앱 코드 변경 없음.
+
 ## 2026-11-10 — F-05 앱의 내 옷 조회 서버 전환, 설정형 코드까지 (#205)
 
 - 기준: main 9bec2c3, 원격 feat/205-app-items-api 동일 SHA 확인 후 편집. 선행 F-04 병합 확인.
