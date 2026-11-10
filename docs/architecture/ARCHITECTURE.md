@@ -85,7 +85,7 @@ assets/
 
 ## 핵심 데이터 구조
 
-전체 타입 정의는 `docs/DATA_MODEL.md` 참조.
+전체 타입 정의는 `docs/architecture/DATA_MODEL.md` 참조.
 
 요약:
 - `Item` — 의류 아이템 (id, userId, category, imagePath, color, styleTags)

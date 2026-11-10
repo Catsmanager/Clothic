@@ -1,5 +1,13 @@
 # LOG
 
+## 2026-11-10 (docs: 문서 폴더 주제별 정리, #177)
+
+- 기존 문서 21개를 product·architecture·design·avatar·auth·operations·migration으로 분리하고 `docs/README.md`에 탐색 목록·새 문서 배치 규칙 추가.
+- 문서 상대 링크, CLAUDE 지침, 기존 스킬 참조, 소스 주석의 현재 문서 경로를 함께 갱신. 날짜가 있는 과거 LOG의 당시 경로는 보존.
+- 마이그레이션 계획서의 GitHub 개수는 계획 작성 당시 스냅샷임을 명시.
+- 작업 브랜치 `docs/177-organize-documents`를 GitHub에 먼저 생성하고 원격 ref를 확인한 뒤 편집.
+- 실행 로직·정책 내용·운영 설정 변경 없음. 문서 21개 이동·내용 보존, 로컬 링크 50개, 소스 3개 파일의 주석 외 변경 없음, 해당 파일 Prettier 검사 통과.
+
 ## 2026-11-10 (docs: Spring Boot 마이그레이션 학습·작업 계획)
 
 - `73c9863`의 조회 코드와 RLS 정의를 기준으로 `docs/SPRING_BOOT_MIGRATION_PLAN.md` 작성.

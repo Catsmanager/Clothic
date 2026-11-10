@@ -12,9 +12,9 @@ Produce an evidence-backed release audit before proposing changes. Keep findings
 Read in priority order:
 
 1. `CLAUDE.md` and `HARNESS/*.md`
-2. `docs/PRD.md`
-3. `docs/ADR.md`
-4. `docs/ARCHITECTURE.md`, `docs/DATA_MODEL.md`, `docs/DESIGN_SYSTEM.md`
+2. `docs/product/PRD.md`
+3. `docs/architecture/ADR.md`
+4. `docs/architecture/ARCHITECTURE.md`, `docs/architecture/DATA_MODEL.md`, `docs/design/DESIGN_SYSTEM.md`
 5. The source files touched by the audit
 6. `references/release-checklist.md` from this skill
 

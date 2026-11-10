@@ -13,7 +13,7 @@
 ### 1. 아바타 아이템 에셋 채우기
 - [ ] 빈 카테고리 없이 코디를 완성할 수 있는 수준까지 PNG 제작·배치
 - [ ] `constants/itemCatalog.ts`의 `imagePath`와 실제 파일명 일치 확인
-- 규격·좌표·레이어 규칙: `docs/ITEM_ASSET_FLOW.md`, `USER_ACTION_ITEMS.md`의 "아바타/의상 에셋 상세 규격" 참조
+- 규격·좌표·레이어 규칙: `docs/avatar/ITEM_ASSET_FLOW.md`, `USER_ACTION_ITEMS.md`의 "아바타/의상 에셋 상세 규격" 참조
 - 현재: 33종 메타데이터 중 실제 PNG는 약 7종 → 나머지 placeholder 상태
 
 ### 2. 심사용 데모 계정 준비
@@ -22,7 +22,7 @@
 - 이유: 로그인 필수 앱은 심사관이 로그인 못 하면 리젝
 
 ### 3. 개인정보처리방침 공개 URL 호스팅
-- [x] `docs/PRIVACY_POLICY.md` 내용을 공개 웹 URL로 게시
+- [x] `docs/product/PRIVACY_POLICY.md` 내용을 공개 웹 URL로 게시
   - 가장 쉬운 방법: GitHub Pages(리포 Settings → Pages) 또는 Notion 공개 페이지
 - [x] 확보한 URL을 App Store Connect → 앱 개인정보 → "개인정보 처리방침 URL"에 입력
 - 문서는 작성 완료(운영자 진현지, 대한민국 리전 반영). 호스팅만 하면 됨
@@ -48,7 +48,7 @@ App Store Connect → 앱 개인정보에서 아래 항목 신고:
 - [ ] Apple Developer 계정 / App Store Connect 앱 생성 (Bundle ID `com.clothic.app`)
 - [ ] EAS Build로 iOS 빌드 생성 후 App Store Connect 업로드
 - [ ] (Android 동시 출시 시) Google Play Console 앱 생성 + 빌드
-- 참고: `eas.json`, `docs/CICD.md`
+- 참고: `eas.json`, `docs/operations/CICD.md`
 
 ---
 
@@ -74,5 +74,5 @@ App Store Connect → 앱 개인정보에서 아래 항목 신고:
 - ✅ 계정 삭제: 앱 UI → Edge Function 연결 정상 (Apple 5.1.1(v) 충족)
 - ✅ Sign in with Apple: 구현 완료 (`usesAppleSignIn: true`)
 - ✅ iOS 미사용 권한 제거: 위치는 "사용 중에만" 1종만 남김, 상시 위치·모션·Face ID 권한 삭제
-- ✅ 개인정보처리방침 문서(`docs/PRIVACY_POLICY.md`) 작성 완료
+- ✅ 개인정보처리방침 문서(`docs/product/PRIVACY_POLICY.md`) 작성 완료
 - ✅ 앱 내 개인정보처리방침 화면(`app/privacy.tsx`) 정식 내용과 동기화

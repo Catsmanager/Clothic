@@ -1,4 +1,4 @@
-// 아바타 코디 아이템 카탈로그 — docs/ASSET_PLAN.md + docs/DATA_MODEL.md 기준.
+// 아바타 코디 아이템 카탈로그 — docs/avatar/ASSET_PLAN.md + docs/architecture/DATA_MODEL.md 기준.
 //
 // 주의:
 // - imagePath는 require()가 아닌 "문자열 경로"다. 실제 Image 매핑은 lib/avatarAssets.ts에서 연결한다.

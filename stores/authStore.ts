@@ -138,7 +138,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   // 카카오 OAuth: 외부 브라우저에서 인증 후 리다이렉트된 code를 세션으로 교환한다.
-  // 사전 설정 필요(docs/KAKAO_OAUTH.md): Supabase Kakao provider + 카카오 디벨로퍼스 앱.
+  // 사전 설정 필요(docs/auth/KAKAO_OAUTH.md): Supabase Kakao provider + 카카오 디벨로퍼스 앱.
   signInWithKakao: async () => {
     const redirectTo = Linking.createURL('auth/callback')
 

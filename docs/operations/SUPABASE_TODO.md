@@ -188,7 +188,7 @@ Supabase Dashboard → Authentication → Providers → Kakao:
 https://<project-ref>.supabase.co/auth/v1/callback
 ```
 
-참고 문서: `docs/KAKAO_OAUTH.md`
+참고 문서: `docs/auth/KAKAO_OAUTH.md`
 
 ## 7. Apple 로그인 설정
 
@@ -203,7 +203,7 @@ Supabase Dashboard → Authentication → Providers → Apple:
 
 Apple Developer에서도 `com.clothic.app` App ID의 Sign in with Apple capability를 켜야 합니다.
 
-참고 문서: `docs/APPLE_SIGNIN.md`
+참고 문서: `docs/auth/APPLE_SIGNIN.md`
 
 ## 8. 계정 삭제 Edge Function 배포 (완료)
 

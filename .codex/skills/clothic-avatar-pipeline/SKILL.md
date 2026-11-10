@@ -11,9 +11,9 @@ Create avatar candidates with AI assistance, but treat generation as a draft ste
 
 Read these project files before changing an asset:
 
-1. `docs/PRD.md`
-2. `docs/ITEM_ASSET_FLOW.md`
-3. `docs/AVATAR_ASSET_PIPELINE.md`
+1. `docs/product/PRD.md`
+2. `docs/avatar/ITEM_ASSET_FLOW.md`
+3. `docs/avatar/AVATAR_ASSET_PIPELINE.md`
 4. `references/style-and-prompt.md` from this skill
 
 Use `assets/avatar/base/base_female_01.png` as the canonical alignment reference. Derive the canvas from that file; the current contract is 1024×1536 RGBA.
