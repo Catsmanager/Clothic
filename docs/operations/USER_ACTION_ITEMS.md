@@ -6,6 +6,11 @@ Codex가 코드만으로 완료할 수 없거나 사용자 계정·콘솔·디�
 
 ## 바로 할 일
 
+- [ ] Supabase JWT 서명 방식 확인 후 서버 환경변수 결정 (F-02 후속)
+  - 대시보드 Project Settings → JWT Keys에서 현재 키가 비대칭(ES256/RS256)인지 레거시 대칭(HS256)인지 확인
+  - 비대칭이면 `CLOTHIC_AUTH_JWK_SET_URI`, 대칭이면 `CLOTHIC_AUTH_HMAC_SECRET`을 서버 실행 환경에 설정 (원문은 저장소에 넣지 않음)
+  - 앱에서 로그인한 실제 접근 토큰으로 `GET /api/me`가 본인 ID를 돌려주는지 확인. 절차는 [backend/README.md](../../backend/README.md)
+
 - [ ] Kakao OAuth KOE205 해결
   - 카카오 개발자 콘솔에서 `account_email` 동의항목을 `선택 동의`로 활성화
   - 설정 후 카카오 로그인 완료 흐름 재확인
