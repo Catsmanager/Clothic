@@ -20,7 +20,7 @@ import OutfitAvatar from '../components/OutfitAvatar'
 import { formatShortDateWithWeekday } from '../lib/date'
 import { isStyledOutfit } from '../lib/outfitRecords'
 import type { CatalogItem } from '../constants/items'
-import { buildCatalogItems, findCatalogItemById, useItemStore } from '../stores/itemStore'
+import { buildResolvableCatalogItems, findCatalogItemById, useItemStore } from '../stores/itemStore'
 import { useOutfitStore, type Outfit } from '../stores/outfitStore'
 
 const SCREEN_WIDTH = Dimensions.get('window').width
@@ -46,7 +46,7 @@ export default function OutfitsScreen() {
     fetchItems()
   }, [fetchItems, fetchOutfits])
 
-  const catalogItems = useMemo(() => buildCatalogItems(userItems), [userItems])
+  const catalogItems = useMemo(() => buildResolvableCatalogItems(userItems), [userItems])
 
   const visible = useMemo(() => {
     const styledOutfits = outfits.filter(isStyledOutfit)

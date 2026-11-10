@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 4,
+  "id": "wardrobe-ownership-v5",
+  "version": 5,
+  "purpose": "Source-contract score for separating confirmed user-owned clothes from Clothic's static avatar catalog",
+  "primaryMetric": {
+    "name": "wardrobe_ownership_contract_score",
+    "direction": "higher",
+    "epsilon": 0,
+    "target": 8,
+    "regex": "(?m)^WARDROBE_OWNERSHIP_SCORE=([0-9]+)$"
+  },
+  "execution": {
+    "command": ["node", "scripts/check-wardrobe-ownership-contract.mjs"],
+    "repeat": 1,
+    "timeoutSeconds": 30,
+    "cwd": ".",
+    "environment": {
+      "inherit": ["HOME", "PATH", "TMPDIR"],
+      "set": {
+        "CI": "true",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "TZ": "Asia/Seoul"
+      }
+    }
+  },
+  "gates": [
+    {
+      "id": "source-contract-v4",
+      "command": ["node", "scripts/check-user-flow-contract-v4.mjs"],
+      "repeat": 1,
+      "timeoutSeconds": 30,
+      "cwd": ".",
+      "environment": {
+        "inherit": ["HOME", "PATH", "TMPDIR"],
+        "set": {
+          "CI": "true",
+          "LANG": "C.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "TZ": "Asia/Seoul"
+        }
+      }
+    },
+    {
+      "id": "static",
+      "command": ["npm", "run", "verify:static"],
+      "repeat": 1,
+      "timeoutSeconds": 300,
+      "cwd": ".",
+      "environment": {
+        "inherit": ["HOME", "PATH", "TMPDIR"],
+        "set": {
+          "CI": "true",
+          "LANG": "C.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "TZ": "Asia/Seoul"
+        }
+      }
+    }
+  ],
+  "fixedContext": {
+    "timezone": "Asia/Seoul",
+    "clock": "2026-08-03T12:00:00+09:00",
+    "seed": 20260803,
+    "users": ["user-a", "user-b"],
+    "windowDays": 30
+  },
+  "fixtureFiles": [
+    ".prettierignore",
+    ".prettierrc",
+    "HARNESS/evaluator-v5.json",
+    "app.json",
+    "eslint.config.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/check-avatar-assets.mjs",
+    "scripts/check-user-flow-contract-v4.mjs",
+    "scripts/check-wardrobe-ownership-contract.mjs",
+    "tests/wardrobeOwnershipEvaluator.test.mjs",
+    "tsconfig.json"
+  ],
+  "limitations": [
+    "This is a deterministic product-flow proxy, not observed user retention.",
+    "The primary metric verifies source wiring and does not prove visual or device behavior.",
+    "Existing outfits with static catalog IDs remain a separate migration and compatibility concern."
+  ]
+}

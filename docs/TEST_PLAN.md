@@ -10,8 +10,9 @@ npx expo export --platform web --output-dir <unique-/private/tmp/path> --clear
 
 `npm run check`는 typecheck, lint, format, avatar, `test:core`, versioned
 `flow:check`, harness 회귀 테스트를 한 번에 실행한다. 새 측정은
-`HARNESS/evaluator-v4.json`과 `.autoresearch/experiments.jsonl`의 동일 frozen identity
-baseline/candidate pair로만 채택 여부를 확인한다. v1-v3 기록은 비재현 legacy다.
+`HARNESS/evaluator-v4.json` 이상과 `.autoresearch/experiments.jsonl`의 동일 frozen identity
+baseline/candidate pair로만 채택 여부를 확인한다. 옷장 소유 분리는
+`HARNESS/evaluator-v5.json`을 사용한다. v1-v3 기록은 비재현 legacy다.
 이 점수는 합성 리텐션 proxy이며 실제 D1/D7 행동 데이터가 아니다. 네트워크가 필요한
 Expo 환경 검사와 실제 Supabase 검증은 결정론적 gate와 분리해 결과를 기록한다.
 
@@ -31,6 +32,10 @@ Expo 환경 검사와 실제 Supabase 검증은 결정론적 gate와 분리해 �
 
 ## 코디 생성
 
+- 내 옷장이 비어 있으면 기본 옷 둘러보기 CTA 표시
+- 기본 템플릿 선택 → 사용자 `items` row 저장 → 같은 편집 초안에 UUID 아이템 착용
+- 이미 추가한 템플릿 재선택은 중복 row 없이 기존 사용자 아이템 사용
+- 사용자 UUID 아이템이 선택한 정적 아바타 레이어를 동일하게 렌더링
 - compact picker 선택·해제 → 아바타와 selected 상태 동기화
 - 전체 보기 진입 → 하위 분류 변경 → 아이템 선택
   - 기존 편집 초안 유지
@@ -67,6 +72,9 @@ Expo 환경 검사와 실제 Supabase 검증은 결정론적 gate와 분리해 �
 - 자정을 넘겨 앱을 유지했을 때 오늘 날짜 갱신
 - 백그라운드에서 날짜가 바뀐 뒤 foreground 복귀 시 홈·캘린더·통계·챌린지 날짜 갱신
 - 잠자는 옷장 추천 CTA → 추천 아이템이 착용된 편집 초안
+- 미소유 기본 템플릿은 통계·챌린지·잠자는 옷장 분석에서 제외
+- 과거 정적 item id는 홈·캘린더·목록/상세에서 계속 렌더링
+- 같은 템플릿을 내 옷장에 추가하면 과거 정적 id를 해당 사용자 아이템 분석 alias로 연결
 - 실제 producer가 없는 알림 설정은 자동 발송을 약속하지 않음
 - 현재 계절과 미착용 일수 경계값
 

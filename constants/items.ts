@@ -40,6 +40,7 @@ export const STYLE_TAGS: StyleTag[] = [
 
 export interface CatalogItem {
   id: string // 스프라이트 식별자, e.g. 'top_001'
+  assetId?: string // 사용자 아이템이 재사용하는 정적 스프라이트 ID
   category: Category
   subCategory: string // UI 분류 탭, e.g. '티셔츠'
   name: string // 표시 이름

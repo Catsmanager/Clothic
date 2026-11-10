@@ -35,12 +35,14 @@ User
 → 홈 화면 진입
 
 → 코디 생성
-→ 아이템 선택 (로컬 constants/items.ts 참조)
+→ 내 옷장 조회 (Supabase items)
+→ 내 옷장이 비었으면 기본 템플릿 선택 (로컬 constants/items.ts)
+→ 선택한 템플릿을 사용자 items row로 저장
 → 아바타 레이어 렌더링
 → 코디 저장 → Supabase outfits 테이블 insert
 
 → 캘린더 조회 → Supabase outfits 쿼리
-→ 월간 통계 계산 (클라이언트)
+→ 사용자 소유가 확인된 items 기준 월간 통계 계산 (클라이언트)
 → 결과 화면 표시
 ```
 
@@ -67,9 +69,11 @@ app/
 
 lib/
   supabase.ts           ← Supabase 클라이언트
+  wardrobeCatalog.ts    ← 소유/조회/분석 카탈로그 분리
 
 stores/
   authStore.ts
+  itemStore.ts
   outfitStore.ts
 
 constants/
@@ -88,7 +92,8 @@ assets/
 전체 타입 정의는 `docs/DATA_MODEL.md` 참조.
 
 요약:
-- `Item` — 의류 아이템 (id, userId, category, imagePath, color, styleTags)
+- `Item` — 사용자 소유 의류 (id, userId, catalogItemId, category, color, styleTags)
+- `CatalogItem` — 모든 사용자가 둘러보는 정적 아바타 템플릿
 - `Outfit` — 코디 기록 (id, userId, date, mood, weather, memo, itemIds)
 - `MonthlyReport` — 월간 통계 (클라이언트 계산, DB 저장 안 함)
 
