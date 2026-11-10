@@ -75,7 +75,7 @@
 | P-03 | 기존 작업 스킬 검증 | #180 병합 | 해당 없음 |
 | P-04 | 로컬 검사·기존 PR CI 통과 | #182 병합 | 실제 앱 빌드·제출 미검증 |
 | P-05 | 로컬 앱 전체 검사·핵심 테스트 28개·하네스 6개, 웹 export, Maven verify, 파일 보존·문서 링크 75개·workflow·스킬 검사 통과; GitHub CI 42781302107 앱·서버 통과(6d7b78d) | [PR #188](https://github.com/Catsmanager/Clothic/pull/188) (검증 완료, 통합 상태는 PR 참조) | 미배포 |
-| P-06 | legacy 파일 이동 후 `npm run check` 통과(핵심 28개·소유 계약 8/8·하네스 6개), legacy v3 스크립트 단독 실행 확인(FLOW_SCORE 11/12), 현역 v6 manifest fixtureFiles 불변 | [PR #TBD](https://github.com/Catsmanager/Clothic/pulls) | 해당 없음 |
+| P-06 | legacy 파일 이동 후 `npm run check` 통과(핵심 28개·소유 계약 8/8·하네스 6개), legacy v3 스크립트 단독 실행 확인(FLOW_SCORE 11/12), 현역 v6 manifest fixtureFiles 불변 | [PR #192](https://github.com/Catsmanager/Clothic/pull/192) | 해당 없음 |
 | F-01 | Maven verify·실제 HTTP 통합 테스트 1개·패키징 jar HTTP 200 확인, GitHub 앱·서버 CI 통과(a3bdc57) | [PR #186](https://github.com/Catsmanager/Clothic/pull/186) 병합(2b36d0d) | 미배포 |
 
 업데이트 시각과 검증 결과는 해당 작업의 [LOG.md](LOG.md)에도 남긴다. 전체 마이그레이션 추적 이슈는 [#175](https://github.com/Catsmanager/Clothic/issues/175)다.
