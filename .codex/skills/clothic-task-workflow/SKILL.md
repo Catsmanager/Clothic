@@ -7,6 +7,12 @@ description: Read Clothic plan.md first, work on one feature in a verified GitHu
 
 사용자가 Clothic 작업을 실행하라고 하면 가장 먼저 루트 plan.md를 읽는다. 대상 기능·선행 조건·완료 기준·현재 체크 상태를 확인한 뒤 최소 완료 단위와 GitHub 원격 작업 브랜치를 정한다. 문서·계획서·스킬 파일 생성도 파일 변경 작업에 포함한다.
 
+## 공통 원본과 호출
+
+- 이 디렉터리가 공통 원본이다. Claude Code의 .claude/skills/clothic-task-workflow는 이 디렉터리를 가리키는 상대 심볼릭 링크다. 규칙을 두 벌로 복사하지 않는다.
+- Codex에서는 $clothic-task-workflow, Claude Code에서는 /clothic-task-workflow로 호출한다. Claude의 CLAUDE.md import도 같은 원본을 참조한다.
+- 호출 방식과 관계없이 아래 plan.md 우선 확인·최소 기능별 원격 브랜치·검증 후 완료 체크 규칙을 따른다.
+
 ## 작업을 나누는 기준
 
 - 한 브랜치는 독립적으로 검증하고 검토할 수 있는 한 가지 결과를 만든다. 파일 수를 기준으로 쪼개지 않는다.

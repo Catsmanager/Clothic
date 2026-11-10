@@ -1,5 +1,13 @@
 # LOG
 
+## 2026-11-10 — P-09 Claude 공통 작업 스킬 연결 (#195)
+
+- 기준: 정리 작업 chore/191-root-docs 408e012. P-06~08의 미병합 계획·변경을 보존하며, 원격 chore/195-claude-task-skill의 같은 시작 SHA 확인 후 편집.
+- CLAUDE.md의 기존 import를 유지하고 .claude/skills/clothic-task-workflow를 공통 .codex 원본으로 연결. Codex의 $ 호출과 Claude의 / 호출 모두 같은 규칙을 사용하도록 명시.
+- .gitignore는 이 스킬 링크만 공유하도록 조정하고 settings.local.json 등 로컬 Claude 상태는 계속 제외.
+- 공식 Claude 스킬 문서의 프로젝트 경로·개별 스킬 디렉터리 심볼릭 링크 지원 확인. 설치된 Claude Code 2.1.322 버전 확인. 실제 대화 세션의 스킬 로드·준수는 실행 검증하지 않음.
+- 검증 진행 중. 앱·서버 코드 변경 없음, 배포 없음.
+
 ## 2026-11-10 — P-08 루트 문서 정리 (#191)
 
 - 기준: chore/190-components-home 899896d, 원격 chore/191-root-docs 동일 SHA 확인 후 편집. 사용자 승인한 구조 개선 3/3.
