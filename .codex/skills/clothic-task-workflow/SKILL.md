@@ -1,11 +1,11 @@
 ---
 name: clothic-task-workflow
-description: Start scoped Clothic file changes on verified GitHub task branches and prepare versioned app releases. Use for implementation, fixes, documentation, configuration, assets, skills, and release workflow changes; exclude questions and read-only reviews.
+description: Read Clothic plan.md first, work on one feature in a verified GitHub branch, and check it off only after implementation and verification. Use for code, documentation, configuration, skills, and versioned release work; exclude read-only questions.
 ---
 
 # Clothic Task Workflow
 
-사용자가 Clothic 작업을 실행하라고 하면 저장소 파일을 바꾸기 전에 최소 완료 단위를 정하고 GitHub 원격 작업 브랜치를 확인한다. 문서·계획서·스킬 파일 생성도 파일 변경 작업에 포함한다.
+사용자가 Clothic 작업을 실행하라고 하면 가장 먼저 루트 plan.md를 읽는다. 대상 기능·선행 조건·완료 기준·현재 체크 상태를 확인한 뒤 최소 완료 단위와 GitHub 원격 작업 브랜치를 정한다. 문서·계획서·스킬 파일 생성도 파일 변경 작업에 포함한다.
 
 ## 작업을 나누는 기준
 
@@ -16,8 +16,8 @@ description: Start scoped Clothic file changes on verified GitHub task branches 
 
 ## 파일 변경 전 필수 절차
 
-1. 현재 저장소·원격 주소·브랜치·HEAD·작업 디렉터리 상태를 확인한다. 필요한 작업 지침과 관련 코드·문서를 읽는다.
-2. 한 작업의 목표, 수정 범위, 완료 기준, 기준 브랜치와 커밋을 짧게 정한다. 해당 범위를 추적하는 GitHub 이슈를 연결한다. 적합한 기존 이슈가 없으면 작업별 이슈를 만든다.
+1. 먼저 루트 plan.md를 읽고 이번에 진행할 기능 ID·의존 관계·완료 기준·체크 상태를 확인한다. 그다음 현재 저장소·원격 주소·브랜치·HEAD·작업 디렉터리 상태와 필요한 지침·코드·문서를 확인한다.
+2. plan.md의 한 기능에 대응하는 목표, 수정 범위, 완료 기준, 기준 브랜치와 커밋을 짧게 정한다. 해당 범위를 추적하는 GitHub 이슈를 연결한다. 적합한 기존 이슈가 없으면 작업별 이슈를 만든다.
 3. 기존 변경은 보존한다. 다른 작업의 변경이 섞여 있으면 별도 작업 트리를 쓰거나 기존 작업 브랜치에 먼저 정리한다. 사용자 변경을 임의로 스테이징·폐기·덮어쓰기하지 않는다.
 4. 기준 브랜치를 확인하고 로컬 작업 브랜치를 만든다. 사용자가 지정한 배포 기준이나 상위 작업을 임의로 main 최신 상태로 바꾸지 않는다.
 5. **아직 저장소 파일을 수정하지 않은 상태에서 GitHub에 같은 브랜치를 생성한다.** GitHub 도구를 사용하거나 현재 작업 브랜치를 즉시 push하고 원격 추적을 연결한다.
@@ -36,6 +36,17 @@ git ls-remote --heads origin refs/heads/docs/177-organize-documents
 ```
 
 GitHub 연결 도구가 필요한 기능이나 쓰기 권한을 제공하지 못하면 인증된 Git 또는 GitHub CLI를 사용한다. 네트워크·권한 오류는 환경의 승인·재시도 절차를 따른다. 허용된 방법으로도 원격 브랜치 생성을 확인할 수 없으면 파일 변경을 시작하지 말고 실패 원인을 보고한다. 조사와 임시 위치의 요청 초안 준비는 계속할 수 있다.
+
+## plan.md 기능별 완료 체크
+
+- 루트 plan.md가 실행 상태의 단일 기준이다. 기능 ID, 결과, 선행 조건, 실제 검증할 완료 기준을 유지한다.
+- plan.md가 없으면 다른 기능 구현보다 계획 정리 작업을 먼저 한다. 계획 파일 생성도 원격 작업 브랜치 확인 후 수행한다.
+- 사용자에게 지정받은 기능을 우선하고, 별도 지정이 없으면 선행 조건이 충족된 미완료 기능 한 가지를 선택한다. 목록이 있다는 이유로 전체 기능을 일괄 구현하지 않는다.
+- 기능 구현과 명시한 검증이 실제 끝난 경우에만 해당 항목을 [x]로 바꾸고 검증 명령·결과·근거 파일·PR을 실행 기록에 남긴다.
+- 생성된 코드, 커밋, push, PR 생성만으로 완료 체크하지 않는다. 실패·부분 구현·외부 설정 대기는 [ ]로 유지하고 남은 조건을 기록한다.
+- 완료 체크는 해당 기능 브랜치의 변경에 포함한다. PR 병합·운영 배포 여부는 별도 상태로 관리하며 체크만으로 배포 완료라고 하지 않는다.
+- 사용자 요청 변경이나 새 기능은 plan.md에 미완료 항목으로 반영한다. 다른 항목을 추정으로 함께 완료 처리하지 않는다.
+- TODO.md와 상세 설계 문서에 같은 실행 체크리스트를 복제하지 않고 plan.md로 연결한다.
 
 ## 통합과 버전 지정 릴리스
 
@@ -57,7 +68,7 @@ GitHub 연결 도구가 필요한 기능이나 쓰기 권한을 제공하지 못
 
 - 범위를 넓히는 새 목표는 같은 브랜치에 끼워 넣지 않는다. 별도 브랜치로 나누되 필요한 선행 작업을 명시한다.
 - 변경에 맞는 검증을 수행한다. 문서 이동은 파일 보존·상대 링크·문서 참조를 확인하고, 실행 코드 변경은 해당 동작을 검증한다.
-- 저장소 규칙에 따라 TODO.md와 LOG.md를 갱신한다. 완료한 구현, 실제 실행한 검증, 미확인 상태를 구분한다.
+- 저장소 규칙에 따라 plan.md의 해당 항목과 LOG.md를 갱신한다. TODO.md는 plan.md를 안내하는 역할로 유지한다. 완료한 구현, 실제 실행한 검증, 미확인 상태를 구분한다.
 - 현재 작업의 파일만 명시적으로 스테이징해 커밋하고 해당 원격 작업 브랜치에 push한다. 이미 완료한 단계를 중복 수행하지 않는다.
 - 현재 저장소 지침은 작업 완료 후 PR 생성을 요구한다. 해당 작업의 PR을 만들거나 갱신하고 이슈·변경 결과·검증 내용을 연결한다. 사용자가 명시적으로 로컬 작업만 요청했다면 그 지시를 우선한다.
 - 상위 작업이 아직 병합되지 않았다면 PR의 기준을 상위 브랜치로 설정하고 의존하는 PR을 연결해 현재 작업의 차이만 검토할 수 있게 한다.
