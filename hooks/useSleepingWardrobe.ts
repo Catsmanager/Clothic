@@ -6,7 +6,7 @@ import {
 } from '../constants/sleepingWardrobe'
 import { buildSleepingItems } from '../lib/sleepingWardrobe'
 import { parseDateKey } from '../lib/date'
-import { buildCatalogItems, useItemStore } from '../stores/itemStore'
+import { buildAnalyticsCatalogItems, useItemStore } from '../stores/itemStore'
 import { useOutfitStore } from '../stores/outfitStore'
 import { useCurrentDateKey } from './useCurrentDateKey'
 
@@ -34,7 +34,7 @@ export function useSleepingWardrobe() {
   }, [fetchItems, fetchOutfits])
 
   const sleepingItems = useMemo(
-    () => buildSleepingItems(outfits, buildCatalogItems(userItems), currentDate),
+    () => buildSleepingItems(outfits, buildAnalyticsCatalogItems(userItems), currentDate),
     [currentDate, outfits, userItems]
   )
 
