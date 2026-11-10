@@ -1,21 +1,14 @@
 # TODO
 
-## GitHub 개발·버전·릴리스 흐름 — 2026-11-10
+실제 작업은 먼저 [plan.md](plan.md)를 확인한다. 기능별 최소 작업 목록·선행 조건·완료 체크·검증 근거는 plan.md에서만 갱신한다.
 
-- [x] 모든 PR CI와 버전 지정 iOS 릴리스 workflow·검증 코드·작업 스킬 정리 (#181)
-- [ ] main 보호 규칙과 app-store 승인·태그 허용 정책 실제 설정
-- [ ] 새 workflow의 EAS 빌드·TestFlight 제출 및 공개 버전 대조
+- 상세 학습·설계: [Spring Boot 마이그레이션 참고](docs/migration/SPRING_BOOT_MIGRATION_PLAN.md)
+- 문서 목록: [docs/README.md](docs/README.md)
+- 날짜별 변경·검증 기록: [LOG.md](LOG.md)
 
-## 문서 탐색과 작업 규칙 — 2026-11-10
+## 이전 개발 이력
 
-- [x] [문서 안내](docs/README.md)를 시작점으로 기존 문서 주제별 분리 (#177)
-- [x] 최소 완료 단위별 GitHub 원격 브랜치 선행 스킬과 AGENTS/CLAUDE 진입 규칙 추가 (#178)
-
-## Spring Boot 전환 학습 계획 — 2026-11-10
-
-- [x] [학습·작업 계획](docs/migration/SPRING_BOOT_MIGRATION_PLAN.md) 작성 및 현재 코드·환경·GitHub 상태 확인
-- [ ] 계획서의 첫 API 계약 확정 → `backend/` 프로젝트 생성과 상태 확인 요청부터 진행 (#175)
-- 후속 구현은 계획서 단계별 완료 기준을 충족한 뒤 진행한다. Supabase 인증·기존 DB는 초기 전환 동안 유지한다.
+아래 체크리스트는 기존 앱 개발 당시의 이력이다. 현재 마이그레이션의 완료 상태로 해석하지 않는다.
 
 > 재점검: 2026-05-30 — 실제 파일과 대조해 체크 상태 정정. 하단 "현황 메모" 참조.
 
