@@ -32,6 +32,7 @@ CRITICAL: 작업 후 변경 파일 목록을 보고한다.
 CRITICAL: 작업 후 검증 결과를 보고한다.
 CRITICAL: 작업 진행 요청은 plan.md에서 사용자가 지정한 기능을 우선한다. 별도 지정이 없으면 선행 조건이 충족된 미완료 기능 하나만 처리한다. 과거 TODO 이력의 미완료 표시를 현재 실행 순서로 사용하지 않는다.
 CRITICAL: 작업 완료 후 LOG.md를 업데이트한다.
+CRITICAL: 작업 지침·스킬을 만들거나 바꿀 때는 Claude(CLAUDE.md)와 Codex(AGENTS.md, `.codex/skills/`) 양쪽에 같은 내용을 반영한다. 한쪽에만 쓰지 않는다.
 CRITICAL: 옷/신발/하의/상의 에셋 추가 또는 아이템 미리보기 수정 전에는 docs/avatar/ITEM_ASSET_FLOW.md를 먼저 읽고 따른다.
 
 ## 작업 방식
