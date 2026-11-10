@@ -14,9 +14,9 @@ import Constants from 'expo-constants'
 import { router } from 'expo-router'
 import { Feather } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { colors } from '../constants/colors'
-import { radius, spacing } from '../constants/spacing'
-import { useAuthStore } from '../stores/authStore'
+import { colors } from '../../constants/colors'
+import { radius, spacing } from '../../constants/spacing'
+import { useAuthStore } from '../../stores/authStore'
 
 interface Props {
   visible: boolean

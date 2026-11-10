@@ -5,9 +5,9 @@ import {
   AVATAR_BACKGROUNDS,
   type AvatarBackground,
   type AvatarBackgroundId,
-} from '../constants/avatarBackgrounds'
-import { colors } from '../constants/colors'
-import { radius, spacing } from '../constants/spacing'
+} from '../../constants/avatarBackgrounds'
+import { colors } from '../../constants/colors'
+import { radius, spacing } from '../../constants/spacing'
 
 interface Props {
   visible: boolean

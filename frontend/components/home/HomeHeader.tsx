@@ -2,9 +2,9 @@ import { useEffect } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { router } from 'expo-router'
 import { Feather } from '@expo/vector-icons'
-import { colors } from '../constants/colors'
-import { radius, spacing } from '../constants/spacing'
-import { useNotificationStore } from '../stores/notificationStore'
+import { colors } from '../../constants/colors'
+import { radius, spacing } from '../../constants/spacing'
+import { useNotificationStore } from '../../stores/notificationStore'
 
 interface Props {
   onMenuPress: () => void

@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { colors } from '../constants/colors'
-import { spacing, radius } from '../constants/spacing'
+import { colors } from '../../constants/colors'
+import { spacing, radius } from '../../constants/spacing'
 
 const MOOD_LABEL: Record<string, string> = {
   happy: '😊 좋음',

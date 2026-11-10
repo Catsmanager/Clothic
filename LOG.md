@@ -1,5 +1,12 @@
 # LOG
 
+## 2026-11-10 — P-07 홈 전용 컴포넌트 폴더 정리 (#190)
+
+- 기준: chore/189-legacy-evaluators 0fe54ed, 원격 chore/190-components-home 동일 SHA 확인 후 편집. 사용자 승인한 구조 개선 2/3.
+- HomeHeader·HomeMenuSheet·HomeBackgroundSheet·TodayRecordSheet·MoodMemoCard·DateWeatherBar → frontend/components/home/, SaveOutfitSheet → components/save-outfit/. 이동 파일의 상대 import와 app/(tabs)/index.tsx·create.tsx import만 갱신, 컴포넌트 내용은 변경하지 않음.
+- AvatarCard는 check-user-flow-contract-v4.mjs와 autoresearch 스킬이 경로를 직접 읽어 제외. CoreDataState·OutfitAvatar·ItemPreviewThumb·DonutChart는 여러 기능이 공유해 루트 유지.
+- 검증: `npm run check` 통과(typecheck·lint·format, 핵심 28개, 소유 계약 8/8, 하네스 6개), `expo export --platform web` 성공. 실기기·브라우저 화면 확인은 하지 않음(파일 이동만이라 런타임 동작 변화 없음으로 판단).
+
 ## 2026-11-10 — P-06 legacy 평가기·flow 스크립트 분리 (#189)
 
 - 기준: main 6bb8708, 원격 chore/189-legacy-evaluators 동일 SHA 확인 후 편집. 사용자 승인한 구조 개선 1/3.
