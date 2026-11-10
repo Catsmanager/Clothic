@@ -27,7 +27,7 @@ CRITICAL: 구조 변경 전에는 먼저 제안하고 승인받는다.
 CRITICAL: API 키는 절대 코드에 하드코딩하지 않는다.
 CRITICAL: 앱 환경변수는 frontend/.env.local을 사용한다.
 CRITICAL: 파일 변경 작업은 작업별 GitHub 이슈를 연결하고 최소 완료 단위의 원격 작업 브랜치를 생성·확인한 뒤 진행한다. 공통 절차는 `.codex/skills/clothic-task-workflow/SKILL.md`를 따른다.
-CRITICAL: 작업 완료 후 커밋·푸시하고 Pull Request를 생성한다.
+CRITICAL: 작업 완료 후 커밋·푸시하고 Pull Request를 생성한다. PR의 앱·서버 CI가 통과하고 충돌이 없으면 사용자 확인을 다시 기다리지 않고 main에 병합한다. 사용자가 로컬 작업만 요청했거나 CI가 실패하면 병합하지 않고 그 상태를 보고한다.
 CRITICAL: 작업 후 변경 파일 목록을 보고한다.
 CRITICAL: 작업 후 검증 결과를 보고한다.
 CRITICAL: 작업 진행 요청은 plan.md에서 사용자가 지정한 기능을 우선한다. 별도 지정이 없으면 선행 조건이 충족된 미완료 기능 하나만 처리한다. 과거 TODO 이력의 미완료 표시를 현재 실행 순서로 사용하지 않는다.

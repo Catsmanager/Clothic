@@ -1,5 +1,12 @@
 # LOG
 
+## 2026-11-10 — P-09 PR 자동 병합 규칙 (#197)
+
+- 사용자 요청: 작업 완료 후 PR 생성에서 멈추지 않고 병합까지 자동으로 진행. 기준 main bc9c347, 원격 docs/197-auto-merge-rule 동일 SHA 확인 후 편집.
+- CLAUDE.md CRITICAL 규칙, AGENTS.md, clothic-task-workflow 스킬에 병합 조건(앱·서버 CI 통과, mergeable, 로컬 작업 요청 아님), merge commit 방식, stacked PR 처리, 미병합 시 보고 규칙을 추가. 강제 push·보호 규칙 우회·브랜치 삭제는 계속 금지.
+- 같은 요청으로 P-06~P-08 PR #192(76350f6)·#193(f3991f2)·#194(bc9c347)를 CI 통과 확인 후 순서대로 main에 병합. 쌓인 PR은 base를 main으로 바꾼 뒤 병합. plan.md 실행 기록에 병합 커밋 반영.
+- main 브랜치 보호 설정은 없음(R-01 미완료). 코드 변경 없음.
+
 ## 2026-11-10 — P-08 루트 문서 정리 (#191)
 
 - 기준: chore/190-components-home 899896d, 원격 chore/191-root-docs 동일 SHA 확인 후 편집. 사용자 승인한 구조 개선 3/3.
