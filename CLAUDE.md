@@ -43,6 +43,10 @@ CRITICAL: 옷/신발/하의/상의 에셋 추가 또는 아이템 미리보기 �
 @HARNESS/loop.md
 @HARNESS/roles.md
 
+공통 작업 스킬은 `/clothic-task-workflow`로도 호출한다. Claude의 `.claude/skills/clothic-task-workflow`는 `.codex/skills/clothic-task-workflow`를 가리키며, 위 import와 같은 원본을 사용한다. 스킬 수정은 원본에서만 한다.
+
+프로젝트 스킬 경로와 심볼릭 링크 지원은 [Claude Code 공식 스킬 문서](https://code.claude.com/docs/en/skills#choose-where-skills-load)를 기준으로 한다. 이 연결은 지침 공유·스킬 탐색 설정이며 실제 세션의 로드·준수를 증명하지 않는다.
+
 추가 규칙:
 - 작은 단위로 수정한다.
 - 작업 완료 후 plan.md의 해당 기능 체크와 검증 근거를 갱신한다. TODO.md는 실행 목록을 중복하지 않고 plan.md로 연결하며, LOG.md에는 날짜가 있는 결과를 남긴다.
