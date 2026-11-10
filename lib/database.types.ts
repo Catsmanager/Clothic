@@ -32,6 +32,7 @@ export interface Database {
         Row: {
           id: string
           user_id: string
+          catalog_item_id: string | null
           name: string
           category: string
           image_path: string
@@ -42,6 +43,7 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
+          catalog_item_id?: string | null
           name: string
           category: string
           image_path: string
@@ -52,6 +54,7 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
+          catalog_item_id?: string | null
           name?: string
           category?: string
           image_path?: string

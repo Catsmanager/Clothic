@@ -14,7 +14,11 @@ import { Feather, Ionicons } from '@expo/vector-icons'
 import { colors } from '../../constants/colors'
 import { spacing, radius } from '../../constants/spacing'
 import { useOutfitStore, MOOD_LABELS, WEATHER_LABELS } from '../../stores/outfitStore'
-import { buildCatalogItems, findCatalogItemById, useItemStore } from '../../stores/itemStore'
+import {
+  buildResolvableCatalogItems,
+  findCatalogItemById,
+  useItemStore,
+} from '../../stores/itemStore'
 import OutfitAvatar from '../../components/OutfitAvatar'
 import { formatFullDateWithWeekday } from '../../lib/date'
 
@@ -34,7 +38,7 @@ export default function OutfitDetailScreen() {
     state: 'loading' | 'ready'
     error: string | null
   }>({ id, state: outfit ? 'ready' : 'loading', error: null })
-  const catalogItems = useMemo(() => buildCatalogItems(userItems), [userItems])
+  const catalogItems = useMemo(() => buildResolvableCatalogItems(userItems), [userItems])
   const lookupState = lookup.id === id ? lookup.state : 'loading'
   const lookupError = lookup.id === id ? lookup.error : null
   const leaveDetail = useCallback(() => {
