@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 4,
+  "id": "wardrobe-ownership-frontend-v6",
+  "version": 6,
+  "purpose": "Source-contract score for separating confirmed user-owned clothes from Clothic's static avatar catalog",
+  "primaryMetric": {
+    "name": "wardrobe_ownership_contract_score",
+    "direction": "higher",
+    "epsilon": 0,
+    "target": 8,
+    "regex": "(?m)^WARDROBE_OWNERSHIP_SCORE=([0-9]+)$"
+  },
+  "execution": {
+    "command": [
+      "node",
+      "scripts/check-wardrobe-ownership-contract.mjs"
+    ],
+    "repeat": 1,
+    "timeoutSeconds": 30,
+    "cwd": "frontend",
+    "environment": {
+      "inherit": [
+        "HOME",
+        "PATH",
+        "TMPDIR"
+      ],
+      "set": {
+        "CI": "true",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "TZ": "Asia/Seoul"
+      }
+    }
+  },
+  "gates": [
+    {
+      "id": "source-contract-v4",
+      "command": [
+        "node",
+        "scripts/check-user-flow-contract-v4.mjs"
+      ],
+      "repeat": 1,
+      "timeoutSeconds": 30,
+      "cwd": "frontend",
+      "environment": {
+        "inherit": [
+          "HOME",
+          "PATH",
+          "TMPDIR"
+        ],
+        "set": {
+          "CI": "true",
+          "LANG": "C.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "TZ": "Asia/Seoul"
+        }
+      }
+    },
+    {
+      "id": "static",
+      "command": [
+        "npm",
+        "run",
+        "verify:static"
+      ],
+      "repeat": 1,
+      "timeoutSeconds": 300,
+      "cwd": "frontend",
+      "environment": {
+        "inherit": [
+          "HOME",
+          "PATH",
+          "TMPDIR"
+        ],
+        "set": {
+          "CI": "true",
+          "LANG": "C.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "TZ": "Asia/Seoul"
+        }
+      }
+    }
+  ],
+  "fixedContext": {
+    "timezone": "Asia/Seoul",
+    "clock": "2026-08-03T12:00:00+09:00",
+    "seed": 20260803,
+    "users": [
+      "user-a",
+      "user-b"
+    ],
+    "windowDays": 30
+  },
+  "fixtureFiles": [
+    ".prettierignore",
+    ".prettierrc",
+    "HARNESS/evaluator-v6-ownership.json",
+    "frontend/app.json",
+    "frontend/eslint.config.js",
+    "frontend/package-lock.json",
+    "frontend/package.json",
+    "frontend/scripts/check-avatar-assets.mjs",
+    "frontend/scripts/check-user-flow-contract-v4.mjs",
+    "frontend/scripts/check-wardrobe-ownership-contract.mjs",
+    "frontend/tests/wardrobeOwnershipEvaluator.test.mjs",
+    "frontend/tsconfig.json",
+    "supabase/migrations/20260803000100_add_catalog_ownership_to_items.sql",
+    "frontend/lib/database.types.ts"
+  ],
+  "limitations": [
+    "This is a deterministic product-flow proxy, not observed user retention.",
+    "The primary metric verifies source wiring and does not prove visual or device behavior.",
+    "Existing outfits with static catalog IDs remain a separate migration and compatibility concern.",
+    "Version 6 adapts repository paths to frontend/; old manifest hashes and results remain historical evidence, not comparable pairs."
+  ]
+}

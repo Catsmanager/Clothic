@@ -1,5 +1,6 @@
 # Avatar Asset Pipeline
 
+경로 기준: 앱 파일의 짧은 경로와 앱 명령은 `frontend/` 기준이다. `docs/`, `supabase/`, `HARNESS/`, `.github/`는 저장소 루트 기준이다.
 ## Goal
 
 Add avatar clothing layers with one command, keeping these files in sync:

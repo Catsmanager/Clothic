@@ -1,5 +1,6 @@
 # Sign in with Apple 설정 가이드
 
+경로 기준: 앱 파일의 짧은 경로와 앱 명령은 `frontend/` 기준이다. `docs/`, `supabase/`, `HARNESS/`, `.github/`는 저장소 루트 기준이다.
 iOS에서 카카오 로그인을 제공하면 App Store Guideline 4.8에 따라 Sign in with Apple도
 함께 제공해야 한다. 코드는 구현되어 있으며, 아래 **계정/콘솔 설정은 사용자 작업**이다.
 

@@ -1,5 +1,6 @@
 # Asset Plan
 
+경로 기준: 앱 파일의 짧은 경로와 앱 명령은 `frontend/` 기준이다. `docs/`, `supabase/`, `HARNESS/`, `.github/`는 저장소 루트 기준이다.
 ## 아트 방향
 
 - 스타일: 차분한 semi-pixel 패션 일러스트

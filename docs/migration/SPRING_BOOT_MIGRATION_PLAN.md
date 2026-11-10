@@ -1,5 +1,6 @@
 # Clothic Spring Boot 마이그레이션 학습·작업 계획
 
+경로 기준: 앱 파일의 짧은 경로와 앱 명령은 `frontend/` 기준이다. `docs/`, `supabase/`, `HARNESS/`, `.github/`는 저장소 루트 기준이다.
 작성일: 2026-11-10\
 상태: 학습·설계 참고 문서. 실제 기능별 진행 상태는 루트 [plan.md](../../plan.md)에서 확인한다.\
 기준: `release/app-store-1.1.1`의 `73c9863`\
@@ -36,14 +37,14 @@ JPA 연결은 Supabase Data API를 거치는 연결과 다르다. 앱의 접근 
 
 | 역할 | 확인한 파일 | 확인한 동작 |
 | --- | --- | --- |
-| 옷장 화면 | [app/(tabs)/more.tsx](../../app/(tabs)/more.tsx), 22·63행 | `useSleepingWardrobe()`를 호출하고 계산된 목록을 `SleepingItemList`에 전달 |
-| 화면 조회 시작 | [hooks/useSleepingWardrobe.ts](../../hooks/useSleepingWardrobe.ts), 31~38행 | `fetchItems()`·`fetchOutfits()` 실행 후 두 결과를 가공 |
-| 아이템 선택 화면 | [hooks/useItemSelect.ts](../../hooks/useItemSelect.ts), 24~35행 | 같은 `fetchItems()`를 호출하고 카테고리·하위 분류로 필터링 |
-| 조회 함수 | [stores/itemStore.ts](../../stores/itemStore.ts), 92~113행 | `items` 전체 컬럼을 `created_at` 내림차순으로 요청하고 상태 갱신 |
+| 옷장 화면 | [app/(tabs)/more.tsx](../../frontend/app/(tabs)/more.tsx), 22·63행 | `useSleepingWardrobe()`를 호출하고 계산된 목록을 `SleepingItemList`에 전달 |
+| 화면 조회 시작 | [hooks/useSleepingWardrobe.ts](../../frontend/hooks/useSleepingWardrobe.ts), 31~38행 | `fetchItems()`·`fetchOutfits()` 실행 후 두 결과를 가공 |
+| 아이템 선택 화면 | [hooks/useItemSelect.ts](../../frontend/hooks/useItemSelect.ts), 24~35행 | 같은 `fetchItems()`를 호출하고 카테고리·하위 분류로 필터링 |
+| 조회 함수 | [stores/itemStore.ts](../../frontend/stores/itemStore.ts), 92~113행 | `items` 전체 컬럼을 `created_at` 내림차순으로 요청하고 상태 갱신 |
 | 응답 변환 | 같은 파일 36~51행 | 허용하지 않는 카테고리 제외, 스타일 태그 정리, snake_case 필드를 camelCase로 변환 |
 | 목록 결합 | 같은 파일 69~70행 | 기본 `ITEMS`와 사용자 조회 결과를 결합 |
-| 인증 클라이언트 | [lib/supabase.ts](../../lib/supabase.ts), 27~35행 | Supabase 클라이언트의 세션 유지·토큰 갱신 설정 |
-| 계정 전환 | [stores/authStore.ts](../../stores/authStore.ts), 63~67·96~105행 | 기존 사용자가 로그아웃하거나 계정이 바뀌면 사용자별 상태 초기화 |
+| 인증 클라이언트 | [lib/supabase.ts](../../frontend/lib/supabase.ts), 27~35행 | Supabase 클라이언트의 세션 유지·토큰 갱신 설정 |
+| 계정 전환 | [stores/authStore.ts](../../frontend/stores/authStore.ts), 63~67·96~105행 | 기존 사용자가 로그아웃하거나 계정이 바뀌면 사용자별 상태 초기화 |
 | 테이블·정책 | [스키마 마이그레이션](../../supabase/migrations/20260613000100_normalize_app_schema_and_rls.sql), 17~25·88~102행 | `items.user_id`와 `auth.uid() = user_id` 정책 정의 |
 
 현재 조회에는 `.eq('user_id', ...)` 조건이 없다. 저장소에 정의된 RLS 정책을 전제로 하는 구조다. 운영 데이터베이스에 정책이 실제 적용되었는지는 아직 확인하지 않았다.
@@ -80,7 +81,7 @@ Authorization: Bearer <Supabase 사용자 접근 토큰>
 ]
 ```
 
-위 값은 설명용 예시이며 실제 사용자 데이터가 아니다. 필드는 [현재 UserItem 타입](../../stores/itemStore.ts)의 15~23행을 기준으로 한다. 날짜는 시간대가 포함된 형식으로 반환하고, 비교 시 같은 시각인지 확인한다.
+위 값은 설명용 예시이며 실제 사용자 데이터가 아니다. 필드는 [현재 UserItem 타입](../../frontend/stores/itemStore.ts)의 15~23행을 기준으로 한다. 날짜는 시간대가 포함된 형식으로 반환하고, 비교 시 같은 시각인지 확인한다.
 
 | 상황 | 목표 응답 |
 | --- | --- |

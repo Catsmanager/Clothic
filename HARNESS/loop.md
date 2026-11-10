@@ -13,7 +13,7 @@
 - schema-v4 manifest에 명령·metric regex·방향·epsilon·repeat·timeout·CWD·환경·gate와 고정 fixture를 모두 기록한다.
 - manifest·fixture·runner bundle hash와 runtime/environment identity를 baseline/candidate에서 동일하게 사용한다.
 - evaluator가 없다면 known-fail과 known-pass를 구분하는지 먼저 검증하고 별도 iteration으로 고정한다.
-- `evaluator.json`, `evaluator-v2.json`, `evaluator-v3.json`과 기존 log는 비재현 legacy 증거다. 새 pair에는 `evaluator-v4.json` 이상만 사용한다.
+- `evaluator.json`, `evaluator-v2.json`, `evaluator-v3.json`과 기존 log는 비재현 legacy 증거다. 현재 frontend/ 구조의 새 pair에는 `evaluator-v6-habit.json` 또는 `evaluator-v6-ownership.json`을 사용한다. v4/v5는 과거 루트 앱 구조의 고정 기록으로 보존한다.
 
 ## 3. Baseline
 

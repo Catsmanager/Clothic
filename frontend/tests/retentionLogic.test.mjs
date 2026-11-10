@@ -7,7 +7,7 @@ import { getPrimaryStyledOutfits, indexPrimaryStyledOutfitsByDate } from '../lib
 import { buildWeekData } from '../lib/weeklyStats.ts'
 
 const fixture = JSON.parse(
-  readFileSync(new URL('../HARNESS/fixtures/habit-journey-v1.json', import.meta.url), 'utf8')
+  readFileSync(new URL('../../HARNESS/fixtures/habit-journey-v1.json', import.meta.url), 'utf8')
 )
 const [item] = fixture.items
 const primaryRecords = fixture.records.filter((record) => record.userId === fixture.users.primary)

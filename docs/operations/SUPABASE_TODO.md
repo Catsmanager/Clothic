@@ -1,5 +1,6 @@
 # Supabase 작업 체크리스트
 
+경로 기준: 앱 파일의 짧은 경로와 앱 명령은 `frontend/` 기준이다. `docs/`, `supabase/`, `HARNESS/`, `.github/`는 저장소 루트 기준이다.
 Clothic 앱 코드 기준으로 Supabase에서 확인하거나 설정해야 할 항목입니다.
 이미 완료한 항목은 체크만 하고 넘어가면 됩니다.
 

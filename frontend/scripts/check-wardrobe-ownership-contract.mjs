@@ -86,10 +86,10 @@ function read(relativePath) {
 
 function readRepositorySources() {
   const latestMigration = fs
-    .readdirSync(path.join(root, 'supabase/migrations'))
+    .readdirSync(path.join(root, '../supabase/migrations'))
     .filter((name) => name.endsWith('.sql'))
     .sort()
-    .map((name) => read(`supabase/migrations/${name}`))
+    .map((name) => read(`../supabase/migrations/${name}`))
     .join('\n')
 
   return {

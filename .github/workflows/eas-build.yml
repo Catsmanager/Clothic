@@ -24,6 +24,10 @@ concurrency:
 permissions:
   contents: read
 
+defaults:
+  run:
+    working-directory: frontend
+
 jobs:
   verify:
     name: Verify versioned release commit
@@ -45,6 +49,7 @@ jobs:
       tag: ${{ env.RELEASE_TAG }}
     steps:
       - name: Validate release tag before checkout
+        working-directory: .
         shell: bash
         run: |
           if [[ ! "$RELEASE_TAG" =~ ^app-v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
@@ -72,6 +77,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Verify tag and app versions
         id: version
@@ -101,6 +107,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
@@ -141,6 +148,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci

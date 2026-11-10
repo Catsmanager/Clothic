@@ -1,5 +1,6 @@
 # GitHub 개발·버전·배포 흐름
 
+경로 기준: 앱 파일의 짧은 경로와 앱 명령은 `frontend/` 기준이다. `docs/`, `supabase/`, `HARNESS/`, `.github/`는 저장소 루트 기준이다.
 작업은 최소 완료 단위의 브랜치로 나누고, 검증한 코드를 `main`에 통합한다. iOS 배포는 별도의 버전 태그와 GitHub Release로 지정한다.
 
 ## 1. 개발과 배포를 구분한다
@@ -19,7 +20,7 @@ PR은 Pull Request, CI는 Continuous Integration(지속적 통합)이다. `main`
 - 독립된 작업은 확인한 통합 기준에서 시작한다. 미병합 상위 작업에 의존하는 경우에만 그 브랜치를 기준으로 삼고 PR에 의존 관계를 적는다.
 - 같은 작업의 후속 수정은 기존 브랜치에 올린다. 문서 수정이나 작은 코드 변경마다 앱 버전을 올리지 않는다.
 - 병합 여부·태그 생성·Release 게시·빌드 성공·TestFlight 처리·스토어 공개를 각각 구분해 기록한다.
-- 아래 규칙은 GitHub Actions의 iOS 릴리스에 관한 것이다. Vercel 웹 데모의 자동 배포 설정을 변경한 것은 아니다.
+- 아래 규칙은 GitHub Actions의 iOS 릴리스에 관한 것이다. Vercel 웹 데모는 별도다. 폴더 분리에 맞춰 루트 `vercel.json`의 설치·빌드·출력 경로를 `frontend/`로 지정한다. 호스팅 프로젝트의 Root Directory는 저장소 루트를 전제로 하며 실제 배포 성공은 별도로 확인한다.
 
 ## 2. 버전을 올리는 시점
 
@@ -100,7 +101,7 @@ Actions에서 `Release iOS to TestFlight`를 선택하고 **main의 workflow**�
 
 - `main`에는 브랜치 보호 설정이 없었다. CI를 실행하는 것과 통과를 병합 필수 조건으로 강제하는 것은 다르다.
 - `app-store` 환경은 존재하지만 protection rules는 비어 있었다. 환경 이름을 workflow에 적었다고 승인자가 자동으로 생기지 않는다.
-- 이번 변경은 workflow·검증 코드·문서·스킬을 PR로 제안하는 작업이다. `main`에 병합되기 전에는 새 기본 운영 방식이 적용됐다고 하지 않는다.
+- 버전 릴리스 workflow는 #182에서 main에 병합됐다. 실제 빌드·TestFlight·스토어 공개 검증은 아직 별도 작업이다.
 
 후속 적용 항목:
 
@@ -114,3 +115,11 @@ Actions에서 `Release iOS to TestFlight`를 선택하고 **main의 workflow**�
 - [GitHub release 이벤트](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#release)는 Release 게시 시 workflow를 실행할 수 있음을 설명한다. 저장소의 보호 설정이나 실제 실행 성공을 증명하지는 않는다.
 - [EAS CLI](https://docs.expo.dev/eas/cli/)의 JSON 빌드 결과와 ID 지정 제출 옵션을 기준으로 빌드 선택을 구성했다. 자격증명·Apple 처리·실기기 동작은 실제 실행으로 별도 확인한다.
 - 이 문서의 자동화는 TestFlight 업로드까지다. 공개 App Store 출시는 Apple 심사·게시 상태로 따로 확인한다.
+
+## 8. frontend/backend 경로
+
+GitHub Actions 앱 명령과 EAS 명령은 `frontend/`에서 실행하며 `app.json`, `eas.json`, npm 잠금 파일도 그곳에 둔다. Node 캐시는 `frontend/package-lock.json`, 서버 캐시는 `backend/pom.xml` 기준이다.
+
+루트 `vercel.json`은 `npm --prefix frontend ci`, `npm --prefix frontend run vercel-build`, `frontend/dist`를 지정한다. SPA rewrite는 유지한다. 폴더 분리만으로 Supabase 연결 대상이나 앱 API를 바꾸지 않는다.
+
+[Expo의 모노레포 빌드 안내](https://docs.expo.dev/build-reference/build-with-monorepos/)는 앱 디렉터리에서 EAS 명령을 실행하고 그곳에 eas.json을 둘 것을 설명한다. [Vercel 설정 안내](https://vercel.com/docs/project-configuration/vercel-json)는 설치·빌드·출력 경로 재정의의 근거다. 이 문서들은 프로젝트 자격증명이나 실제 호스팅·스토어 배포 성공을 증명하지 않는다.

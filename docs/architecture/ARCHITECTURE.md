@@ -1,5 +1,6 @@
 # Architecture
 
+경로 기준: 앱 파일의 짧은 경로와 앱 명령은 `frontend/` 기준이다. `docs/`, `supabase/`, `HARNESS/`, `.github/`는 저장소 루트 기준이다.
 ## 기본 구조
 
 * Frontend: Expo + React Native
@@ -8,7 +9,8 @@
 * State Management: Zustand
 * Storage: Supabase DB (AsyncStorage 미사용)
 * Auth: Supabase Auth (이메일/비밀번호 + 카카오 OAuth)
-* Backend: Supabase (PostgreSQL + RLS)
+* 현재 앱의 인증·데이터: Supabase (PostgreSQL + RLS)
+* 마이그레이션 서버: `backend/`의 Java 21 + Spring Boot (상태 확인만 구현, 앱·DB 연결 전)
 * Styling: React Native StyleSheet
 
 ---
@@ -50,39 +52,34 @@ User
 
 ## 디렉토리 구조
 
-```
-app/
-  _layout.tsx           ← 인증 가드
-  login.tsx
-  signup.tsx
-  onboarding.tsx
-  outfits.tsx
-  item-select.tsx
-  (tabs)/
-    index.tsx           ← 홈
-    calendar.tsx
-    create.tsx
-    stats.tsx
-    more.tsx            ← 잠자는 옷장
-  outfit/
-    [id].tsx
-
-lib/
-  supabase.ts           ← Supabase 클라이언트
-  wardrobeCatalog.ts    ← 소유/조회/분석 카탈로그 분리
-
-stores/
-  authStore.ts
-  itemStore.ts
-  outfitStore.ts
-
-constants/
-  items.ts              ← 아이템 메타데이터 (에셋 경로 포함, hair 제외)
-  colors.ts
-  spacing.ts
-
-assets/
-  avatar/               ← 픽셀 아바타 에셋 (ASSET_PLAN.md 참조)
+```text
+Clothic/
+├── frontend/               # Expo 앱 루트
+│   ├── app/                # Expo Router 화면·인증 가드
+│   ├── components/         # 공통 UI·아바타
+│   ├── hooks/
+│   ├── lib/                # Supabase 클라이언트·조회 보조 함수
+│   ├── stores/             # authStore·itemStore·outfitStore
+│   ├── constants/          # 카탈로그·디자인 상수
+│   ├── assets/
+│   ├── types/
+│   ├── scripts/
+│   ├── tests/
+│   ├── app.json
+│   ├── eas.json
+│   └── package.json
+├── backend/                # 독립 Maven·Spring Boot 프로젝트
+│   ├── src/main/
+│   ├── src/test/
+│   ├── pom.xml
+│   └── mvnw
+├── supabase/               # 기존 SQL·Edge Function 이력
+├── docs/
+├── HARNESS/
+├── .github/workflows/      # 앱·서버 CI, 앱 버전 릴리스
+├── .codex/skills/
+├── plan.md                 # 기능별 실행 상태
+└── vercel.json             # 루트 프로젝트에서 frontend 웹 빌드
 ```
 
 ---

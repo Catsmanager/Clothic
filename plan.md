@@ -16,7 +16,7 @@
 
 - 첫 전환은 기존 Supabase Auth와 PostgreSQL을 유지한다. 운영 데이터 삭제·복사와 인증 서비스 동시 교체는 별도 작업이다.
 - 현재 main의 카탈로그/소유 아이템 분리 구현을 보존한다. 기존 상세 문서의 73c9863 분석은 과거 기준이므로 API 연결 전 현재 타입·동작과 대조한다.
-- 이번 작업의 구현 범위는 **F-01 서버 기동·상태 확인**까지다. 아래 후속 기능은 실행 순서와 완료 기준을 정리한 목록이며 모두 구현됐다는 뜻이 아니다.
+- 현재 구현 범위는 **F-01 서버 기동·상태 확인**과 **P-05 frontend/backend 디렉터리 분리**다. 후속 API 전환 기능은 실행 순서와 완료 기준을 정리한 목록이며 아직 착수하지 않았다.
 - 앱의 실제 Spring Boot 연결, 인증·DB 연동, 운영 배포는 아직 완료되지 않았다.
 
 ## 준비 작업
@@ -25,6 +25,8 @@
 - [x] **P-02 문서 탐색 구조** — 문서 주제별 분리와 링크 검증. 근거: [PR #179](https://github.com/Catsmanager/Clothic/pull/179).
 - [x] **P-03 최소 작업별 원격 브랜치 규칙** — 작업 브랜치·원격 ref 확인 후 편집하도록 지침과 스킬 연결. 근거: [PR #180](https://github.com/Catsmanager/Clothic/pull/180).
 - [x] **P-04 버전 지정 앱 릴리스 흐름** — 모든 PR CI와 버전·커밋·빌드 ID 검사 적용. 근거: [PR #182](https://github.com/Catsmanager/Clothic/pull/182). 실제 TestFlight 성공은 R-03에서 확인.
+
+- [x] **P-05 frontend/backend 디렉터리 분리** — Expo 소스·설정·로컬 실행 환경을 frontend/로 옮기고 서버는 backend/에 둔다. CI·EAS·Vercel 경로와 현재 문서·스킬을 갱신한다. 앱 전체 검사·웹 export, 서버 Maven verify, 파일 보존·workflow·문서 링크 검사와 GitHub CI 통과로 완료한다. 선행: F-01. 운영 배포는 별도다. 추적: [#187](https://github.com/Catsmanager/Clothic/issues/187).
 
 ## 첫 옷 목록 전환
 
@@ -69,6 +71,7 @@
 | P-02 | 문서 이동·링크 검사 | #179 병합 | 해당 없음 |
 | P-03 | 기존 작업 스킬 검증 | #180 병합 | 해당 없음 |
 | P-04 | 로컬 검사·기존 PR CI 통과 | #182 병합 | 실제 앱 빌드·제출 미검증 |
-| F-01 | Maven verify·실제 HTTP 통합 테스트 1개·패키징 jar HTTP 200 확인, GitHub 앱·서버 CI 통과(a3bdc57) | [PR #186](https://github.com/Catsmanager/Clothic/pull/186), 병합 전 | 미배포 |
+| P-05 | 로컬 앱 전체 검사·핵심 테스트 28개·하네스 6개, 웹 export, Maven verify, 파일 보존·문서 링크 75개·workflow·스킬 검사 통과; GitHub CI 42781302107 앱·서버 통과(6d7b78d) | [PR #188](https://github.com/Catsmanager/Clothic/pull/188) (검증 완료, 통합 상태는 PR 참조) | 미배포 |
+| F-01 | Maven verify·실제 HTTP 통합 테스트 1개·패키징 jar HTTP 200 확인, GitHub 앱·서버 CI 통과(a3bdc57) | [PR #186](https://github.com/Catsmanager/Clothic/pull/186) 병합(2b36d0d) | 미배포 |
 
 업데이트 시각과 검증 결과는 해당 작업의 [LOG.md](LOG.md)에도 남긴다. 전체 마이그레이션 추적 이슈는 [#175](https://github.com/Catsmanager/Clothic/issues/175)다.

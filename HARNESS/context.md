@@ -23,3 +23,7 @@
 - 문서와 코드가 서로 다르면 임의로 맞추지 말고 어느 쪽을 고칠지 먼저 확인받는다.
 - 실제 D7 리텐션 데이터가 없으면 합성 유저 플로우 점수는 `retention proxy`로만 표현한다.
 - v1-v3 evaluator와 그 experiment 기록은 비재현 legacy로만 읽고 새 baseline/candidate 비교에 사용하지 않는다.
+
+## 현재 경로
+- 앱 소스·명령의 기준 디렉터리는 frontend/, 서버는 backend/다.
+- 현재 구조에서는 evaluator-v6-habit.json 또는 evaluator-v6-ownership.json을 사용한다. v4/v5는 과거 루트 앱 구조의 고정 기록으로 보존하며 v6와 baseline/candidate 쌍을 섞지 않는다.

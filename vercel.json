@@ -1,5 +1,12 @@
 {
-  "buildCommand": "expo export -p web",
-  "outputDirectory": "dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "buildCommand": "npm --prefix frontend run vercel-build",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "framework": null,
+  "installCommand": "npm --prefix frontend ci"
 }
