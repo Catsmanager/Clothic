@@ -29,7 +29,7 @@
 | `auth/` | [APPLE_SIGNIN.md](auth/APPLE_SIGNIN.md) | Apple 로그인 설정 |
 | | [KAKAO_OAUTH.md](auth/KAKAO_OAUTH.md) | Kakao 로그인 설정 |
 | | [AUTH_DEEPLINK_TROUBLESHOOTING.md](auth/AUTH_DEEPLINK_TROUBLESHOOTING.md) | 인증 딥링크 진단 기록과 절차 |
-| `operations/` | [CICD.md](operations/CICD.md) | 자동 검사·빌드·제출 흐름 |
+| `operations/` | [CICD.md](operations/CICD.md) | GitHub 협업·버전·자동 검사·빌드·제출 흐름 |
 | | [APP_STORE_SUBMISSION_CHECKLIST.md](operations/APP_STORE_SUBMISSION_CHECKLIST.md) | 스토어 제출 확인 항목 |
 | | [TEST_PLAN.md](operations/TEST_PLAN.md) | 자동·수동 검증 항목 |
 | | [SUPABASE_TODO.md](operations/SUPABASE_TODO.md) | Supabase 환경 설정·점검 항목 |

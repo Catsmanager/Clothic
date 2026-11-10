@@ -1,22 +1,24 @@
 name: Release iOS to TestFlight
 
-# main의 CI가 성공한 뒤 production 빌드를 만들고, app-store 환경 승인을 거쳐
-# TestFlight에 업로드한다. 실제 App Store 공개는 Apple 심사를 거쳐야 한다.
+# main 병합과 배포를 분리한다. 버전이 지정된 정식 GitHub Release만 자동 배포한다.
+# TestFlight 업로드와 실제 App Store 공개는 별도 단계다.
 on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
-    branches: [main]
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
-      submit:
-        description: '빌드 완료 후 TestFlight에 업로드'
+      tag:
+        description: 'main에 포함된 앱 버전 태그 (예: app-v1.2.0)'
         required: true
-        default: true
+        type: string
+      submit:
+        description: '빌드 완료 후 해당 빌드 ID를 TestFlight에 업로드'
+        required: true
+        default: false
         type: boolean
 
 concurrency:
-  group: ios-release-${{ github.event.workflow_run.head_branch || github.ref_name }}
+  group: ios-release
   cancel-in-progress: false
 
 permissions:
@@ -24,25 +26,56 @@ permissions:
 
 jobs:
   verify:
-    name: Verify release commit
+    name: Verify versioned release commit
     if: >-
       ${{
-        github.event_name == 'workflow_dispatch' ||
-        github.event.workflow_run.conclusion == 'success'
+        (github.event_name == 'release' &&
+         !github.event.release.draft &&
+         !github.event.release.prerelease &&
+         startsWith(github.event.release.tag_name, 'app-v')) ||
+        (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    outputs:
+      sha: ${{ steps.commit.outputs.sha }}
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ env.RELEASE_TAG }}
     steps:
-      - name: Checkout release commit
-        uses: actions/checkout@v4
+      - name: Validate release tag before checkout
+        shell: bash
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^app-v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo 'Expected a stable app-vX.Y.Z tag.' >&2
+            exit 1
+          fi
+
+      - name: Checkout release tag
+        uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: refs/tags/${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+
+      - name: Require a commit included in main
+        id: commit
+        shell: bash
+        run: |
+          git fetch origin main:refs/remotes/origin/main
+          sha=$(git rev-parse HEAD)
+          git merge-base --is-ancestor "$sha" origin/main
+          printf 'sha=%s\n' "$sha" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: npm
+
+      - name: Verify tag and app versions
+        id: version
+        run: node scripts/check-release.mjs versions "$RELEASE_TAG"
 
       - name: Install dependencies
         run: npm ci
@@ -51,19 +84,20 @@ jobs:
         run: npm run check
 
   build:
-    name: Build iOS production binary
+    name: Build the verified iOS commit
     needs: verify
-    if: needs.verify.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    outputs:
+      build_id: ${{ steps.artifact.outputs.build_id }}
     steps:
-      - name: Checkout release commit
-        uses: actions/checkout@v4
+      - name: Checkout verified commit
+        uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ needs.verify.outputs.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: npm
@@ -78,26 +112,38 @@ jobs:
         run: npm ci
 
       - name: Build iOS production binary
-        run: eas build --platform ios --profile production --non-interactive --wait
+        run: eas build --platform ios --profile production --non-interactive --wait --json > "$RUNNER_TEMP/ios-build.json"
+
+      - name: Validate and record the resulting build
+        id: artifact
+        env:
+          RELEASE_VERSION: ${{ needs.verify.outputs.version }}
+          RELEASE_SHA: ${{ needs.verify.outputs.sha }}
+        run: node scripts/check-release.mjs build "$RUNNER_TEMP/ios-build.json" "$RELEASE_VERSION" "$RELEASE_SHA"
 
   submit:
-    name: Upload build to TestFlight
-    needs: build
-    if: >-
-      ${{
-        needs.build.result == 'success' &&
-        (github.event_name == 'workflow_run' || inputs.submit == true)
-      }}
+    name: Upload the verified build to TestFlight
+    needs: [verify, build]
+    if: ${{ github.event_name == 'release' || inputs.submit == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
       name: app-store
       url: https://appstoreconnect.apple.com
     steps:
-      - name: Checkout release commit
-        uses: actions/checkout@v4
+      - name: Checkout verified commit
+        uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ needs.verify.outputs.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
@@ -105,5 +151,15 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Submit latest iOS build to TestFlight
-        run: eas submit --platform ios --profile production --latest --non-interactive
+      - name: Submit the recorded build ID
+        env:
+          BUILD_ID: ${{ needs.build.outputs.build_id }}
+        run: eas submit --platform ios --profile production --id "$BUILD_ID" --non-interactive --wait
+
+      - name: Record submitted version and source
+        env:
+          RELEASE_TAG: ${{ needs.verify.outputs.tag }}
+          RELEASE_SHA: ${{ needs.verify.outputs.sha }}
+          BUILD_ID: ${{ needs.build.outputs.build_id }}
+        run: |
+          printf 'Tag: %s\nCommit: %s\nEAS build: %s\n' "$RELEASE_TAG" "$RELEASE_SHA" "$BUILD_ID" >> "$GITHUB_STEP_SUMMARY"

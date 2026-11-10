@@ -1,11 +1,13 @@
 name: CI
 
-# PR 검증 + develop/main 푸시 시 결정론적 정적·핵심 흐름 검사를 수행한다.
+# 모든 PR(작업 브랜치를 대상으로 한 PR 포함)과 main 푸시를 검증한다.
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+
+permissions:
+  contents: read
 
 # 같은 ref에서 새 푸시가 오면 이전 실행을 취소한다.
 concurrency:
@@ -31,3 +33,6 @@ jobs:
 
       - name: Verify deterministic release gates
         run: npm run check
+
+      - name: Verify app version consistency
+        run: node scripts/check-release.mjs versions

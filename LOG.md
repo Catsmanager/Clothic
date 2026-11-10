@@ -1,5 +1,17 @@
 # LOG
 
+## 2026-11-10 (ci: PR 검증과 버전 지정 iOS 릴리스 분리, #181)
+
+- 작업 브랜치 `chore/181-versioned-release-workflow`를 원격에 먼저 만들고 시작 SHA `59c45fe` 확인 후 편집.
+- CI를 모든 PR과 main push 대상으로 변경하고, main CI 완료에 따른 자동 iOS 릴리스를 정식 app-vX.Y.Z Release 게시 또는 태그 수동 실행으로 분리.
+- 태그·버전 파일·main 커밋·EAS 빌드 메타데이터 검증과 명시적 빌드 ID 제출을 추가. 제출 job에도 프로젝트 의존성 설치 추가.
+- 앱·패키지는 1.1.1인데 잠금 파일 버전 표시가 달라 해당 메타데이터만 동기화. 의존성 목록·앱 표시 버전은 변경하지 않음.
+- 전체 검사에서 로컬 보존 백업이 포맷 대상에 포함되는 문제를 확인하고 `.gitignore`·`.prettierignore`에 `.local-backups/` 제외 추가. 백업 내용은 변경하지 않음.
+- CICD 문서와 작업 스킬에 버전 준비 시점, 앱/서버 릴리스 분리, 설정과 실제 운영 검증의 경계 반영.
+- main 보호 규칙 없음, app-store protection rules 비어 있음을 읽기 전용 확인. 이번에 저장소 보호 설정·실제 태그·Release·빌드·스토어 제출은 변경·실행하지 않음.
+- 검증: 로컬 `npm run check` 통과(핵심 테스트 22개·하네스 6개·소스 계약 8개), actionlint 1.7.12·스킬 형식 검사·버전 검사·로컬 링크 56개·잘못된 태그의 CLI 실패 처리 통과. 기존 아바타 품질 경고 4개는 유지.
+- 로컬 검사는 Node 25.6.0과 Command Line Tools Python/Git 경로에서 수행. GitHub의 Node 20 실행과 실제 EAS·Apple 처리는 별도 확인 대상으로 구분.
+
 ## 2026-11-10 (chore: 최소 작업별 원격 브랜치 선행 규칙, #178)
 
 - `.codex/skills/clothic-task-workflow/SKILL.md`와 자동 발견용 메타데이터 추가. 코드·문서·스킬 변경 모두 파일 수정 전 GitHub 원격 브랜치와 시작 커밋을 확인하도록 규정.

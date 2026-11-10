@@ -1,6 +1,6 @@
 ---
 name: clothic-task-workflow
-description: Start and finish scoped Clothic file changes with a verified GitHub task branch before editing. Use for implementation, fixes, documentation, configuration, asset changes, and skill updates in this repository; exclude questions and read-only reviews.
+description: Start scoped Clothic file changes on verified GitHub task branches and prepare versioned app releases. Use for implementation, fixes, documentation, configuration, assets, skills, and release workflow changes; exclude questions and read-only reviews.
 ---
 
 # Clothic Task Workflow
@@ -36,6 +36,22 @@ git ls-remote --heads origin refs/heads/docs/177-organize-documents
 ```
 
 GitHub 연결 도구가 필요한 기능이나 쓰기 권한을 제공하지 못하면 인증된 Git 또는 GitHub CLI를 사용한다. 네트워크·권한 오류는 환경의 승인·재시도 절차를 따른다. 허용된 방법으로도 원격 브랜치 생성을 확인할 수 없으면 파일 변경을 시작하지 말고 실패 원인을 보고한다. 조사와 임시 위치의 요청 초안 준비는 계속할 수 있다.
+
+## 통합과 버전 지정 릴리스
+
+버전·배포·GitHub Actions를 다루는 작업에서는 [개발·릴리스 가이드](../../../docs/operations/CICD.md)를 읽는다. 일반 작업에서 릴리스 전체 절차를 불필요하게 실행하지 않는다.
+
+- 기본 개발 흐름은 작업 브랜치 → PR → 모든 PR의 CI 검증 → main 통합이다. 독립 작업은 확인한 통합 기준에서 시작하고, 미병합 작업에 의존할 때만 상위 브랜치를 기준으로 한다. 사용자가 고정한 배포 기준은 우선한다.
+- main 통합과 실제 앱 배포를 구분한다. main이 항상 현재 App Store 공개 버전이라고 보고하지 않는다.
+- 작업·커밋마다 앱 버전을 올리지 않는다. 배포할 변경이 모였을 때 별도 버전 준비 PR에서 앱·패키지·잠금 파일 버전을 맞춘다.
+- 앱은 app-vX.Y.Z 태그를 사용한다. 서버는 구현 후 backend-vX.Y.Z 등 별도 규칙으로 관리하며, 서버 변경을 이유로 앱 버전을 기계적으로 올리지 않는다.
+- 릴리스 태그는 main에 포함된 검증한 커밋을 가리켜야 한다. 기존 공개 태그를 다른 커밋으로 옮기거나 덮어쓰지 않는다.
+- node scripts/check-release.mjs versions로 파일 간 버전을 확인하고, 앱 릴리스에서는 해당 태그까지 지정해 검사한다.
+- iOS 자동 릴리스는 정식 GitHub Release 게시를 기준으로 한다. 수동 실행도 기존 버전 태그를 지정하고 빌드·제출 범위를 구분한다.
+- 빌드 결과의 앱 버전·소스 커밋·완료 상태를 확인한 뒤 그 빌드 ID로 제출한다. 최신 빌드라는 이유만으로 --latest를 사용하지 않는다.
+- 규칙·workflow 수정 요청을 실제 태그 push, Release 게시, EAS 빌드·스토어 제출 요청으로 확대 해석하지 않는다. 사용자에게 해당 실행을 요청받은 경우에 진행한다.
+- CI 실행과 GitHub 보호 설정을 구분한다. 브랜치 보호·환경 승인자가 실제 설정돼 있는지 확인하지 않고 강제된다고 보고하지 않는다.
+- workflow 코드 검증, main 병합 여부, 실제 빌드·TestFlight 처리·App Store 공개를 각각 확인한 범위로 보고한다.
 
 ## 작업과 완료
 
