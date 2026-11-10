@@ -30,6 +30,7 @@
 - [x] **P-06 legacy 평가기·flow 스크립트 분리** — v1~v5 evaluator manifest를 `HARNESS/legacy/`, v1~v3 user-flow 스크립트를 `frontend/scripts/legacy/`로 옮기고 현역 v6·v4 파일은 그대로 둔다. 참조 문서·state.json을 새 경로로 갱신하고 `npm run check` 통과로 완료한다. 추적: [#189](https://github.com/Catsmanager/Clothic/issues/189).
 - [x] **P-07 홈 전용 컴포넌트 폴더 정리** — 홈 화면 전용 컴포넌트 6개를 `frontend/components/home/`, SaveOutfitSheet를 `save-outfit/`으로 옮기고 import를 갱신한다. AvatarCard는 v4 flow 검사 의존으로 제외한다. `npm run check`·웹 export 통과로 완료한다. 추적: [#190](https://github.com/Catsmanager/Clothic/issues/190).
 - [x] **P-08 루트 문서 정리** — USER_ACTION_ITEMS.md를 `docs/operations/`로 옮기고 참조를 갱신하며 `.gitignore`에 `.vscode/`를 추가한다. 문서 링크 확인으로 완료한다. 추적: [#191](https://github.com/Catsmanager/Clothic/issues/191).
+- [x] **P-09 PR 자동 병합 규칙** — 작업 완료 흐름을 PR 생성 → CI 통과 확인 → main 병합까지로 확장하고 CLAUDE.md·AGENTS.md·작업 스킬에 조건을 적는다. 문서 변경만이며 새 규칙으로 해당 PR을 병합해 완료한다. 추적: [#197](https://github.com/Catsmanager/Clothic/issues/197).
 
 ## 첫 옷 목록 전환
 
@@ -75,9 +76,10 @@
 | P-03 | 기존 작업 스킬 검증 | #180 병합 | 해당 없음 |
 | P-04 | 로컬 검사·기존 PR CI 통과 | #182 병합 | 실제 앱 빌드·제출 미검증 |
 | P-05 | 로컬 앱 전체 검사·핵심 테스트 28개·하네스 6개, 웹 export, Maven verify, 파일 보존·문서 링크 75개·workflow·스킬 검사 통과; GitHub CI 42781302107 앱·서버 통과(6d7b78d) | [PR #188](https://github.com/Catsmanager/Clothic/pull/188) (검증 완료, 통합 상태는 PR 참조) | 미배포 |
-| P-06 | legacy 파일 이동 후 `npm run check` 통과(핵심 28개·소유 계약 8/8·하네스 6개), legacy v3 스크립트 단독 실행 확인(FLOW_SCORE 11/12), 현역 v6 manifest fixtureFiles 불변 | [PR #192](https://github.com/Catsmanager/Clothic/pull/192) | 해당 없음 |
-| P-07 | 컴포넌트 7개 이동 후 `npm run check` 통과(typecheck·lint·format·핵심 28개·소유 계약 8/8·하네스 6개), 웹 export 성공 | [PR #193](https://github.com/Catsmanager/Clothic/pull/193) (기준: #192) | 해당 없음 |
-| P-08 | 파일 이동·참조 2곳 갱신, 로컬 문서 링크 검사 통과, `git check-ignore .vscode` 확인. 코드 변경 없음 | [PR #194](https://github.com/Catsmanager/Clothic/pull/194) (기준: #193) | 해당 없음 |
+| P-06 | legacy 파일 이동 후 `npm run check` 통과(핵심 28개·소유 계약 8/8·하네스 6개), legacy v3 스크립트 단독 실행 확인(FLOW_SCORE 11/12), 현역 v6 manifest fixtureFiles 불변 | [PR #192](https://github.com/Catsmanager/Clothic/pull/192) 병합(76350f6) | 해당 없음 |
+| P-07 | 컴포넌트 7개 이동 후 `npm run check` 통과(typecheck·lint·format·핵심 28개·소유 계약 8/8·하네스 6개), 웹 export 성공 | [PR #193](https://github.com/Catsmanager/Clothic/pull/193) 병합(f3991f2) | 해당 없음 |
+| P-08 | 파일 이동·참조 2곳 갱신, 로컬 문서 링크 검사 통과, `git check-ignore .vscode` 확인. 코드 변경 없음 | [PR #194](https://github.com/Catsmanager/Clothic/pull/194) 병합(bc9c347) | 해당 없음 |
+| P-09 | 규칙 문서 3개 갱신, 코드 변경 없음 | [PR #198](https://github.com/Catsmanager/Clothic/pull/198) | 해당 없음 |
 | F-01 | Maven verify·실제 HTTP 통합 테스트 1개·패키징 jar HTTP 200 확인, GitHub 앱·서버 CI 통과(a3bdc57) | [PR #186](https://github.com/Catsmanager/Clothic/pull/186) 병합(2b36d0d) | 미배포 |
 
 업데이트 시각과 검증 결과는 해당 작업의 [LOG.md](LOG.md)에도 남긴다. 전체 마이그레이션 추적 이슈는 [#175](https://github.com/Catsmanager/Clothic/issues/175)다.
