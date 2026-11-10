@@ -1,5 +1,14 @@
 # LOG
 
+## 2026-11-10 — F-05 앱의 내 옷 조회 서버 전환, 설정형 코드까지 (#205)
+
+- 기준: main 9bec2c3, 원격 feat/205-app-items-api 동일 SHA 확인 후 편집. 선행 F-04 병합 확인.
+- frontend/lib/itemsApi.ts 추가: EXPO_PUBLIC_CLOTHIC_API_URL 해석, Bearer 토큰, 10초 시간 제한(AbortController), 응답 실행 시점 검증(UserItem 형태, 비허용 카테고리 행 제외, 비허용 태그 제거, 깨진 형식은 전체 거부), 401/5xx/연결 실패/시간 초과를 사용자 메시지로 변환.
+- stores/itemStore.ts fetchItems: 서버 주소가 설정된 경우에만 세션 토큰으로 새 API 호출. 미설정이면 기존 Supabase 직접 조회 유지. 늦은 응답 차단(generation/sequence)과 loading/loaded/error 규칙 유지, 실패 시 자동 우회 없음. addCatalogItem 등 쓰기 경로는 변경 없음.
+- .env.example·types/env.d.ts·frontend/README.md에 설정 설명.
+- 검증: tests/itemsApi.test.mjs 7개 추가, test:core 35개 통과, npm run check 통과(소유 계약 8/8·flow 8/8·하네스 6개), 웹 export 성공. evaluator·fixture는 변경하지 않음.
+- 미완료: 실제 개발 환경에서 서버 경로와 기존 경로 결과 비교, 계정 전환·서버 오류 시 이전 사용자 데이터 미노출 확인. 서버의 Supabase DB 역할·실토큰 확인(USER_ACTION_ITEMS)이 먼저 필요해 plan F-05는 [ ] 유지.
+
 ## 2026-11-10 — F-04 내 옷 목록 API GET /api/items (#203)
 
 - 기준: main 75ef7bf, 원격 feat/203-items-api 동일 SHA 확인 후 편집. 선행 F-03 병합 확인.

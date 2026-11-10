@@ -17,7 +17,7 @@
 - 첫 전환은 기존 Supabase Auth와 PostgreSQL을 유지한다. 운영 데이터 삭제·복사와 인증 서비스 동시 교체는 별도 작업이다.
 - 현재 main의 카탈로그/소유 아이템 분리 구현을 보존한다. 기존 상세 문서의 73c9863 분석은 과거 기준이므로 API 연결 전 현재 타입·동작과 대조한다.
 - 현재 구현 범위는 **F-01 서버 기동·상태 확인**, **P-05 frontend/backend 디렉터리 분리**, **F-02 로그인 사용자 검증**, **F-03 본인 아이템 데이터 조회**, **F-04 내 옷 목록 API**다. 후속 API 전환 기능은 실행 순서와 완료 기준을 정리한 목록이며 아직 착수하지 않았다.
-- 앱의 실제 Spring Boot 연결, 인증·DB 연동, 운영 배포는 아직 완료되지 않았다.
+- 앱의 실제 Spring Boot 연결은 설정형 코드(F-05)까지 있고 실제 환경 비교·인증·DB 연동 확인, 운영 배포는 아직 완료되지 않았다.
 
 ## 준비 작업
 
@@ -80,6 +80,7 @@
 | P-07 | 컴포넌트 7개 이동 후 `npm run check` 통과(typecheck·lint·format·핵심 28개·소유 계약 8/8·하네스 6개), 웹 export 성공 | [PR #193](https://github.com/Catsmanager/Clothic/pull/193) 병합(f3991f2) | 해당 없음 |
 | P-08 | 파일 이동·참조 2곳 갱신, 로컬 문서 링크 검사 통과, `git check-ignore .vscode` 확인. 코드 변경 없음 | [PR #194](https://github.com/Catsmanager/Clothic/pull/194) 병합(bc9c347) | 해당 없음 |
 | P-09 | 규칙 문서 3개 갱신, 코드 변경 없음 | [PR #198](https://github.com/Catsmanager/Clothic/pull/198) | 해당 없음 |
+| F-05 | 부분 구현: lib/itemsApi.ts(토큰·시간 제한·응답 실행 시점 검증)와 fetchItems의 설정형 전환(EXPO_PUBLIC_CLOTHIC_API_URL 설정 시만, 자동 우회 없음). 단위 테스트 7개, `npm run check`·웹 export 통과. **남은 조건**: 실제 개발 환경에서 서버(실토큰·DB 역할 확인 후)와 기존 경로의 결과 비교, 로그아웃·계정 전환·서버 오류 시 이전 사용자 데이터 미노출 확인 → 확인 전까지 미완료 | [PR #TBD](https://github.com/Catsmanager/Clothic/pulls) | 미배포 |
 | F-04 | Maven verify 통과: 테스트 27개(HTTP API 7개 추가). HS256 토큰+임베디드 PostgreSQL로 200 목록(최신순, hat 카테고리 제외, 비허용 태그 제거, 필드 이름·순서 UserItem 일치), 빈 목록 [], 토큰 없음·위조 401, userId/user_id 파라미터 400(대상 불변), sub 비UUID 401, DB 실패 500(SQL·계정 미노출) | [PR #204](https://github.com/Catsmanager/Clothic/pull/204) | 미배포 |
 | F-03 | Maven verify 통과: 테스트 20개(DB 5개 추가). 임베디드 PostgreSQL 17.11에 저장소 migration 적용, ddl-auto=validate 매핑 검증(열 이름을 틀리게 바꾸면 실패하는지 known-fail 확인), A·B 격리·빈 결과·catalog_item_id·text[]·timestamptz·정렬, RLS: 비우회 역할+JWT 없음 0행 / sub 설정 시 본인 행. 실제 Supabase DB 역할·연결은 미확인 → USER_ACTION_ITEMS | [PR #202](https://github.com/Catsmanager/Clothic/pull/202) | 미배포 |
 | F-02 | Maven verify 통과: 통합 테스트 15개(인증 14개 + health 1개). HS256·ES256(로컬 JWKS) 유효 토큰 200, 누락·다른 키·변조·만료·발급자·대상·sub 없음 401, 미설정 시 fail-closed. 실제 Supabase 프로젝트 서명 방식·실토큰 검증은 미확인(sandbox에서 supabase.co 접근 불가) → USER_ACTION_ITEMS | [PR #200](https://github.com/Catsmanager/Clothic/pull/200) | 미배포 |
