@@ -80,7 +80,7 @@
 | P-07 | 컴포넌트 7개 이동 후 `npm run check` 통과(typecheck·lint·format·핵심 28개·소유 계약 8/8·하네스 6개), 웹 export 성공 | [PR #193](https://github.com/Catsmanager/Clothic/pull/193) 병합(f3991f2) | 해당 없음 |
 | P-08 | 파일 이동·참조 2곳 갱신, 로컬 문서 링크 검사 통과, `git check-ignore .vscode` 확인. 코드 변경 없음 | [PR #194](https://github.com/Catsmanager/Clothic/pull/194) 병합(bc9c347) | 해당 없음 |
 | P-09 | 규칙 문서 3개 갱신, 코드 변경 없음 | [PR #198](https://github.com/Catsmanager/Clothic/pull/198) | 해당 없음 |
-| F-02 | Maven verify 통과: 통합 테스트 15개(인증 14개 + health 1개). HS256·ES256(로컬 JWKS) 유효 토큰 200, 누락·다른 키·변조·만료·발급자·대상·sub 없음 401, 미설정 시 fail-closed. 실제 Supabase 프로젝트 서명 방식·실토큰 검증은 미확인(sandbox에서 supabase.co 접근 불가) → USER_ACTION_ITEMS | [PR #TBD](https://github.com/Catsmanager/Clothic/pulls) | 미배포 |
+| F-02 | Maven verify 통과: 통합 테스트 15개(인증 14개 + health 1개). HS256·ES256(로컬 JWKS) 유효 토큰 200, 누락·다른 키·변조·만료·발급자·대상·sub 없음 401, 미설정 시 fail-closed. 실제 Supabase 프로젝트 서명 방식·실토큰 검증은 미확인(sandbox에서 supabase.co 접근 불가) → USER_ACTION_ITEMS | [PR #200](https://github.com/Catsmanager/Clothic/pull/200) | 미배포 |
 | F-01 | Maven verify·실제 HTTP 통합 테스트 1개·패키징 jar HTTP 200 확인, GitHub 앱·서버 CI 통과(a3bdc57) | [PR #186](https://github.com/Catsmanager/Clothic/pull/186) 병합(2b36d0d) | 미배포 |
 
 업데이트 시각과 검증 결과는 해당 작업의 [LOG.md](LOG.md)에도 남긴다. 전체 마이그레이션 추적 이슈는 [#175](https://github.com/Catsmanager/Clothic/issues/175)다.
