@@ -7,3 +7,5 @@
 질문·설명·읽기 전용 검토에는 이 절차로 브랜치나 이슈를 만들지 않는다. 같은 작업의 후속 수정은 확인한 기존 브랜치를 이어 쓴다.
 
 문서 탐색은 [docs/README.md](docs/README.md), 기존 프로젝트 범위와 검증 규칙은 [CLAUDE.md](CLAUDE.md)를 따른다.
+
+앱 작업은 `frontend/`, 서버 작업은 `backend/`에서 실행한다. 앱 검증은 루트에서 `npm --prefix frontend run check`, 서버 검증은 `cd backend && ./mvnw --batch-mode verify`다. 공통 문서·스킬·Supabase 이력은 루트에 둔다.

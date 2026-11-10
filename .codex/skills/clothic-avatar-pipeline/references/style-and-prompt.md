@@ -1,5 +1,6 @@
 # Clothic avatar style and ImageGen prompt
 
+Asset paths are relative to the `frontend/` app root.
 ## Canonical contract
 
 - Canvas: 1024×1536 pixels (2:3)

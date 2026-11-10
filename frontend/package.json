@@ -47,14 +47,14 @@
     "lint": "expo lint",
     "test:core": "node --import tsx --test tests/*.test.mjs",
     "flow:check": "node scripts/check-user-flow-contract-v4.mjs",
-    "test:harness": "python3 .codex/skills/karpathy-autoresearch-loop/scripts/test_eval_variant.py",
+    "test:harness": "python3 ../.codex/skills/karpathy-autoresearch-loop/scripts/test_eval_variant.py",
     "verify:static": "npm run typecheck && npm run lint && npm run format:check && npm run avatar:check",
     "verify:environment": "npm run expo:check && npm run doctor",
     "doctor": "expo-doctor",
     "expo:check": "expo install --check",
     "check": "npm run verify:static && npm run test:core && npm run flow:check && npm run test:harness",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format": "prettier --write .. --ignore-path ../.prettierignore",
+    "format:check": "prettier --check .. --ignore-path ../.prettierignore"
   },
   "private": true
 }

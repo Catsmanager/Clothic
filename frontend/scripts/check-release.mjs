@@ -60,7 +60,7 @@ function output(name, value) {
 function main() {
   const [command, ...args] = process.argv.slice(2)
   if (command === 'versions' && args.length <= 1) {
-    const read = (file) => JSON.parse(readFileSync(resolve(file), 'utf8'))
+    const read = (file) => JSON.parse(readFileSync(new URL(`../${file}`, import.meta.url), 'utf8'))
     output(
       'version',
       validateVersions(

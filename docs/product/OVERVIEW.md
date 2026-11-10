@@ -1,5 +1,6 @@
 # Clothic 앱 개요
 
+경로 기준: 앱 파일의 짧은 경로와 앱 명령은 `frontend/` 기준이다. `docs/`, `supabase/`, `HARNESS/`, `.github/`는 저장소 루트 기준이다.
 > 패션 습관 분석 기반 모바일 코디 다이어리 앱
 > 이 문서는 제품의 정체성·대상·흐름·범위를 한눈에 정리한 개요다.
 > 상세 문서: [PRD](./PRD.md) · [아키텍처](../architecture/ARCHITECTURE.md) · [데이터 모델](../architecture/DATA_MODEL.md) · [디자인 시스템](../design/DESIGN_SYSTEM.md)

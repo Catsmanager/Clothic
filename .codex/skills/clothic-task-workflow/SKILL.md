@@ -57,12 +57,19 @@ GitHub 연결 도구가 필요한 기능이나 쓰기 권한을 제공하지 못
 - 작업·커밋마다 앱 버전을 올리지 않는다. 배포할 변경이 모였을 때 별도 버전 준비 PR에서 앱·패키지·잠금 파일 버전을 맞춘다.
 - 앱은 app-vX.Y.Z 태그를 사용한다. 서버는 구현 후 backend-vX.Y.Z 등 별도 규칙으로 관리하며, 서버 변경을 이유로 앱 버전을 기계적으로 올리지 않는다.
 - 릴리스 태그는 main에 포함된 검증한 커밋을 가리켜야 한다. 기존 공개 태그를 다른 커밋으로 옮기거나 덮어쓰지 않는다.
-- node scripts/check-release.mjs versions로 파일 간 버전을 확인하고, 앱 릴리스에서는 해당 태그까지 지정해 검사한다.
+- node frontend/scripts/check-release.mjs versions로 파일 간 버전을 확인하고, 앱 릴리스에서는 해당 태그까지 지정해 검사한다.
 - iOS 자동 릴리스는 정식 GitHub Release 게시를 기준으로 한다. 수동 실행도 기존 버전 태그를 지정하고 빌드·제출 범위를 구분한다.
 - 빌드 결과의 앱 버전·소스 커밋·완료 상태를 확인한 뒤 그 빌드 ID로 제출한다. 최신 빌드라는 이유만으로 --latest를 사용하지 않는다.
 - 규칙·workflow 수정 요청을 실제 태그 push, Release 게시, EAS 빌드·스토어 제출 요청으로 확대 해석하지 않는다. 사용자에게 해당 실행을 요청받은 경우에 진행한다.
 - CI 실행과 GitHub 보호 설정을 구분한다. 브랜치 보호·환경 승인자가 실제 설정돼 있는지 확인하지 않고 강제된다고 보고하지 않는다.
 - workflow 코드 검증, main 병합 여부, 실제 빌드·TestFlight 처리·App Store 공개를 각각 확인한 범위로 보고한다.
+
+## 앱·서버 경로
+
+- 앱 소스·설정·환경 파일은 frontend/, Java 서버는 backend/에 둔다. 공통 plan.md·docs/·supabase/·HARNESS/·workflow·스킬은 루트에 둔다.
+- 앱 npm·Expo·EAS 명령은 frontend/에서 실행한다. 루트에서는 npm --prefix frontend run check를 사용한다. 앱 버전 파일도 frontend/ 기준으로 확인한다.
+- 서버는 backend/에서 ./mvnw --batch-mode verify로 검증한다. 한쪽 검사 통과로 다른 쪽 동작을 대신 증명하지 않는다.
+- 구조 변경에는 CI의 작업 디렉터리·캐시·배포 빌드 경로와 문서 링크를 함께 확인한다. 앱 내부 assets/... 같은 논리 경로를 frontend/...로 바꾸지 않는다.
 
 ## 작업과 완료
 

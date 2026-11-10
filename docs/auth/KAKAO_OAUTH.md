@@ -1,5 +1,6 @@
 # 카카오 OAuth 연동 설정 가이드
 
+경로 기준: 앱 파일의 짧은 경로와 앱 명령은 `frontend/` 기준이다. `docs/`, `supabase/`, `HARNESS/`, `.github/`는 저장소 루트 기준이다.
 Clothic은 Supabase Auth의 Kakao provider를 통해 카카오 소셜 로그인을 제공한다.
 **코드 연동은 완료**되어 있으며(`stores/authStore.ts`의 `signInWithKakao`,
 `app/login.tsx`의 "카카오로 시작하기" 버튼), 아래 **외부 콘솔 설정**을 마쳐야

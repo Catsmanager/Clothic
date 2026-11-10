@@ -1,5 +1,6 @@
 # 앱스토어 제출 — 내가 해야 할 일
 
+경로 기준: 앱 파일의 짧은 경로와 앱 명령은 `frontend/` 기준이다. `docs/`, `supabase/`, `HARNESS/`, `.github/`는 저장소 루트 기준이다.
 기준일: 2026-06-16
 대상: Clothic (iOS 우선, Android 동일 흐름)
 

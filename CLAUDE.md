@@ -25,7 +25,7 @@ CRITICAL: 작업 시작 시 루트 `plan.md`를 가장 먼저 읽는다. 기능�
 CRITICAL: docs/product/PRD.md의 MVP 범위를 벗어난 기능은 만들지 않는다.
 CRITICAL: 구조 변경 전에는 먼저 제안하고 승인받는다.
 CRITICAL: API 키는 절대 코드에 하드코딩하지 않는다.
-CRITICAL: 환경변수는 .env.local을 사용한다.
+CRITICAL: 앱 환경변수는 frontend/.env.local을 사용한다.
 CRITICAL: 파일 변경 작업은 작업별 GitHub 이슈를 연결하고 최소 완료 단위의 원격 작업 브랜치를 생성·확인한 뒤 진행한다. 공통 절차는 `.codex/skills/clothic-task-workflow/SKILL.md`를 따른다.
 CRITICAL: 작업 완료 후 커밋·푸시하고 Pull Request를 생성한다.
 CRITICAL: 작업 후 변경 파일 목록을 보고한다.
@@ -47,10 +47,15 @@ CRITICAL: 옷/신발/하의/상의 에셋 추가 또는 아이템 미리보기 �
 - 작은 단위로 수정한다.
 - 작업 완료 후 plan.md의 해당 기능 체크와 검증 근거를 갱신한다. TODO.md는 실행 목록을 중복하지 않고 plan.md로 연결하며, LOG.md에는 날짜가 있는 결과를 남긴다.
 
+## 디렉터리 기준
+앱 루트는 `frontend/`, 서버 루트는 `backend/`다. 앱 코드 안의 `assets/...` 같은 상대 경로는 앱 루트 기준을 유지한다. 공통 문서·스킬·계획·Supabase 이력은 저장소 루트에 둔다.
+
 ## 검증 명령어
 완료 선언 전 아래를 실행하고 결과를 보고한다.
-- `npm run check` (typecheck, lint, format, avatar, core logic, user-flow proxy)
-- 의존성·Expo 환경을 변경한 경우 `npm run verify:environment`
+- `npm --prefix frontend run check` (typecheck, lint, format, avatar, core logic, user-flow proxy)
+- 의존성·Expo 환경을 변경한 경우 `npm --prefix frontend run verify:environment`
+
+서버 변경 시 `backend/`에서 `./mvnw --batch-mode verify`를 실행한다.
 
 문서만 변경한 경우 생략할 수 있다. 이때 "코드 변경 없음"을 명시한다.
 

@@ -1,11 +1,13 @@
 ---
 name: clothic-avatar-pipeline
-description: Generate, inspect, validate, and safely register Clothic full-canvas avatar clothing, hair, shoes, and accessory PNG layers. Use when adding or replacing files under assets/avatar, creating avatar assets without hand drawing through ImageGen, updating itemCatalog/avatarAssets metadata, diagnosing avatar alignment or transparency, or running the avatar asset quality gate.
+description: Generate, inspect, validate, and safely register Clothic full-canvas avatar clothing, hair, shoes, and accessory PNG layers. Use when adding or replacing files under frontend/assets/avatar, creating avatar assets without hand drawing through ImageGen, updating itemCatalog/avatarAssets metadata, diagnosing avatar alignment or transparency, or running the avatar asset quality gate.
 ---
 
 # Clothic Avatar Pipeline
 
 Create avatar candidates with AI assistance, but treat generation as a draft step and deterministic validation plus human visual approval as the release gate.
+
+앱 경로·명령의 기준은 `frontend/`다. 먼저 루트 `plan.md`와 작업 브랜치를 확인한 뒤 `cd frontend`에서 아래 npm 명령을 실행한다. 아래 `assets/`, `constants/`, `lib/`는 앱 루트 기준이며 `docs/`와 스킬 참조는 저장소 루트 기준이다.
 
 ## Read the contract
 

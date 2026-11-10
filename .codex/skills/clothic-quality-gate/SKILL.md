@@ -7,6 +7,8 @@ description: Audit Clothic release readiness across PRD scope, user flows, accou
 
 Produce an evidence-backed release audit before proposing changes. Keep findings inside the current MVP and separate safe fixes from product or schema decisions.
 
+App source and Expo commands live in `frontend/`; backend commands live in `backend/`. Read root `plan.md` first. The baseline below runs from the repository root; run Expo export from `frontend/`.
+
 ## Establish scope
 
 Read in priority order:
@@ -27,12 +29,12 @@ If documentation and code conflict, report the conflict. Correct demonstrably st
 3. Run the baseline:
 
 ```bash
-npm run check
+npm --prefix frontend run check
 ```
 
-This deterministic gate includes typecheck, lint, format, avatar integrity, core logic tests, and the v4 source-contract guardrail. For measured experiments, read `HARNESS/evaluator-v4.json` and only schema-v4 matching pairs in `.autoresearch/experiments.jsonl`; call the score a retention proxy, never observed retention. Treat v1-v3 evaluators and historical records as legacy non-reproducible evidence.
+This deterministic gate includes typecheck, lint, format, avatar integrity, core logic tests, and the v4 source-contract guardrail. For measured experiments, read `HARNESS/evaluator-v6-habit.json` and `HARNESS/evaluator-v6-ownership.json` and only schema-v4 matching pairs in `.autoresearch/experiments.jsonl`; call the score a retention proxy, never observed retention. Treat v1-v3 evaluators as legacy non-reproducible evidence; v4/v5 use the historical root app layout. Preserve old records and do not pair them with new layout manifests.
 
-4. Run `npm run verify:environment` separately after dependency or Expo changes. Treat network-dependent failures separately from deterministic failures.
+4. Run `npm --prefix frontend run verify:environment` separately after dependency or Expo changes. Treat network-dependent failures separately from deterministic failures.
 5. When build readiness is in scope, export Web to a unique directory under `/private/tmp`; never write generated export files into the repository.
 6. Inspect the built asset total and largest files. Treat a successful build and a reasonable payload as separate checks.
 7. Apply the checklist. Reproduce a user-visible issue in the app when a browser or device session is available. If it is unavailable, state that limitation and use build/source evidence without calling visual behavior verified.

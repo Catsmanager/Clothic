@@ -1,5 +1,6 @@
 # Avatar Asset Scale Roadmap
 
+경로 기준: 앱 파일의 짧은 경로와 앱 명령은 `frontend/` 기준이다. `docs/`, `supabase/`, `HARNESS/`, `.github/`는 저장소 루트 기준이다.
 ## 목표
 
 Clothic은 최종 출시 전까지는 앱에 포함된 기본 옷 에셋으로 안정적인 코디 경험을 제공한다.

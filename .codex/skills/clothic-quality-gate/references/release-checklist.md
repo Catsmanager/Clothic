@@ -2,7 +2,7 @@
 
 ## Product contract
 
-- Compare every onboarding promise and documented route with the implemented `app/` routes.
+- Compare every onboarding promise and documented route with the implemented `frontend/app/` routes.
 - Confirm every PRD success criterion has a working entry, action, persisted result, and recovery path.
 - Flag MVP exclusions that appear as active UI promises.
 - Resolve or report the one-outfit-per-day versus multiple-outfits ambiguity.
@@ -39,15 +39,15 @@
 ## Avatar and assets
 
 - Keep the canonical 1024×1536 (2:3) full-canvas contract unless all assets migrate together.
-- Run `$clothic-avatar-pipeline` and `npm run avatar:check`.
+- Run `$clothic-avatar-pipeline` and `npm --prefix frontend run avatar:check`.
 - Check catalog ↔ map ↔ disk synchronization, actual transparency, stray pixels, halo, alignment, and provenance.
 - Track Web/export asset totals and the largest backgrounds, category icons, and full-canvas layers.
 - Prefer separate thumbnails before expanding the catalog materially.
 
 ## Verification
 
-- Run `npm run check`, then a clean export when build readiness is in scope.
-- Run `npm run verify:environment` after Expo or dependency changes.
+- Run `npm --prefix frontend run check`, then a clean export when build readiness is in scope.
+- Run `npm --prefix frontend run verify:environment` after Expo or dependency changes.
 - Confirm the latest baseline/candidate pair has an identical evaluator bundle hash and an explicit adoption decision.
 - Report blocked network-dependent checks separately from failures.
 - List manual/device flows that remain unverified.
