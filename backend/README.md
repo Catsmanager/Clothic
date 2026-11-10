@@ -1,6 +1,6 @@
 # Clothic backend
 
-현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03)다. HTTP 아이템 API와 앱 호출은 아직 연결하지 않았다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
+현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 목록 API(F-04)다. 앱의 호출 전환(F-05)은 아직이다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
 
 ## 실행
 
@@ -71,6 +71,18 @@ curl -i -H "Authorization: Bearer <앱에서 얻은 접근 토큰>" http://local
 
 `ItemQueryServiceTest`는 `ddl-auto=validate`로 엔티티 매핑이 실제 스키마와 일치하는지 확인하고, A·B 계정 격리, 빈 결과, `catalog_item_id`·`text[]`·`timestamptz` 매핑, 정렬, RLS 동작(JWT 문맥 없음 → 0행, `request.jwt.claim.sub` 설정 → 본인 행)을 검증한다.
 
+## 내 옷 목록 API (F-04)
+
+```http
+GET /api/items
+Authorization: Bearer <Supabase 사용자 접근 토큰>
+```
+
+- 사용자는 토큰의 `sub`로만 정한다. `userId`·`user_id` 쿼리 파라미터가 있으면 `400`이며 조회 대상은 바뀌지 않는다.
+- 응답은 앱 `UserItem[]`과 같은 필드·순서의 배열이다: `id`, `userId`, `catalogItemId`, `name`, `category`, `imagePath`, `color`, `styleTags`, `createdAt`(시간대 포함 ISO-8601). 아이템이 없으면 `[]`.
+- 앱 `mapRow()`와 같은 규칙으로 허용 카테고리 7종 외 행은 제외하고 허용 스타일 태그 10종 외 값은 제거한다. 허용값 목록은 `ItemContract`에 있으며 앱 `constants/items.ts`와 같아야 한다.
+- 토큰 없음·무효 `401`, `sub`가 UUID가 아니면 `401`, DB 조회 실패 `500`(SQL·접속 정보 없음).
+
 ## 요청이 지나가는 코드
 
 1. [ClothicBackendApplication.java](src/main/java/com/clothic/backend/ClothicBackendApplication.java)가 Spring Boot와 내장 웹 서버를 실행한다.
@@ -85,4 +97,4 @@ curl -i -H "Authorization: Bearer <앱에서 얻은 접근 토큰>" http://local
 - Java 21, Spring Boot `4.1.2`, 서버 개발 버전 `0.1.0-SNAPSHOT`을 사용한다. 앱 버전 `1.1.1`과 별도로 관리한다.
 - 프로젝트 골격과 Maven Wrapper는 [Spring Initializr](https://start.spring.io/)에서 생성했다. 생성 메타데이터가 제시한 `4.1.2.RELEASE`는 실제 Maven Central에 없어, 제공되는 `4.1.2`로 부모 버전을 고정했다.
 - [Boot 시스템 요구사항](https://docs.spring.io/spring-boot/system-requirements.html)은 Java 호환 범위의 근거다. 실제 실행 성공은 프로젝트 테스트·기동 결과로 별도 확인한다.
-- 실제 Supabase 프로젝트 토큰·DB 역할 확인, `GET /api/items` 응답 계약(F-04), 앱 조회 전환, 운영 배포는 후속 기능이다.
+- 실제 Supabase 프로젝트 토큰·DB 역할 확인, 앱 조회 전환(F-05), 운영 배포는 후속 기능이다.
