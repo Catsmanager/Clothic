@@ -1542,3 +1542,7 @@
 - 그러나 기존 UI(constants/mockItems.ts, app/(tabs)/create.tsx)에는 'hair' 존재
 - 선택지: (A) 문서에 hair 추가 후 에셋 계획 확장 / (B) UI에서 hair 제거
 - 현재 mockItems.ts는 UI가 사용 중이라 그대로 두고 병존 — Phase 4 수렴 시 정리
+
+### F-01 검증 완료 기록 (2026-11-10)
+- GitHub Actions 42780281186: Static · Core flow · Habit proxy, Spring Boot · Java 21 모두 success (a3bdc57).
+- 로컬 Maven verify, 실제 HTTP 통합 테스트 1개 및 패키징 jar GET /api/health HTTP 200 확인. plan.md F-01 체크, PR #186 통합·배포는 별도.
