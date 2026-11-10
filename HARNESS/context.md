@@ -26,4 +26,4 @@
 
 ## 현재 경로
 - 앱 소스·명령의 기준 디렉터리는 frontend/, 서버는 backend/다.
-- 현재 구조에서는 evaluator-v6-habit.json 또는 evaluator-v6-ownership.json을 사용한다. v4/v5는 과거 루트 앱 구조의 고정 기록으로 보존하며 v6와 baseline/candidate 쌍을 섞지 않는다.
+- 현재 구조에서는 evaluator-v6-habit.json 또는 evaluator-v6-ownership.json을 사용한다. v1~v5는 과거 루트 앱 구조의 고정 기록으로 HARNESS/legacy/에 보존하며 v6와 baseline/candidate 쌍을 섞지 않는다.

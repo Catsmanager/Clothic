@@ -93,7 +93,7 @@
 
 ## Phase 5: 검증 및 출시
 - [ ] TEST_PLAN.md 기준 전체 검증
-- [x] CI 구축 (정적 검사 + core logic + versioned habit-flow proxy)  ← `.github/workflows/ci.yml`, `HARNESS/evaluator-v4.json`
+- [x] CI 구축 (정적 검사 + core logic + versioned habit-flow proxy)  ← `.github/workflows/ci.yml`, `HARNESS/evaluator-v4.json`(현재 `HARNESS/legacy/`에 보존)
 - [x] 자정/foreground 날짜 갱신 + diary-only 통계 제외 + 핵심 화면 loading/error/retry
 - [x] 같은 날짜 복수 row의 대표 코디 결정론·통계 중복 방지 + 저장 이중 탭 guard
 - [x] 홈 첫 기록/상세 CTA + 잠자는 옷 추천 handoff + 챌린지 기록 CTA
