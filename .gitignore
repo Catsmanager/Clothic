@@ -20,5 +20,8 @@ frontend/assets/staging/
 # Claude Code (로컬 도구 상태 — 커밋 제외)
 .claude/
 
+# 로컬 에디터 설정
+.vscode/
+
 # Supabase CLI local cache
 supabase/.temp/

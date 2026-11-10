@@ -39,6 +39,7 @@ Spring Boot 서버 실행·검사 방법은 [backend/README.md](../backend/READM
 | | [APP_STORE_SUBMISSION_CHECKLIST.md](operations/APP_STORE_SUBMISSION_CHECKLIST.md) | 스토어 제출 확인 항목 |
 | | [TEST_PLAN.md](operations/TEST_PLAN.md) | 자동·수동 검증 항목 |
 | | [SUPABASE_TODO.md](operations/SUPABASE_TODO.md) | Supabase 환경 설정·점검 항목 |
+| | [USER_ACTION_ITEMS.md](operations/USER_ACTION_ITEMS.md) | 사용자 계정·콘솔·디자인 승인이 필요한 항목 (2026-07-27 기준) |
 | `migration/` | [SPRING_BOOT_MIGRATION_PLAN.md](migration/SPRING_BOOT_MIGRATION_PLAN.md) | Spring Boot 전환 학습·작업 계획 |
 
 ## 새 문서를 추가할 때

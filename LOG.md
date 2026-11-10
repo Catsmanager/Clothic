@@ -1,5 +1,12 @@
 # LOG
 
+## 2026-11-10 — P-08 루트 문서 정리 (#191)
+
+- 기준: chore/190-components-home 899896d, 원격 chore/191-root-docs 동일 SHA 확인 후 편집. 사용자 승인한 구조 개선 3/3.
+- USER_ACTION_ITEMS.md → docs/operations/USER_ACTION_ITEMS.md. docs/README.md 목록과 APP_STORE_SUBMISSION_CHECKLIST.md 참조 갱신. 문서 내용은 변경하지 않음(2026-07-27 기준 항목의 유효성 재점검은 별도).
+- 루트 .gitignore에 .vscode/ 추가.
+- 검증: 저장소 내 Markdown 상대 링크 검사 통과, `git check-ignore .vscode` 확인. 코드 변경 없음.
+
 ## 2026-11-10 — P-07 홈 전용 컴포넌트 폴더 정리 (#190)
 
 - 기준: chore/189-legacy-evaluators 0fe54ed, 원격 chore/190-components-home 동일 SHA 확인 후 편집. 사용자 승인한 구조 개선 2/3.
