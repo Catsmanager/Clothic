@@ -1,5 +1,13 @@
 # LOG
 
+## 2026-11-10 — F-03 본인 아이템 데이터 조회 (#201)
+
+- 기준: main 7876127, 원격 feat/201-items-repository 동일 SHA 확인 후 편집. 선행 F-02 병합 확인.
+- Spring Data JPA + PostgreSQL 드라이버 추가. Item 엔티티(읽기 전용, items 테이블), ItemRepository(findByUserIdOrderByCreatedAtDescIdAsc만 노출), ItemQueryService(user_id 조건 고정, readOnly). ddl-auto=none, 미설정 시 기동 유지(initialization-fail-timeout=-1, JDBC 메타데이터 접근 끔). CLOTHIC_DB_* 환경변수.
+- 로컬에 psql·Docker 없음 → 테스트 전용 임베디드 PostgreSQL 17.11(zonky, darwin-arm64 바이너리 추가, BOM으로 버전 고정). 테스트가 auth 스텁 → 저장소 migration 4개 → 권한 순으로 스키마를 만든다. migration이 빈 DB에서 순서대로 적용되지 않는 기존 문제(profiles 생성 전 alter)는 스텁에서 profiles를 미리 만들어 우회하고 USER_ACTION_ITEMS에 기록.
+- 검증: Maven verify 20개 통과(기존 15 + DB 5). validate가 매핑 오류를 실제로 잡는지 열 이름을 틀리게 바꿔 실패 확인 후 복구. RLS 관찰: bypassrls 없는 역할은 JWT 문맥 없이 0행, request.jwt.claim.sub 설정 시 본인 행만. 백엔드 역할은 bypassrls + 서버 user_id 조건으로 설계.
+- 미확인: 실제 Supabase DB 역할·권한·접속 경로, HTTP API(F-04). 앱 코드 변경 없음.
+
 ## 2026-11-10 — F-02 Supabase 사용자 토큰 서버 검증 (#199)
 
 - 기준: main 7d6f179, 원격 feat/199-supabase-token-verification 동일 SHA 확인 후 편집. 변경 전 backend Maven verify 통과(baseline).

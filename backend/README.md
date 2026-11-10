@@ -1,6 +1,6 @@
 # Clothic backend
 
-현재 범위는 서버 기동·상태 확인(F-01)과 Supabase 사용자 토큰 검증(F-02)이다. 데이터베이스·앱 호출은 아직 연결하지 않았다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
+현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03)다. HTTP 아이템 API와 앱 호출은 아직 연결하지 않았다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
 
 ## 실행
 
@@ -48,6 +48,29 @@ CLOTHIC_AUTH_JWK_SET_URI=https://<project-ref>.supabase.co/auth/v1/.well-known/j
 curl -i -H "Authorization: Bearer <앱에서 얻은 접근 토큰>" http://localhost:8080/api/me
 ```
 
+## 데이터베이스 연결과 본인 아이템 조회 (F-03)
+
+`item` 패키지는 기존 `public.items` 테이블을 읽기 전용으로 매핑한다. 조회는 항상 `where user_id = <검증된 사용자 ID> order by created_at desc`이며, 전체 조회 후 메모리에서 거르는 경로는 없다. 서버는 테이블을 만들거나 바꾸지 않는다(`ddl-auto=none`).
+
+| 환경변수 | 값 | 비고 |
+| --- | --- | --- |
+| `CLOTHIC_DB_URL` | `jdbc:postgresql://<host>:<port>/<db>` | 미설정 시 기동은 되지만 조회 시점에 실패 |
+| `CLOTHIC_DB_USERNAME` | 백엔드 전용 역할 | 관리자 계정을 쓰지 않는다 |
+| `CLOTHIC_DB_PASSWORD` | 비밀번호 | 저장소에 넣지 않는다 |
+| `CLOTHIC_DB_POOL_SIZE` | 기본 5 | |
+
+**접속 역할과 RLS에 대해 확인한 사실(테스트 DB 기준)**: 일반 JDBC 연결에는 Supabase의 `auth.uid()` 문맥이 없다. RLS를 우회하지 못하는 역할로 접속하면 `own items` 정책 때문에 조회 결과가 0행이 된다. 따라서 백엔드 역할에는 `bypassrls`(또는 그에 준하는 권한)가 필요하고, 사용자 격리는 서버의 `user_id` 조건이 담당한다. 실제 Supabase 프로젝트에서 어떤 역할을 쓸지, 그 역할의 권한이 어떤지는 아직 확인하지 않았다.
+
+### 격리된 테스트 데이터베이스
+
+로컬에 `psql`·Docker가 없어 테스트는 임베디드 PostgreSQL 17([zonky embedded-postgres](https://github.com/zonkyio/embedded-postgres))을 임의 포트로 띄운다. 운영 Supabase와 같은 major 버전이며 운영 DB에는 연결하지 않는다. 테스트는 다음 순서로 스키마를 만든다.
+
+1. `src/test/resources/db/00-auth-stub.sql`: Supabase가 제공하는 `auth.users`·`auth.uid()`와 테스트 역할의 최소 대체물. 운영 이력상 migration 이전부터 있던 `profiles`도 미리 만든다(저장소 migration은 빈 DB에서 순서대로 적용되지 않는다).
+2. 루트 `supabase/migrations/*.sql`을 파일명 순서로 그대로 적용한다. 그래서 RLS 정책·인덱스·`catalog_item_id`가 실제와 같다.
+3. `99-grants.sql`: 백엔드 역할에 읽기 권한만 준다.
+
+`ItemQueryServiceTest`는 `ddl-auto=validate`로 엔티티 매핑이 실제 스키마와 일치하는지 확인하고, A·B 계정 격리, 빈 결과, `catalog_item_id`·`text[]`·`timestamptz` 매핑, 정렬, RLS 동작(JWT 문맥 없음 → 0행, `request.jwt.claim.sub` 설정 → 본인 행)을 검증한다.
+
 ## 요청이 지나가는 코드
 
 1. [ClothicBackendApplication.java](src/main/java/com/clothic/backend/ClothicBackendApplication.java)가 Spring Boot와 내장 웹 서버를 실행한다.
@@ -62,4 +85,4 @@ curl -i -H "Authorization: Bearer <앱에서 얻은 접근 토큰>" http://local
 - Java 21, Spring Boot `4.1.2`, 서버 개발 버전 `0.1.0-SNAPSHOT`을 사용한다. 앱 버전 `1.1.1`과 별도로 관리한다.
 - 프로젝트 골격과 Maven Wrapper는 [Spring Initializr](https://start.spring.io/)에서 생성했다. 생성 메타데이터가 제시한 `4.1.2.RELEASE`는 실제 Maven Central에 없어, 제공되는 `4.1.2`로 부모 버전을 고정했다.
 - [Boot 시스템 요구사항](https://docs.spring.io/spring-boot/system-requirements.html)은 Java 호환 범위의 근거다. 실제 실행 성공은 프로젝트 테스트·기동 결과로 별도 확인한다.
-- 실제 Supabase 프로젝트 토큰으로의 검증 확인, PostgreSQL 연결, 앱 조회 전환, 운영 배포는 후속 기능이다.
+- 실제 Supabase 프로젝트 토큰·DB 역할 확인, `GET /api/items` 응답 계약(F-04), 앱 조회 전환, 운영 배포는 후속 기능이다.

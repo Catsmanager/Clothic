@@ -17,7 +17,10 @@ Codex가 코드만으로 완료할 수 없거나 사용자 계정·콘솔·디�
 - [ ] Supabase 운영 DB 마이그레이션 상태 확인
   - `outfits.is_favorite boolean not null default false`
   - `outfits.item_colors jsonb`
-  - repository의 fresh migration 순서(`profiles` 생성 전 alter)를 별도 이슈로 정리
+  - repository의 fresh migration 순서(`profiles` 생성 전 alter)를 별도 이슈로 정리. 서버 테스트(F-03)는 이 문제를 피하기 위해 `backend/src/test/resources/db/00-auth-stub.sql`에서 `profiles`를 미리 만든다
+- [ ] 서버용 Supabase DB 접속 역할 결정 (F-03 후속)
+  - 일반 JDBC 연결에는 `auth.uid()`가 없어 RLS 비우회 역할은 0행을 돌려준다(테스트로 확인). 백엔드 전용 역할에 `bypassrls` 또는 동등 권한을 줄지, 어떤 네트워크 경로(직접/풀러)로 붙일지 결정
+  - 결정한 역할·비밀번호는 `CLOTHIC_DB_*` 환경변수로만 전달
 - [ ] GitHub CLI/App 인증 복구
   - 현재 로컬 `gh` 토큰이 만료되어 이슈·PR 자동 생성이 불가능
   - `gh auth login -h github.com` 후 repository 접근 확인
