@@ -16,7 +16,7 @@ import { spacing } from '../constants/spacing'
 import { useCurrentDateKey } from '../hooks/useCurrentDateKey'
 import { buildChallengeData } from '../lib/challenges'
 import { parseDateKey } from '../lib/date'
-import { buildCatalogItems, useItemStore } from '../stores/itemStore'
+import { buildAnalyticsCatalogItems, useItemStore } from '../stores/itemStore'
 import { useOutfitStore } from '../stores/outfitStore'
 
 export default function ChallengeScreen() {
@@ -41,7 +41,7 @@ export default function ChallengeScreen() {
     fetchItems()
   }, [fetchItems, fetchOutfits])
 
-  const catalogItems = useMemo(() => buildCatalogItems(items), [items])
+  const catalogItems = useMemo(() => buildAnalyticsCatalogItems(items), [items])
   const challengeData = useMemo(
     () => buildChallengeData(outfits, catalogItems, currentDate),
     [catalogItems, currentDate, outfits]

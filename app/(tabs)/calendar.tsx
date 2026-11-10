@@ -9,7 +9,11 @@ import CalendarHeader from '../../components/calendar/CalendarHeader'
 import SelectedOutfitCard from '../../components/calendar/SelectedOutfitCard'
 import { useCalendarMonth } from '../../hooks/useCalendarMonth'
 import { indexPrimaryStyledOutfitsByDate } from '../../lib/outfitRecords'
-import { buildCatalogItems, findCatalogItemById, useItemStore } from '../../stores/itemStore'
+import {
+  buildResolvableCatalogItems,
+  findCatalogItemById,
+  useItemStore,
+} from '../../stores/itemStore'
 import { useOutfitStore } from '../../stores/outfitStore'
 
 export default function CalendarScreen() {
@@ -31,7 +35,7 @@ export default function CalendarScreen() {
     fetchItems()
   }, [fetchItems, fetchOutfits])
 
-  const catalogItems = useMemo(() => buildCatalogItems(items), [items])
+  const catalogItems = useMemo(() => buildResolvableCatalogItems(items), [items])
 
   const outfitsByDate = useMemo(() => {
     return indexPrimaryStyledOutfitsByDate(outfits)
