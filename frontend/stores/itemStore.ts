@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { type CatalogItem, type StyleTag, isCategory, isStyleTag } from '../constants/items'
 import type { Database } from '../lib/database.types'
+import { fetchOwnedItemsFromApi, getItemsApiBaseUrl } from '../lib/itemsApi'
 import { supabase } from '../lib/supabase'
 import {
   buildAnalyticsCatalogItems,
@@ -123,6 +124,28 @@ export const useItemStore = create<ItemState>((set, get) => ({
     const generation = storeGeneration
     const requestSequence = (fetchSequence += 1)
     set({ loading: true, error: null })
+    const isStale = () => generation !== storeGeneration || requestSequence !== fetchSequence
+
+    // 서버 주소가 설정된 경우에만 Spring Boot API로 조회한다(명시적 개발 설정). 실패해도 직접 조회로 자동 우회하지 않는다.
+    const apiBaseUrl = getItemsApiBaseUrl()
+    if (apiBaseUrl) {
+      const { data: sessionData } = await supabase.auth.getSession()
+      const accessToken = sessionData.session?.access_token
+      if (isStale()) return
+      if (!accessToken) {
+        set({ loading: false, error: '로그인이 필요해요.' })
+        return
+      }
+      const result = await fetchOwnedItemsFromApi({ baseUrl: apiBaseUrl, accessToken })
+      if (isStale()) return
+      if (result.error !== null) {
+        set({ loading: false, error: result.error })
+        return
+      }
+      set({ items: result.items, loading: false, loaded: true, error: null })
+      return
+    }
+
     const { data, error } = await supabase
       .from('items')
       .select('*')
