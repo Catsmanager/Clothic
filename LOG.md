@@ -6,7 +6,8 @@
 - CLAUDE.md의 기존 import를 유지하고 .claude/skills/clothic-task-workflow를 공통 .codex 원본으로 연결. Codex의 $ 호출과 Claude의 / 호출 모두 같은 규칙을 사용하도록 명시.
 - .gitignore는 이 스킬 링크만 공유하도록 조정하고 settings.local.json 등 로컬 Claude 상태는 계속 제외.
 - 공식 Claude 스킬 문서의 프로젝트 경로·개별 스킬 디렉터리 심볼릭 링크 지원 확인. 설치된 Claude Code 2.1.322 버전 확인. 실제 대화 세션의 스킬 로드·준수는 실행 검증하지 않음.
-- 검증 진행 중. 앱·서버 코드 변경 없음, 배포 없음.
+- 검증: 양쪽 경로 quick_validate 통과, 동일 원본·본문·상대 가이드 확인, Git archive에서 심볼릭 링크·참조 파일 복원 확인, 로컬 설정 checksum 불변·ignore 확인, git diff --check 통과.
+- plan.md P-09 완료 체크, PR #196(기준 #194). 앱·서버 코드 변경 없음으로 앱 테스트 재실행 생략. 실제 세션 로드·준수는 미검증, 배포 없음.
 
 ## 2026-11-10 — P-08 루트 문서 정리 (#191)
 
