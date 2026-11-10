@@ -1,5 +1,13 @@
 # LOG
 
+## 2026-11-10 (feat: F-01 Spring Boot 서버 기동·상태 확인, #185)
+
+- plan.md의 F-01을 먼저 읽고 `feat/185-backend-health` 원격 시작 SHA `3d1408c` 확인 후 편집.
+- Java 21·Spring Boot 4.1.2·Maven Wrapper 기반 backend 골격, GET /api/health와 실제 HTTP 통합 테스트, 서버 CI 작업 추가.
+- Initializr 생성 버전 4.1.2.RELEASE는 Maven Central 404, 4.1.2는 200으로 확인해 부모 버전만 실제 제공 버전으로 고정.
+- 로컬 Maven verify 성공: 실제 HTTP 통합 테스트 1개, 실패·오류 0. 앱 npm run check도 통과.
+- 인증·DB·앱 연결·운영 배포는 포함하지 않음. 사용자 요청에 따른 frontend/backend 폴더 분리를 별도 작업으로 진행하며, F-01은 서버 CI까지 확인할 때까지 미완료로 유지.
+
 ## 2026-11-10 (chore: plan.md 우선 확인과 기능별 완료 체크, #183)
 
 - 루트 plan.md를 기능별 실행 상태의 기준으로 추가. 기능 ID·선행 조건·검증 가능한 완료 기준과 구현/병합/배포 구분 기록을 구성.
@@ -1525,3 +1533,7 @@
 - 그러나 기존 UI(constants/mockItems.ts, app/(tabs)/create.tsx)에는 'hair' 존재
 - 선택지: (A) 문서에 hair 추가 후 에셋 계획 확장 / (B) UI에서 hair 제거
 - 현재 mockItems.ts는 UI가 사용 중이라 그대로 두고 병존 — Phase 4 수렴 시 정리
+
+### F-01 검증 완료 기록 (2026-11-10)
+- GitHub Actions 42780281186: Static · Core flow · Habit proxy, Spring Boot · Java 21 모두 success (a3bdc57).
+- 로컬 Maven verify, 실제 HTTP 통합 테스트 1개 및 패키징 jar GET /api/health HTTP 200 확인. plan.md F-01 체크, PR #186 통합·배포는 별도.

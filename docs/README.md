@@ -6,6 +6,8 @@
 
 실제 작업을 시작할 때는 먼저 루트 [plan.md](../plan.md)의 기능별 완료 기준과 체크 상태를 확인한다. 아래 문서는 배경·설계 참고 자료다.
 
+Spring Boot 서버 실행·검사 방법은 [backend/README.md](../backend/README.md)에 있다.
+
 1. [앱 개요](product/OVERVIEW.md): 서비스와 주요 사용자 흐름
 2. [제품 요구사항](product/PRD.md): 최소 기능 제품(Minimum Viable Product, MVP)의 범위
 3. [현재 아키텍처](architecture/ARCHITECTURE.md)와 [데이터 모델](architecture/DATA_MODEL.md): 기존 구현 구조
