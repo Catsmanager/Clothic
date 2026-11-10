@@ -126,7 +126,7 @@ router.replace(recovery ? '/reset-password' : '/(tabs)')
 | 콜백 화면(라우팅 분기) | `app/auth/callback.tsx` |
 | 새 비밀번호 입력 화면 | `app/reset-password.tsx` |
 | 인증 가드(미로그인 시 `/login`으로) | `app/_layout.tsx` |
-| Supabase 대시보드 설정 체크리스트 | `docs/SUPABASE_TODO.md` (5번 Auth 설정) |
+| Supabase 대시보드 설정 체크리스트 | `docs/operations/SUPABASE_TODO.md` (5번 Auth 설정) |
 
 ## 5. 한 줄 교훈
 - **추측하지 말고 실제 URL을 봐라.** (메일 링크 원문 + 클릭 후 최종 URL + 콜백 콘솔 로그)

@@ -1,8 +1,12 @@
 # TODO
 
+## 문서 탐색과 작업 규칙 — 2026-11-10
+
+- [x] [문서 안내](docs/README.md)를 시작점으로 기존 문서 주제별 분리 (#177)
+
 ## Spring Boot 전환 학습 계획 — 2026-11-10
 
-- [x] [학습·작업 계획](docs/SPRING_BOOT_MIGRATION_PLAN.md) 작성 및 현재 코드·환경·GitHub 상태 확인
+- [x] [학습·작업 계획](docs/migration/SPRING_BOOT_MIGRATION_PLAN.md) 작성 및 현재 코드·환경·GitHub 상태 확인
 - [ ] 계획서의 첫 API 계약 확정 → `backend/` 프로젝트 생성과 상태 확인 요청부터 진행 (#175)
 - 후속 구현은 계획서 단계별 완료 기준을 충족한 뒤 진행한다. Supabase 인증·기존 DB는 초기 전환 동안 유지한다.
 
@@ -101,7 +105,7 @@
   - development: ESLint 전이 `brace-expansion` high
   - 현재 자동 해소안은 Expo 46 다운그레이드/ESLint 10 강제 업그레이드라 미적용
 - [x] Expo EAS Build/TestFlight workflow 설정  ← main CI 성공 → iOS production build → app-store 승인 → TestFlight upload. 실제 credentials 설정은 사용자
-- [ ] App Store 제출  ← docs/CICD.md 체크리스트 참조 (Bundle ID com.clothic.app)
+- [ ] App Store 제출  ← docs/operations/CICD.md 체크리스트 참조 (Bundle ID com.clothic.app)
 - [ ] Google Play 제출
 
 > 2026-05-31: CI/CD 구축(feature/ci-cd). 번들 ID com.clothic.app 설정, DonutChart lint error 해소. (LOG 참조)

@@ -2,7 +2,7 @@
 
 > 패션 습관 분석 기반 모바일 코디 다이어리 앱
 > 이 문서는 제품의 정체성·대상·흐름·범위를 한눈에 정리한 개요다.
-> 상세 문서: [PRD](./PRD.md) · [아키텍처](./ARCHITECTURE.md) · [데이터 모델](./DATA_MODEL.md) · [디자인 시스템](./DESIGN_SYSTEM.md)
+> 상세 문서: [PRD](./PRD.md) · [아키텍처](../architecture/ARCHITECTURE.md) · [데이터 모델](../architecture/DATA_MODEL.md) · [디자인 시스템](../design/DESIGN_SYSTEM.md)
 
 ---
 
@@ -106,7 +106,7 @@
 - **외부 연동**: 카카오 OAuth, Apple Sign-In, Open-Meteo(날씨), expo-location
 
 아키텍처 원칙: 라우트 화면은 조립만 담당하고, 로직은 `hooks/`·`lib/`로,
-재사용 UI는 `components/`로 분리한다. 상세는 [ARCHITECTURE.md](./ARCHITECTURE.md).
+재사용 UI는 `components/`로 분리한다. 상세는 [ARCHITECTURE.md](../architecture/ARCHITECTURE.md).
 
 ## 9. 데이터 모델 (요약)
 
@@ -116,7 +116,7 @@
 | `items` | user_id, catalog_item_id, name, category, color, style_tags, image_path |
 | `outfits` | user_id, date, mood, weather, memo, item_ids[], is_favorite |
 
-상세 스키마는 [DATA_MODEL.md](./DATA_MODEL.md).
+상세 스키마는 [DATA_MODEL.md](../architecture/DATA_MODEL.md).
 
 ## 10. 성공 기준
 
@@ -140,4 +140,4 @@
 | 개인정보 처리방침 | 초안 작성 / 호스팅 필요 |
 | EAS Build·제출 | 설정 완료 / Expo·Apple 계정·빌드 필요 |
 
-상세: [CICD.md](./CICD.md) · [APPLE_SIGNIN.md](./APPLE_SIGNIN.md) · [KAKAO_OAUTH.md](./KAKAO_OAUTH.md)
+상세: [CICD.md](../operations/CICD.md) · [APPLE_SIGNIN.md](../auth/APPLE_SIGNIN.md) · [KAKAO_OAUTH.md](../auth/KAKAO_OAUTH.md)

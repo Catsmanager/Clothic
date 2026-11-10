@@ -1,4 +1,4 @@
-// Supabase DB 스키마 타입 — docs/DATA_MODEL.md 기준 수기 정의.
+// Supabase DB 스키마 타입 — docs/architecture/DATA_MODEL.md 기준 수기 정의.
 // (supabase gen types 도입 전 임시. 스키마 변경 시 함께 갱신할 것.)
 
 export interface Database {
