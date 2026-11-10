@@ -16,7 +16,7 @@
 
 - 첫 전환은 기존 Supabase Auth와 PostgreSQL을 유지한다. 운영 데이터 삭제·복사와 인증 서비스 동시 교체는 별도 작업이다.
 - 현재 main의 카탈로그/소유 아이템 분리 구현을 보존한다. 기존 상세 문서의 73c9863 분석은 과거 기준이므로 API 연결 전 현재 타입·동작과 대조한다.
-- 현재 구현 범위는 **F-01 서버 기동·상태 확인**, **P-05 frontend/backend 디렉터리 분리**, **F-02 로그인 사용자 검증**이다. 후속 API 전환 기능은 실행 순서와 완료 기준을 정리한 목록이며 아직 착수하지 않았다.
+- 현재 구현 범위는 **F-01 서버 기동·상태 확인**, **P-05 frontend/backend 디렉터리 분리**, **F-02 로그인 사용자 검증**, **F-03 본인 아이템 데이터 조회**다. 후속 API 전환 기능은 실행 순서와 완료 기준을 정리한 목록이며 아직 착수하지 않았다.
 - 앱의 실제 Spring Boot 연결, 인증·DB 연동, 운영 배포는 아직 완료되지 않았다.
 
 ## 준비 작업
@@ -36,7 +36,7 @@
 
 - [x] **F-01 서버 기동·상태 확인** — Java 21·Spring Boot 프로젝트가 Maven Wrapper로 실행되고, 실제 HTTP `GET /api/health`가 `200 {"status":"ok"}`를 반환한다. 서버 통합 테스트와 서버 CI가 통과한다. 인증·DB·앱 연결은 포함하지 않는다. 선행: P-01~04.
 - [x] **F-02 로그인 사용자 검증** — Supabase 사용자 토큰을 서버에서 검증하고 신뢰할 수 있는 사용자 ID를 얻는다. 토큰 누락·변조·만료·잘못된 발급자·대상은 조회 전 `401`로 거부한다. 실제 프로젝트의 서명 방식도 확인한다. 선행: F-01.
-- [ ] **F-03 본인 아이템 데이터 조회** — 격리된 PostgreSQL에서 현재 items 스키마를 매핑하고 인증된 사용자 조건으로 조회한다. A·B 계정 격리, 빈 결과, catalog_item_id·날짜·배열 매핑과 접속 역할/RLS 동작을 검증한다. 선행: F-02.
+- [x] **F-03 본인 아이템 데이터 조회** — 격리된 PostgreSQL에서 현재 items 스키마를 매핑하고 인증된 사용자 조건으로 조회한다. A·B 계정 격리, 빈 결과, catalog_item_id·날짜·배열 매핑과 접속 역할/RLS 동작을 검증한다. 선행: F-02.
 - [ ] **F-04 내 옷 목록 API** — `GET /api/items`의 응답 계약을 현재 UserItem과 대조해 확정하고, 정렬·빈 목록·허용 분류·오류 응답을 검증한다. 요청의 사용자 ID로 대상을 바꿀 수 없어야 한다. 선행: F-03.
 - [ ] **F-05 앱의 내 옷 조회 전환** — fetchItems가 토큰과 함께 새 API를 호출한다. 기존 카탈로그 해석·로딩·오류·재시도·계정 전환 및 늦은 응답 차단을 유지하고 기존 조회 결과와 비교한다. 선행: F-04.
 - [ ] **F-06 기본 옷을 내 옷장에 추가** — 사용자 확인으로 템플릿을 소유 아이템에 등록하는 서버 경로를 구현한다. 같은 사용자·템플릿 중복 방지와 기존 정적 ID/사용자 ID 호환을 검증하고 해당 앱 쓰기 경로를 연결한다. 선행: F-05.
@@ -80,6 +80,7 @@
 | P-07 | 컴포넌트 7개 이동 후 `npm run check` 통과(typecheck·lint·format·핵심 28개·소유 계약 8/8·하네스 6개), 웹 export 성공 | [PR #193](https://github.com/Catsmanager/Clothic/pull/193) 병합(f3991f2) | 해당 없음 |
 | P-08 | 파일 이동·참조 2곳 갱신, 로컬 문서 링크 검사 통과, `git check-ignore .vscode` 확인. 코드 변경 없음 | [PR #194](https://github.com/Catsmanager/Clothic/pull/194) 병합(bc9c347) | 해당 없음 |
 | P-09 | 규칙 문서 3개 갱신, 코드 변경 없음 | [PR #198](https://github.com/Catsmanager/Clothic/pull/198) | 해당 없음 |
+| F-03 | Maven verify 통과: 테스트 20개(DB 5개 추가). 임베디드 PostgreSQL 17.11에 저장소 migration 적용, ddl-auto=validate 매핑 검증(열 이름을 틀리게 바꾸면 실패하는지 known-fail 확인), A·B 격리·빈 결과·catalog_item_id·text[]·timestamptz·정렬, RLS: 비우회 역할+JWT 없음 0행 / sub 설정 시 본인 행. 실제 Supabase DB 역할·연결은 미확인 → USER_ACTION_ITEMS | [PR #TBD](https://github.com/Catsmanager/Clothic/pulls) | 미배포 |
 | F-02 | Maven verify 통과: 통합 테스트 15개(인증 14개 + health 1개). HS256·ES256(로컬 JWKS) 유효 토큰 200, 누락·다른 키·변조·만료·발급자·대상·sub 없음 401, 미설정 시 fail-closed. 실제 Supabase 프로젝트 서명 방식·실토큰 검증은 미확인(sandbox에서 supabase.co 접근 불가) → USER_ACTION_ITEMS | [PR #200](https://github.com/Catsmanager/Clothic/pull/200) | 미배포 |
 | F-01 | Maven verify·실제 HTTP 통합 테스트 1개·패키징 jar HTTP 200 확인, GitHub 앱·서버 CI 통과(a3bdc57) | [PR #186](https://github.com/Catsmanager/Clothic/pull/186) 병합(2b36d0d) | 미배포 |
 
