@@ -18,16 +18,16 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 /** 테스트 전용 토큰 생성·요청 도우미. 실제 Supabase 비밀키나 토큰은 사용하지 않는다. */
-final class TestTokens {
+public final class TestTokens {
 
-    static final String ISSUER = "https://test-project.supabase.co/auth/v1";
-    static final String AUDIENCE = "authenticated";
-    static final String USER_ID = UUID.randomUUID().toString();
+    public static final String ISSUER = "https://test-project.supabase.co/auth/v1";
+    public static final String AUDIENCE = "authenticated";
+    public static final String USER_ID = UUID.randomUUID().toString();
 
     private TestTokens() {
     }
 
-    static JWTClaimsSet.Builder supabaseClaims() {
+    public static JWTClaimsSet.Builder supabaseClaims() {
         Instant now = Instant.now();
         return new JWTClaimsSet.Builder()
                 .issuer(ISSUER)
@@ -38,7 +38,7 @@ final class TestTokens {
                 .expirationTime(Date.from(now.plusSeconds(600)));
     }
 
-    static String sign(JWSSigner signer, JWSAlgorithm algorithm, String keyId, JWTClaimsSet claims)
+    public static String sign(JWSSigner signer, JWSAlgorithm algorithm, String keyId, JWTClaimsSet claims)
             throws JOSEException {
         JWSHeader.Builder header = new JWSHeader.Builder(algorithm).type(com.nimbusds.jose.JOSEObjectType.JWT);
         if (keyId != null) {
@@ -49,7 +49,7 @@ final class TestTokens {
         return jwt.serialize();
     }
 
-    static HttpResponse<String> get(int port, String path, String bearerToken) throws Exception {
+    public static HttpResponse<String> get(int port, String path, String bearerToken) throws Exception {
         try (HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build()) {
             HttpRequest.Builder request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + path))
@@ -62,7 +62,7 @@ final class TestTokens {
         }
     }
 
-    static List<String> wwwAuthenticate(HttpResponse<String> response) {
+    public static List<String> wwwAuthenticate(HttpResponse<String> response) {
         return response.headers().allValues("www-authenticate");
     }
 }

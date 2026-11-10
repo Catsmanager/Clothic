@@ -1,5 +1,12 @@
 # LOG
 
+## 2026-11-10 — F-04 내 옷 목록 API GET /api/items (#203)
+
+- 기준: main 75ef7bf, 원격 feat/203-items-api 동일 SHA 확인 후 편집. 선행 F-03 병합 확인.
+- ItemController(GET /api/items), ItemResponse(UserItem과 같은 9개 필드·순서), ItemContract(앱 constants/items.ts의 카테고리 7종·스타일 태그 10종과 mapRow 규칙 재현). 사용자 ID는 토큰 sub만 사용, userId/user_id 파라미터는 400, sub 비UUID는 401.
+- 검증: Maven verify 27개 통과(기존 20 + ItemsApiTest 6 + ItemsApiFailureTest 1). 실제 HTTP + HS256 테스트 토큰 + 임베디드 PostgreSQL 17. DB 실패는 MockitoBean으로 DataAccessException을 던져 500과 오류 본문에 SQL·계정·password 문자열 없음을 확인. 이 테스트는 DB 설정 없이도 서버가 기동함을 함께 확인.
+- 미확인: 실제 Supabase 토큰·DB 연결, 앱 전환(F-05). 앱 코드 변경 없음. ItemContract의 허용값은 앱 상수와 수동으로 맞춰야 하며 자동 동기화는 없다.
+
 ## 2026-11-10 — F-03 본인 아이템 데이터 조회 (#201)
 
 - 기준: main 7876127, 원격 feat/201-items-repository 동일 SHA 확인 후 편집. 선행 F-02 병합 확인.
