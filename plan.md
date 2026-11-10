@@ -51,7 +51,7 @@
 - [ ] **F-10 코디 수정** — 기존 코디 필드 변경이 본인 데이터에만 적용되고 실패 시 앱 상태가 복구된다. 선행: F-09.
 - [ ] **F-11 즐겨찾기 변경** — 본인 코디의 즐겨찾기를 바꾸고 빠른 연속 입력·저장 실패·재조회 결과를 검증한다. 선행: F-08.
 - [ ] **F-12 코디 삭제** — 본인 코디만 삭제하고 실패·재조회·연관 화면 갱신을 검증한다. 선행: F-08.
-- [ ] **F-13 프로필 조회·변경** — 본인 프로필만 조회·수정하고 재로그인 후에도 복원된다. 선행: F-02.
+- [x] **F-13 프로필 조회·변경** — 본인 프로필만 조회·수정하고 재로그인 후에도 복원된다. 선행: F-02.
 - [ ] **F-14 알림 설정 변경** — 본인 알림 설정 조회·변경이 재로그인 후에도 유지되고 실패 시 복구된다. 선행: F-13.
 - [ ] **F-15 알림 목록 조회** — 본인 알림만 읽고 정렬·빈 결과·조회 실패를 구분한다. 선행: F-02.
 - [ ] **F-16 알림 읽음 처리** — 개별·전체 읽음 처리가 본인 알림에만 적용되며 실패 시 상태가 복원된다. 선행: F-15.
@@ -80,6 +80,7 @@
 | P-07 | 컴포넌트 7개 이동 후 `npm run check` 통과(typecheck·lint·format·핵심 28개·소유 계약 8/8·하네스 6개), 웹 export 성공 | [PR #193](https://github.com/Catsmanager/Clothic/pull/193) 병합(f3991f2) | 해당 없음 |
 | P-08 | 파일 이동·참조 2곳 갱신, 로컬 문서 링크 검사 통과, `git check-ignore .vscode` 확인. 코드 변경 없음 | [PR #194](https://github.com/Catsmanager/Clothic/pull/194) 병합(bc9c347) | 해당 없음 |
 | P-09 | 규칙 문서 3개 갱신, 코드 변경 없음 | [PR #198](https://github.com/Catsmanager/Clothic/pull/198) | 해당 없음 |
+| F-13 | 서버 범위 완료. Maven verify 32개 통과(프로필 5개 추가): 가입 트리거로 생긴 행 조회, 변경 후 재조회 복원, 부분 변경 시 나머지 유지, 다른 사용자 불변, 빈/미지 키(id·username)/비불리언/비JSON 400, 401, 행 없음 404(생성 안 함). 앱의 설정 화면 전환과 재로그인 복원 확인은 F-14 | [PR #TBD](https://github.com/Catsmanager/Clothic/pulls) | 미배포 |
 | F-05 | 부분 구현: lib/itemsApi.ts(토큰·시간 제한·응답 실행 시점 검증)와 fetchItems의 설정형 전환(EXPO_PUBLIC_CLOTHIC_API_URL 설정 시만, 자동 우회 없음). 단위 테스트 7개, `npm run check`·웹 export 통과. **남은 조건**: 실제 개발 환경에서 서버(실토큰·DB 역할 확인 후)와 기존 경로의 결과 비교, 로그아웃·계정 전환·서버 오류 시 이전 사용자 데이터 미노출 확인 → 확인 전까지 미완료 | [PR #206](https://github.com/Catsmanager/Clothic/pull/206) | 미배포 |
 | F-04 | Maven verify 통과: 테스트 27개(HTTP API 7개 추가). HS256 토큰+임베디드 PostgreSQL로 200 목록(최신순, hat 카테고리 제외, 비허용 태그 제거, 필드 이름·순서 UserItem 일치), 빈 목록 [], 토큰 없음·위조 401, userId/user_id 파라미터 400(대상 불변), sub 비UUID 401, DB 실패 500(SQL·계정 미노출) | [PR #204](https://github.com/Catsmanager/Clothic/pull/204) | 미배포 |
 | F-03 | Maven verify 통과: 테스트 20개(DB 5개 추가). 임베디드 PostgreSQL 17.11에 저장소 migration 적용, ddl-auto=validate 매핑 검증(열 이름을 틀리게 바꾸면 실패하는지 known-fail 확인), A·B 격리·빈 결과·catalog_item_id·text[]·timestamptz·정렬, RLS: 비우회 역할+JWT 없음 0행 / sub 설정 시 본인 행. 실제 Supabase DB 역할·연결은 미확인 → USER_ACTION_ITEMS | [PR #202](https://github.com/Catsmanager/Clothic/pull/202) | 미배포 |

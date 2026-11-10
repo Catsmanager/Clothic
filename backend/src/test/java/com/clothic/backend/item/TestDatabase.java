@@ -18,10 +18,10 @@ import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
  * 테스트 전용 임베디드 PostgreSQL 17. 저장소의 Supabase migration SQL을 그대로 적용해 실제 스키마와 RLS 정책을 만든다.
  * 운영 데이터베이스에는 절대 연결하지 않는다.
  */
-final class TestDatabase {
+public final class TestDatabase {
 
-    static final String BACKEND_ROLE = "clothic_backend";
-    static final String BACKEND_PASSWORD = "clothic_backend_test";
+    public static final String BACKEND_ROLE = "clothic_backend";
+    public static final String BACKEND_PASSWORD = "clothic_backend_test";
     static final String PROBE_ROLE = "clothic_rls_probe";
     static final String PROBE_PASSWORD = "clothic_rls_probe_test";
 
@@ -50,11 +50,11 @@ final class TestDatabase {
         return postgres;
     }
 
-    static String jdbcUrl(String role, String password) {
+    public static String jdbcUrl(String role, String password) {
         return start().getJdbcUrl(role, "postgres") + "&password=" + password;
     }
 
-    static DataSource superuser() {
+    public static DataSource superuser() {
         return start().getPostgresDatabase();
     }
 

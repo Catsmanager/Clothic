@@ -1,6 +1,6 @@
 # Clothic backend
 
-현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 목록 API(F-04)다. 앱의 호출 전환(F-05)은 아직이다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
+현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 목록 API(F-04), 본인 프로필 조회·변경 API(F-13)다. 앱 호출 전환은 설정형 코드(F-05)까지 있고 실환경 비교는 남아 있다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
 
 ## 실행
 
@@ -82,6 +82,19 @@ Authorization: Bearer <Supabase 사용자 접근 토큰>
 - 응답은 앱 `UserItem[]`과 같은 필드·순서의 배열이다: `id`, `userId`, `catalogItemId`, `name`, `category`, `imagePath`, `color`, `styleTags`, `createdAt`(시간대 포함 ISO-8601). 아이템이 없으면 `[]`.
 - 앱 `mapRow()`와 같은 규칙으로 허용 카테고리 7종 외 행은 제외하고 허용 스타일 태그 10종 외 값은 제거한다. 허용값 목록은 `ItemContract`에 있으며 앱 `constants/items.ts`와 같아야 한다.
 - 토큰 없음·무효 `401`, `sub`가 UUID가 아니면 `401`, DB 조회 실패 `500`(SQL·접속 정보 없음).
+
+## 본인 프로필 조회·변경 API (F-13)
+
+```http
+GET /api/profile
+PATCH /api/profile   {"dailyReminderEnabled": false, "sleepingWardrobeEnabled": true}
+Authorization: Bearer <Supabase 사용자 접근 토큰>
+```
+
+- 두 요청 모두 토큰 `sub` 사용자의 `profiles` 행만 다룬다. 응답 필드: `id`, `username`, `dailyReminderEnabled`, `sleepingWardrobeEnabled`, `createdAt`.
+- PATCH는 앱이 실제로 바꾸는 두 불리언만 받는다. 둘 다 없으면 `400`, `id`·`username` 등 다른 키가 있으면 `400`, 불리언이 아니면 `400`. 보내지 않은 필드는 유지된다.
+- 프로필 행은 가입 트리거(`handle_new_user`)가 만들므로 서버는 만들지 않는다. 행이 없으면 `404`.
+- 테스트 DB에도 같은 트리거가 적용돼 `auth.users` 삽입만으로 프로필이 생기는지 함께 확인했다. 백엔드 역할에는 `profiles`의 `select, update`가 필요하다.
 
 ## 요청이 지나가는 코드
 
