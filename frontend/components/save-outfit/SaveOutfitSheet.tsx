@@ -12,22 +12,22 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons'
-import { colors } from '../constants/colors'
-import { spacing, radius } from '../constants/spacing'
+import { colors } from '../../constants/colors'
+import { spacing, radius } from '../../constants/spacing'
 import {
   type Mood,
   type Weather,
   MOOD_LABELS,
   WEATHER_LABELS,
   type NewOutfit,
-} from '../stores/outfitStore'
-import { useSaveOutfitForm } from '../hooks/useSaveOutfitForm'
-import { isColorCategory, type CatalogItem } from '../constants/items'
-import ItemColorPicker from './save-outfit/ItemColorPicker'
-import OptionChipGroup from './save-outfit/OptionChipGroup'
-import SaveOutfitActions from './save-outfit/SaveOutfitActions'
-import SaveOutfitMemoField from './save-outfit/SaveOutfitMemoField'
-import OutfitAvatar from './OutfitAvatar'
+} from '../../stores/outfitStore'
+import { useSaveOutfitForm } from '../../hooks/useSaveOutfitForm'
+import { isColorCategory, type CatalogItem } from '../../constants/items'
+import ItemColorPicker from './ItemColorPicker'
+import OptionChipGroup from './OptionChipGroup'
+import SaveOutfitActions from './SaveOutfitActions'
+import SaveOutfitMemoField from './SaveOutfitMemoField'
+import OutfitAvatar from '../OutfitAvatar'
 
 interface Props {
   visible: boolean

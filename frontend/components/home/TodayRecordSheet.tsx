@@ -11,9 +11,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { colors } from '../constants/colors'
-import { radius, spacing } from '../constants/spacing'
-import { MOOD_LABELS, type Mood } from '../stores/outfitStore'
+import { colors } from '../../constants/colors'
+import { radius, spacing } from '../../constants/spacing'
+import { MOOD_LABELS, type Mood } from '../../stores/outfitStore'
 
 type RecordMode = 'mood' | 'memo'
 
