@@ -1,5 +1,13 @@
 # LOG
 
+## 2026-11-10 (chore: 최소 작업별 원격 브랜치 선행 규칙, #178)
+
+- `.codex/skills/clothic-task-workflow/SKILL.md`와 자동 발견용 메타데이터 추가. 코드·문서·스킬 변경 모두 파일 수정 전 GitHub 원격 브랜치와 시작 커밋을 확인하도록 규정.
+- `AGENTS.md`를 진입점으로 추가하고 CLAUDE의 작업 규칙·자동 임포트와 연결.
+- 기존 변경 보존, 독립적인 완료 기준, 원격 생성 실패 시 편집 중단, 읽기 전용 요청 제외, 같은 작업의 후속 수정은 브랜치 재사용을 명시.
+- 작업 브랜치 `chore/178-task-branch-workflow`를 GitHub에 먼저 만들고 원격 SHA `69d64d6`을 확인한 뒤 편집.
+- 실행 코드·연결 설정 변경 없음. 새 스킬과 경로를 갱신한 기존 스킬 2개의 공식 형식 검사, 자동 발견 메타데이터와 진입점, 로컬 링크 53개, git diff --check 통과.
+
 ## 2026-11-10 (docs: 문서 폴더 주제별 정리, #177)
 
 - 기존 문서 21개를 product·architecture·design·avatar·auth·operations·migration으로 분리하고 `docs/README.md`에 탐색 목록·새 문서 배치 규칙 추가.
