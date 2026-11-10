@@ -1,29 +1,34 @@
 {
   "schemaVersion": 1,
-  "status": "awaiting-v4-baseline",
+  "status": "awaiting-v6-baseline",
   "campaign": "clothic-user-flow-retention",
-  "currentEvaluator": "HARNESS/evaluator-v4.json",
+  "currentEvaluator": ["HARNESS/evaluator-v6-habit.json", "HARNESS/evaluator-v6-ownership.json"],
   "latestReproducibleExperiment": null,
   "legacyHistory": {
     "status": "non-reproducible",
     "evaluators": [
       {
-        "path": "HARNESS/evaluator.json",
+        "path": "HARNESS/legacy/evaluator.json",
         "recordedBundleHashes": [
           "1f3e2c8b256ff9c69aa880739a9f67209b4816e2a177ad950bb52838a3d57718",
           "48ca9a24baef310438de77ef019ee7d5227fc2b41238b07c4baac0a62f3b2e68"
         ]
       },
       {
-        "path": "HARNESS/evaluator-v2.json",
+        "path": "HARNESS/legacy/evaluator-v2.json",
         "recordedBundleHashes": ["a5eff2df088359fe002db47fc653c613fb0214d8bca6c4ecde277173372d68ec"]
       },
       {
-        "path": "HARNESS/evaluator-v3.json",
+        "path": "HARNESS/legacy/evaluator-v3.json",
         "recordedBundleHashes": ["9a1e5f1355027fec65c871f1f4e1366e0add8710dde1f610d1967065b5d448a7"]
       }
     ],
-    "reason": "v1-v3 accepted CLI-controlled evaluator settings, mutable command aliases, and did not record gates, runtime, worktree, or surface hashes"
+    "reason": "v1-v3 accepted CLI-controlled evaluator settings, mutable command aliases, and did not record gates, runtime, worktree, or surface hashes",
+    "historicalRootLayoutManifests": [
+      "HARNESS/legacy/evaluator-v4.json",
+      "HARNESS/legacy/evaluator-v5.json"
+    ],
+    "note": "Legacy manifests moved to HARNESS/legacy/ on 2026-11-10 (#189); file contents and recorded bundle hashes are unchanged. experiments.jsonl keeps the paths that were current when each entry was written."
   },
   "historicalAcceptedIterations": 3,
   "consecutiveRejected": 0,

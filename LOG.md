@@ -1,5 +1,13 @@
 # LOG
 
+## 2026-11-10 — P-06 legacy 평가기·flow 스크립트 분리 (#189)
+
+- 기준: main 6bb8708, 원격 chore/189-legacy-evaluators 동일 SHA 확인 후 편집. 사용자 승인한 구조 개선 1/3.
+- HARNESS/evaluator.json·v2~v5 → HARNESS/legacy/ (README 추가), frontend/scripts/check-user-flow-contract.mjs·v2·v3 → frontend/scripts/legacy/. legacy 스크립트의 root 계산과 체인 경로만 새 위치에 맞게 수정, manifest 내용은 변경하지 않음.
+- 참조 갱신: docs/operations/TEST_PLAN.md(v6 기준), autoresearch 스킬, HARNESS/loop.md·context.md, .autoresearch/state.json(status awaiting-v6-baseline, legacy 경로), TODO.md 이력 주석.
+- 검증: 변경 전 baseline `npm run check` 통과, 변경 후 동일 통과(핵심 28개·소유 계약 8/8·하네스 6개, Prettier 통과). legacy v3 스크립트 단독 실행 FLOW_SCORE 11/12로 동작 확인. 아바타 기존 경고 4개 유지.
+- 현역 evaluator-v6-*의 fixtureFiles에 이동 파일이 없어 bundle hash 영향 없음. experiments.jsonl 과거 항목의 경로는 당시 위치로 보존.
+
 ## 2026-11-10 — P-05 frontend/backend 디렉터리 분리 (#187)
 
 - 기준: #186 서버 작업 a3bdc575, 원격 chore/187-frontend-backend-layout의 동일 SHA 확인 후 편집.

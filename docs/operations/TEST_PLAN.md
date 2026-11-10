@@ -11,9 +11,10 @@ npx expo export --platform web --output-dir <unique-/private/tmp/path> --clear
 
 `npm run check`는 typecheck, lint, format, avatar, `test:core`, versioned
 `flow:check`, harness 회귀 테스트를 한 번에 실행한다. 새 측정은
-`HARNESS/evaluator-v4.json` 이상과 `.autoresearch/experiments.jsonl`의 동일 frozen identity
+`HARNESS/evaluator-v6-habit.json`과 `.autoresearch/experiments.jsonl`의 동일 frozen identity
 baseline/candidate pair로만 채택 여부를 확인한다. 옷장 소유 분리는
-`HARNESS/evaluator-v5.json`을 사용한다. v1-v3 기록은 비재현 legacy다.
+`HARNESS/evaluator-v6-ownership.json`을 사용한다. v1-v5 manifest는 `HARNESS/legacy/`에
+보존한 과거 기록이며 새 pair에 사용하지 않는다.
 이 점수는 합성 리텐션 proxy이며 실제 D1/D7 행동 데이터가 아니다. 네트워크가 필요한
 Expo 환경 검사와 실제 Supabase 검증은 결정론적 gate와 분리해 결과를 기록한다.
 

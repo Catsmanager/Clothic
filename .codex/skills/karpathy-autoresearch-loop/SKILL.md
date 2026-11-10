@@ -70,7 +70,7 @@ python .codex/skills/karpathy-autoresearch-loop/scripts/eval_variant.py \
 
 Keep the manifest and output under the repository; output must be a direct `.autoresearch/*.jsonl` file. The runner requires exactly one finite metric match, runs every manifest gate, kills the process group on timeout, locks the append-only log, and records evaluator, runtime, environment, worktree, and surface hashes. A candidate is adopted only when its command and gates pass and its improvement is greater than epsilon.
 
-Treat `HARNESS/evaluator.json`, `evaluator-v2.json`, and `evaluator-v3.json` plus their historical log entries as legacy non-reproducible evidence. Do not pair new candidates with them. Use `HARNESS/evaluator-v6-habit.json` or `HARNESS/evaluator-v6-ownership.json` for the frontend/ layout, or create a later schema-v4 manifest. Keep v4/v5 as historical root-layout manifests and do not pair their records with v6.
+Treat `HARNESS/legacy/evaluator.json`, `evaluator-v2.json`, and `evaluator-v3.json` plus their historical log entries as legacy non-reproducible evidence. Do not pair new candidates with them. Use `HARNESS/evaluator-v6-habit.json` or `HARNESS/evaluator-v6-ownership.json` for the frontend/ layout, or create a later schema-v4 manifest. `HARNESS/legacy/evaluator-v4.json` and `evaluator-v5.json` are historical root-layout manifests; do not pair their records with v6. Historical `experiments.jsonl` entries keep the manifest paths that were current at the time.
 
 ## A/B Testing Patterns
 

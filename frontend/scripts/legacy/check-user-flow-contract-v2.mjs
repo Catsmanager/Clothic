@@ -5,18 +5,21 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const baseResult = spawnSync(
   process.execPath,
-  [path.join(root, 'scripts/check-user-flow-contract-v2.mjs')],
-  { cwd: root, encoding: 'utf8' }
+  [path.join(root, 'scripts/legacy/check-user-flow-contract.mjs')],
+  {
+    cwd: root,
+    encoding: 'utf8',
+  }
 )
 const baseScoreMatch = /FLOW_SCORE=(\d+)/.exec(baseResult.stdout)
 const baseTargetMatch = /FLOW_TARGET=(\d+)/.exec(baseResult.stdout)
 
 if (!baseScoreMatch || !baseTargetMatch) {
   process.stderr.write(baseResult.stderr)
-  process.stderr.write('The v2 flow evaluator did not emit a score.\n')
+  process.stderr.write('The v1 flow evaluator did not emit a score.\n')
   process.exit(2)
 }
 
@@ -31,23 +34,26 @@ function read(relativePath) {
   return fs.readFileSync(path.join(root, relativePath), 'utf8')
 }
 
-const wardrobeScreen = read('app/(tabs)/more.tsx')
-const sleepingBanner = read('components/sleeping-wardrobe/SleepingBottomBanner.tsx')
-const challengeBanner = read('components/challenge/ChallengeBottomBanner.tsx')
+const wardrobe = read('app/(tabs)/more.tsx')
+const wardrobeHook = read('hooks/useSleepingWardrobe.ts')
+const notificationCenter = read('app/notifications.tsx')
+const notificationSettings = read('app/settings/notifications.tsx')
 
 const checks = [
   {
-    name: 'sleeping wardrobe starts a draft with the suggested dormant item equipped',
+    name: 'wardrobe distinguishes loading, error, retry and empty data',
     pass:
-      wardrobeScreen.includes('suggestedItem={wardrobe.items[0]') &&
-      sleepingBanner.includes('selectedItemId') &&
-      sleepingBanner.includes('selectionToken'),
+      wardrobe.includes('CoreDataState') &&
+      ['outfitLoading', 'itemLoading', 'error', 'retry'].every((fragment) =>
+        wardrobeHook.includes(fragment)
+      ),
   },
   {
-    name: 'challenge guidance has an explicit create-outfit action',
+    name: 'notification UI offers recovery without promising an unavailable reminder',
     pass:
-      challengeBanner.includes("router.push('/(tabs)/create')") &&
-      challengeBanner.includes('코디 기록하기'),
+      notificationCenter.includes('다시 시도') &&
+      notificationSettings.includes('현재 알림은 자동으로 발송되지 않아요') &&
+      notificationSettings.includes('disabled'),
   },
 ]
 
