@@ -14,7 +14,7 @@
 ### 1. 아바타 아이템 에셋 채우기
 - [ ] 빈 카테고리 없이 코디를 완성할 수 있는 수준까지 PNG 제작·배치
 - [ ] `constants/itemCatalog.ts`의 `imagePath`와 실제 파일명 일치 확인
-- 규격·좌표·레이어 규칙: `docs/avatar/ITEM_ASSET_FLOW.md`, `USER_ACTION_ITEMS.md`의 "아바타/의상 에셋 상세 규격" 참조
+- 규격·좌표·레이어 규칙: `docs/avatar/ITEM_ASSET_FLOW.md`, `docs/operations/USER_ACTION_ITEMS.md`의 "아바타/의상 에셋 상세 규격" 참조
 - 현재: 33종 메타데이터 중 실제 PNG는 약 7종 → 나머지 placeholder 상태
 
 ### 2. 심사용 데모 계정 준비
