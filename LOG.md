@@ -7,7 +7,8 @@
 - 앱 CI/EAS 실행·npm 캐시·Vercel 빌드 경로, 현재 문서·스킬 참조를 갱신. 앱 내부 에셋 문자열과 Supabase 연결 대상은 유지.
 - 과거 evaluator-v4/v5 기록을 보존하고 새 경로용 v6 manifest를 추가. 과거 기록과 새 기록을 같은 실험 쌍으로 비교하지 않는다.
 - 검증: frontend npm run check (핵심 28개·하네스 6개), 웹 export, backend Maven verify (HTTP 통합 1개), 버전 1.1.1 일치, 소유 계약 8/8, actionlint·스킬 검증, 로컬 문서 링크 75개와 기존 앱 파일 242개 보존 확인. 아바타 기존 경고 4개 유지.
-- GitHub CI 확인 전. 운영 앱·서버 배포 및 실기기 검증은 수행하지 않음.
+- GitHub Actions 42781302107 앱·서버 CI 통과(6d7b78d), P-05 완료 체크. PR #188; 선행 서버 PR #186은 main 병합(2b36d0d).
+- 운영 앱·서버 배포 및 실기기 검증은 수행하지 않음. Vercel 프리뷰는 이 기록 시점 진행 중.
 
 ## 2026-11-10 (feat: F-01 Spring Boot 서버 기동·상태 확인, #185)
 
