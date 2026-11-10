@@ -1,5 +1,12 @@
 # LOG
 
+## 2026-11-10 — F-02 Supabase 사용자 토큰 서버 검증 (#199)
+
+- 기준: main 7d6f179, 원격 feat/199-supabase-token-verification 동일 SHA 확인 후 편집. 변경 전 backend Maven verify 통과(baseline).
+- Spring Security + OAuth2 Resource Server 추가. /api/health만 공개, 나머지 /api/**는 Bearer 토큰 필수. 서명·만료·iss·aud·sub 검증. 설정형 디코더: CLOTHIC_AUTH_JWK_SET_URI(ES256/RS256) 또는 CLOTHIC_AUTH_HMAC_SECRET(HS256) 중 하나, 둘 다 없으면 보호 경로 전부 401(fail-closed), 둘 다 있으면 기동 실패. GET /api/me가 검증된 sub를 반환.
+- 테스트: HS256 10개, ES256+로컬 JWKS HTTP 서버 3개, 미설정 1개, health 1개 = 15개 통과. 테스트 키는 모두 테스트가 생성, 실제 비밀키·토큰 미사용.
+- 미확인: 실제 Supabase 프로젝트의 서명 키 종류와 실토큰 검증. 이 환경에서 pjjkkwphdkqwqjhlayqe.supabase.co DNS 해석이 차단돼 JWKS 조회 불가. 사용자 확인 항목으로 docs/operations/USER_ACTION_ITEMS.md에 추가. 앱 코드 변경 없음, DB 연결 없음.
+
 ## 2026-11-10 — P-09 PR 자동 병합 규칙 (#197)
 
 - 사용자 요청: 작업 완료 후 PR 생성에서 멈추지 않고 병합까지 자동으로 진행. 기준 main bc9c347, 원격 docs/197-auto-merge-rule 동일 SHA 확인 후 편집.
