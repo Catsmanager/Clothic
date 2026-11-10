@@ -57,7 +57,7 @@ node scripts/check-release.mjs versions app-v1.2.0
 - `node scripts/check-release.mjs versions`로 버전 파일 불일치를 거부한다.
 - 의존성 변경과 실제 릴리스 준비에서는 네트워크 영향을 받는 `npm run verify:environment`도 별도로 실행한다.
 
-현재 앱 CI를 Spring Boot 서버 검사로 해석하지 않는다. `backend/`가 구현되면 Maven Wrapper 기반 서버 검증과 배포 구성을 별도 작업으로 추가한다.
+서버는 별도의 `Spring Boot · Java 21` 작업에서 `backend/`의 `./mvnw --batch-mode verify`를 실행한다. 실제 HTTP 상태 확인 통합 테스트를 포함한다. 앱 검사와 서버 검사를 서로 대신하지 않으며 서버 운영 배포는 별도 작업이다.
 
 ## 4. iOS 릴리스 — 버전을 지정한 Release
 

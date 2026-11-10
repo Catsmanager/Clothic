@@ -1,6 +1,7 @@
 # dependencies
 node_modules/
 .local-backups/
+backend/target/
 
 # Expo
 .expo/
