@@ -25,8 +25,7 @@ CRITICAL: docs/product/PRD.md의 MVP 범위를 벗어난 기능은 만들지 않
 CRITICAL: 구조 변경 전에는 먼저 제안하고 승인받는다.
 CRITICAL: API 키는 절대 코드에 하드코딩하지 않는다.
 CRITICAL: 환경변수는 .env.local을 사용한다.
-CRITICAL: 모든 작업은 작업별 GitHub 이슈를 먼저 만들고, 
-작업별 브랜치에서 진행한다.
+CRITICAL: 파일 변경 작업은 작업별 GitHub 이슈를 연결하고 최소 완료 단위의 원격 작업 브랜치를 생성·확인한 뒤 진행한다. 공통 절차는 `.codex/skills/clothic-task-workflow/SKILL.md`를 따른다.
 CRITICAL: 작업 완료 후 커밋·푸시하고 Pull Request를 생성한다.
 CRITICAL: 작업 후 변경 파일 목록을 보고한다.
 CRITICAL: 작업 후 검증 결과를 보고한다.
@@ -37,6 +36,7 @@ CRITICAL: 옷/신발/하의/상의 에셋 추가 또는 아이템 미리보기 �
 ## 작업 방식
 모든 작업은 HARNESS 워크플로우를 따른다. 아래 파일이 자동 임포트된다.
 
+@.codex/skills/clothic-task-workflow/SKILL.md
 @HARNESS/router.md
 @HARNESS/context.md
 @HARNESS/loop.md

@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Clothic Task Workflow'
+  short_description: 'Create and verify a GitHub branch before a scoped task'
+  default_prompt: 'Use $clothic-task-workflow to split this Clothic change into a minimal task and verify its GitHub branch before editing.'
