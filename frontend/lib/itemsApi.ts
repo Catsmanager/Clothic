@@ -85,39 +85,45 @@ export async function fetchOwnedItemsFromApi({
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
 
-  let response: Response
   try {
-    response = await fetchImpl(`${baseUrl}/api/items`, {
-      method: 'GET',
-      headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
-      signal: controller.signal,
-    })
-  } catch (error) {
+    let response: Response
+    try {
+      response = await fetchImpl(`${baseUrl}/api/items`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
+        signal: controller.signal,
+      })
+    } catch (error) {
+      if (controller.signal.aborted) {
+        return { items: null, error: '옷 목록 요청이 시간을 초과했어요. 다시 시도해주세요.' }
+      }
+      return {
+        items: null,
+        error: error instanceof Error && error.message ? error.message : '서버에 연결할 수 없어요.',
+      }
+    }
+
+    if (response.status === 401) {
+      return { items: null, error: '로그인이 만료되었어요. 다시 로그인해주세요.' }
+    }
+    if (!response.ok) {
+      return { items: null, error: `서버에서 옷 목록을 불러오지 못했어요. (${response.status})` }
+    }
+
+    let payload: unknown
+    try {
+      payload = await response.json()
+    } catch {
+      if (controller.signal.aborted) {
+        return { items: null, error: '옷 목록 요청이 시간을 초과했어요. 다시 시도해주세요.' }
+      }
+      return { items: null, error: '서버 응답을 읽지 못했어요.' }
+    }
+    const items = parseItemsResponse(payload)
+    if (!items) return { items: null, error: '서버 응답 형식이 올바르지 않아요.' }
+    return { items, error: null }
+  } finally {
+    // fetch()는 헤더 수신 시 끝나므로 본문 읽기가 끝날 때까지 제한을 유지한다.
     clearTimeout(timer)
-    if (controller.signal.aborted) {
-      return { items: null, error: '옷 목록 요청이 시간을 초과했어요. 다시 시도해주세요.' }
-    }
-    return {
-      items: null,
-      error: error instanceof Error && error.message ? error.message : '서버에 연결할 수 없어요.',
-    }
   }
-  clearTimeout(timer)
-
-  if (response.status === 401) {
-    return { items: null, error: '로그인이 만료되었어요. 다시 로그인해주세요.' }
-  }
-  if (!response.ok) {
-    return { items: null, error: `서버에서 옷 목록을 불러오지 못했어요. (${response.status})` }
-  }
-
-  let payload: unknown
-  try {
-    payload = await response.json()
-  } catch {
-    return { items: null, error: '서버 응답을 읽지 못했어요.' }
-  }
-  const items = parseItemsResponse(payload)
-  if (!items) return { items: null, error: '서버 응답 형식이 올바르지 않아요.' }
-  return { items, error: null }
 }

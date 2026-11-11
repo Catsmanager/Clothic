@@ -126,43 +126,46 @@ export const useItemStore = create<ItemState>((set, get) => ({
     set({ loading: true, error: null })
     const isStale = () => generation !== storeGeneration || requestSequence !== fetchSequence
 
-    // 서버 주소가 설정된 경우에만 Spring Boot API로 조회한다(명시적 개발 설정). 실패해도 직접 조회로 자동 우회하지 않는다.
-    const apiBaseUrl = getItemsApiBaseUrl()
-    if (apiBaseUrl) {
-      const { data: sessionData } = await supabase.auth.getSession()
-      const accessToken = sessionData.session?.access_token
-      if (isStale()) return
-      if (!accessToken) {
-        set({ loading: false, error: '로그인이 필요해요.' })
+    try {
+      // 서버 주소가 설정된 경우에만 Spring Boot API로 조회한다(명시적 개발 설정). 실패해도 직접 조회로 자동 우회하지 않는다.
+      const apiBaseUrl = getItemsApiBaseUrl()
+      if (apiBaseUrl) {
+        const { data: sessionData } = await supabase.auth.getSession()
+        const accessToken = sessionData.session?.access_token
+        if (isStale()) return
+        if (!accessToken) {
+          set({ loading: false, error: '로그인이 필요해요.' })
+          return
+        }
+        const result = await fetchOwnedItemsFromApi({ baseUrl: apiBaseUrl, accessToken })
+        if (isStale()) return
+        if (result.error !== null) {
+          set({ loading: false, error: result.error })
+          return
+        }
+        set({ items: result.items, loading: false, loaded: true, error: null })
         return
       }
-      const result = await fetchOwnedItemsFromApi({ baseUrl: apiBaseUrl, accessToken })
+
+      const { data, error } = await supabase
+        .from('items')
+        .select('*')
+        .order('created_at', { ascending: false })
+
       if (isStale()) return
-      if (result.error !== null) {
-        set({ loading: false, error: result.error })
+      if (error) {
+        set({ loading: false, error: error.message })
         return
       }
-      set({ items: result.items, loading: false, loaded: true, error: null })
-      return
+      set({
+        items: (data ?? []).map(mapRow).filter((item): item is UserItem => item != null),
+        loading: false,
+        loaded: true,
+        error: null,
+      })
+    } catch {
+      if (isStale()) return
+      set({ loading: false, error: '옷 목록을 불러오지 못했어요. 다시 시도해주세요.' })
     }
-
-    const { data, error } = await supabase
-      .from('items')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      if (generation !== storeGeneration || requestSequence !== fetchSequence) return
-      set({ loading: false, error: error.message })
-      return
-    }
-
-    if (generation !== storeGeneration || requestSequence !== fetchSequence) return
-    set({
-      items: (data ?? []).map(mapRow).filter((item): item is UserItem => item != null),
-      loading: false,
-      loaded: true,
-      error: null,
-    })
   },
 }))
