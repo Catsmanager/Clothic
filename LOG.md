@@ -9,6 +9,7 @@
 - 실환경 확인은 미완료: 로컬 `frontend/.env.local`에는 Supabase 공개 주소·anon key만 있고 `CLOTHIC_AUTH_*`·`CLOTHIC_DB_*` 및 검증용 사용자 토큰이 없다. 실제 프로젝트 공개 JWKS 주소는 일반 실행과 승인된 재실행 모두 DNS 해석 실패. 프로젝트 중지·삭제 여부나 현재 서명 방식은 이 실패만으로 판단할 수 없다.
 - F-05는 `[ ]` 유지. 실제 Supabase 토큰·DB 역할 확인 후 두 조회 경로 결과와 계정 전환을 실제 환경에서 비교해야 한다. F-06과 운영 배포는 진행하지 않았다.
 - GitHub 통합 추적: [PR #209](https://github.com/Catsmanager/Clothic/pull/209). 병합·CI 상태는 해당 PR 참조.
+- 후속 읽기 전용 확인: 기존 Supabase 명령줄 인증으로 `npx --yes supabase projects list --output json` 실행 성공. 앱 설정과 일치하는 Clothic 프로젝트(`pjjkkwphdkqwqjhlayqe`)의 관리 상태가 `INACTIVE`로 반환됐다. 이는 확인 시점의 비활성 상태를 보여주며, 중지 이유·데이터 상태까지 증명하지 않는다. 프로젝트 재개는 기존 앱의 연결에도 영향을 주므로 사용자 선택을 요청했으며 아직 실행하지 않았다. 실제 인증·DB 설정 확인과 F-05 실연동은 계속 미완료다.
 
 ## 2026-11-10 — F-13 본인 프로필 조회·변경 서버 API (#207)
 
