@@ -1,5 +1,15 @@
 # LOG
 
+## 2026-11-11 — F-05 오류 복구·계정 전환 회귀 검증 (#205 후속)
+
+- 브랜치: `feat/205-app-items-api`, 기준 `1ffd727954f17748eab080c6d4aa2636439abae8`. 기존 원격 브랜치를 같은 커밋으로 맞추고 ref 확인 후 수정. 동시에 진행 중인 Java 업그레이드와 분리하기 위해 `/private/tmp/clothic-f05-verification` 작업 트리를 사용했다.
+- 실제 `itemStore`·`authStore`·Zustand를 실행하고 네이티브 SDK 및 외부 통신 경계만 대체한 테스트 6개 추가: 기존 직접 조회와 서버 응답 해석 일치, 계정 전환·로그아웃 뒤 늦은 응답 차단, 서버 오류 후 다른 사용자 데이터 비노출·재시도, 세션 없음, 세션 복원 예외 후 복구.
+- 재현한 오류 2개 수정: `fetchItems`에서 세션 복원 등 예상 밖 예외가 나도 현재 요청의 로딩을 종료하고 재시도 오류를 표시한다. `itemsApi`는 헤더 수신 이후에도 본문 읽기가 끝날 때까지 10초 제한을 유지하고 `finally`에서 타이머를 정리한다.
+- 같은 테스트로 수정 전 관련 14개 중 12개 통과·2개 실패, 수정 후 14개 통과. 전체 `npm --prefix frontend run check` 통과(핵심 42개·흐름 소스 계약 8/8·하네스 6개, 기존 아바타 경고 4개). 분리한 작업 트리에서 `cd backend && ./mvnw --batch-mode verify` 32개 통과(Java 21). 비교 기록은 `.autoresearch/f05-verification.jsonl`에 남겼다.
+- 실환경 확인은 미완료: 로컬 `frontend/.env.local`에는 Supabase 공개 주소·anon key만 있고 `CLOTHIC_AUTH_*`·`CLOTHIC_DB_*` 및 검증용 사용자 토큰이 없다. 실제 프로젝트 공개 JWKS 주소는 일반 실행과 승인된 재실행 모두 DNS 해석 실패. 프로젝트 중지·삭제 여부나 현재 서명 방식은 이 실패만으로 판단할 수 없다.
+- F-05는 `[ ]` 유지. 실제 Supabase 토큰·DB 역할 확인 후 두 조회 경로 결과와 계정 전환을 실제 환경에서 비교해야 한다. F-06과 운영 배포는 진행하지 않았다.
+- GitHub 통합 추적: [PR #209](https://github.com/Catsmanager/Clothic/pull/209). 병합·CI 상태는 해당 PR 참조.
+
 ## 2026-11-10 — F-13 본인 프로필 조회·변경 서버 API (#207)
 
 - 기준: main 082d751, 원격 feat/207-profile-api 동일 SHA 확인 후 편집. 선행 F-02 병합 확인.

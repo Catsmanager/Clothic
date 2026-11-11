@@ -116,3 +116,35 @@ test('시간 제한을 넘기면 요청을 중단하고 오류를 돌려준다',
   assert.equal(result.items, null)
   assert.match(result.error, /시간을 초과/)
 })
+
+test('헤더를 받은 뒤 본문 수신이 멈춰도 시간 제한 안에 종료한다', async () => {
+  let rejectBody
+  let watchdog
+  const pending = fetchOwnedItemsFromApi({
+    baseUrl: 'http://s',
+    accessToken: 't',
+    timeoutMs: 10,
+    fetchImpl: async (_url, init) => ({
+      ok: true,
+      status: 200,
+      json: () =>
+        new Promise((_resolve, reject) => {
+          rejectBody = reject
+          init.signal.addEventListener('abort', () => reject(new Error('aborted')))
+        }),
+    }),
+  })
+  try {
+    const result = await Promise.race([
+      pending,
+      new Promise((resolve) => {
+        watchdog = setTimeout(() => resolve({ error: 'body timeout was not enforced' }), 500)
+      }),
+    ])
+    assert.match(result.error, /시간을 초과/)
+  } finally {
+    clearTimeout(watchdog)
+    rejectBody?.(new Error('test cleanup'))
+    await pending
+  }
+})
