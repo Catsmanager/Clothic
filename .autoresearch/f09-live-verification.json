@@ -101,5 +101,6 @@
     "existingApplicationDataUnchanged": true,
     "comparedTables": ["items", "profiles", "outfits"],
     "comparison": "row counts and ordered full-row digest before account creation versus after cleanup"
-  }
+  },
+  "pullRequest": "https://github.com/Catsmanager/Clothic/pull/219"
 }
