@@ -1,6 +1,6 @@
 # Clothic backend
 
-현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 목록 API(F-04), 본인 프로필 조회·변경 API(F-13)다. 앱 호출 전환은 설정형 코드(F-05)까지 있고 실환경 비교는 남아 있다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
+현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 목록 API(F-04), 본인 프로필 조회·변경 API(F-13)다. F-05는 실제 Supabase 토큰·개발 DB와 연결한 앱 store 실행 검증까지 완료했다. 실기기 화면·운영 서버 배포는 별도다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
 
 ## 실행
 
@@ -17,6 +17,21 @@ curl -i http://localhost:8080/api/health
 ```
 
 성공 응답은 HTTP(Hypertext Transfer Protocol) `200`, JSON(JavaScript Object Notation) `{"status":"ok"}`다. 이 응답은 웹 서버와 경로의 동작을 확인하며 데이터베이스·외부 인증 서비스의 상태까지 확인하지 않는다.
+
+### 로컬 연결 설정으로 실행
+
+`.env.example`을 참고해 이 디렉터리의 `.env.local`에 서버 설정을 넣고 다음 명령을 실행한다. 스크립트는 파일을 셸 코드로 실행하지 않고 환경변수로만 읽는다. 이미 지정한 프로세스 환경변수가 우선하며 값은 출력하지 않는다. 기본 수신 주소는 개발 컴퓨터의 `127.0.0.1:18080`이다.
+
+```bash
+python3 scripts/run-local.py
+curl http://127.0.0.1:18080/api/health
+```
+
+Supabase shared session pooler를 사용하는 경우 Connect 화면이나 관리 API로 확인한 호스트·5432 포트와 `<역할>.<project-ref>` 사용자명을 사용한다. `sslmode=verify-full`과 공식 루트 인증서의 절대 경로를 `sslrootcert`에 함께 지정한다. 인증서는 `.local/`에 두며 `.env.local`과 함께 Git에서 제외한다. [공식 연결 문서](https://supabase.com/docs/guides/database/connecting-to-postgres)는 연결 방식·인증서 설정의 근거이며 실제 프로젝트 연결 성공은 아래 검증 기록으로 별도 확인했다.
+
+2026-11-12 확인한 `clothic_backend_dev` 역할은 관리자·역할 생성 권한 없이 `public.items`, `public.profiles`의 조회만 허용한다. 행 수준 보안(Row Level Security, RLS)을 우회하므로 서버의 인증 사용자 조건이 데이터 격리를 담당한다. 아이템 추가·프로필 변경 등 쓰기 전환에는 해당 기능에서 별도 권한 확인이 필요하다.
+
+브라우저에서 호출하려면 `CLOTHIC_WEB_ALLOWED_ORIGINS`에 정확한 개발 출처를 쉼표로 구분해 넣는다(예: `http://localhost:8081,http://127.0.0.1:8081`). 출처 설정이 비어 있으면 교차 출처 요청을 거부하며, 허용한 브라우저에서도 실제 API 요청의 토큰 검증은 유지한다. 와일드카드·경로·사용자 정보가 포함된 값은 기동 시 거부한다. [Spring Security 문서](https://docs.spring.io/spring-security/reference/servlet/integrations/cors.html)는 사전 요청을 인증보다 먼저 처리하는 구성의 근거이며 허용·거부 동작은 통합 테스트와 실제 HTTP 요청으로 확인했다.
 
 ## 검증
 
@@ -39,7 +54,7 @@ curl -i http://localhost:8080/api/health
 | `CLOTHIC_AUTH_JWK_SET_URI` | `https://<project-ref>.supabase.co/auth/v1/.well-known/jwks.json` | 비대칭 키(ES256/RS256) 프로젝트 |
 | `CLOTHIC_AUTH_HMAC_SECRET` | 대시보드의 JWT Secret | 레거시 대칭 키(HS256) 프로젝트 |
 
-JWK Set URI와 HMAC Secret은 둘 중 하나만 설정한다. 둘 다 비어 있으면 서버는 상태 확인만 응답하고 보호 경로는 모든 토큰을 `401`로 거부한다(fail-closed). 어느 방식을 쓸지는 Supabase 대시보드 Project Settings → JWT Keys에서 현재 서명 키 종류를 확인해 정한다. 이 저장소의 검증은 테스트가 만든 키로만 수행했고, 실제 프로젝트 토큰으로는 아직 확인하지 않았다.
+JWK Set URI와 HMAC Secret은 둘 중 하나만 설정한다. 둘 다 비어 있으면 서버는 상태 확인만 응답하고 보호 경로는 모든 토큰을 `401`로 거부한다(fail-closed). 어느 방식을 쓸지는 Supabase 대시보드 Project Settings → JWT Keys에서 현재 서명 키 종류를 확인해 정한다. 2026-11-12에는 실제 프로젝트의 사용 중인 키가 ES256임을 확인하고, 임시 검증 계정 두 개의 실제 토큰으로 `/api/me`, `/api/items`를 검증했다.
 
 ```bash
 CLOTHIC_AUTH_ISSUER=https://<project-ref>.supabase.co/auth/v1 \
@@ -59,7 +74,7 @@ curl -i -H "Authorization: Bearer <앱에서 얻은 접근 토큰>" http://local
 | `CLOTHIC_DB_PASSWORD` | 비밀번호 | 저장소에 넣지 않는다 |
 | `CLOTHIC_DB_POOL_SIZE` | 기본 5 | |
 
-**접속 역할과 RLS에 대해 확인한 사실(테스트 DB 기준)**: 일반 JDBC 연결에는 Supabase의 `auth.uid()` 문맥이 없다. RLS를 우회하지 못하는 역할로 접속하면 `own items` 정책 때문에 조회 결과가 0행이 된다. 따라서 백엔드 역할에는 `bypassrls`(또는 그에 준하는 권한)가 필요하고, 사용자 격리는 서버의 `user_id` 조건이 담당한다. 실제 Supabase 프로젝트에서 어떤 역할을 쓸지, 그 역할의 권한이 어떤지는 아직 확인하지 않았다.
+**접속 역할과 RLS에 대해 확인한 사실**: 일반 JDBC 연결에는 Supabase의 `auth.uid()` 문맥이 없다. RLS를 우회하지 못하는 역할로 접속하면 `own items` 정책 때문에 조회 결과가 0행이 된다(격리된 테스트 DB에서 확인). 현재 구현은 `bypassrls` 역할과 서버의 `user_id` 조건을 함께 사용한다. 2026-11-12에는 실제 개발용 `clothic_backend_dev`의 로그인·RLS 우회·items 조회 허용·items 추가 불허를 직접 연결로 확인하고, 같은 역할을 사용한 실제 두 사용자 조회가 격리되는지 확인했다.
 
 ### 격리된 테스트 데이터베이스
 
@@ -110,4 +125,4 @@ Authorization: Bearer <Supabase 사용자 접근 토큰>
 - Java 21, Spring Boot `4.1.2`, 서버 개발 버전 `0.1.0-SNAPSHOT`을 사용한다. 앱 버전 `1.1.1`과 별도로 관리한다.
 - 프로젝트 골격과 Maven Wrapper는 [Spring Initializr](https://start.spring.io/)에서 생성했다. 생성 메타데이터가 제시한 `4.1.2.RELEASE`는 실제 Maven Central에 없어, 제공되는 `4.1.2`로 부모 버전을 고정했다.
 - [Boot 시스템 요구사항](https://docs.spring.io/spring-boot/system-requirements.html)은 Java 호환 범위의 근거다. 실제 실행 성공은 프로젝트 테스트·기동 결과로 별도 확인한다.
-- 실제 Supabase 프로젝트 토큰·DB 역할 확인, 앱 조회 전환(F-05), 운영 배포는 후속 기능이다.
+- F-05 실제 연결 결과는 [실행 기록](../LOG.md)과 [.autoresearch/f05-live-verification.json](../.autoresearch/f05-live-verification.json)을 참고한다. 실기기 화면 확인과 운영 배포는 후속 기능이다.
