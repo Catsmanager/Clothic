@@ -11,6 +11,8 @@
 - 임시 검증 계정 두 개는 표식을 다시 확인하고 제거했다. 실제 profiles FK가 Auth 사용자 삭제를 제한하므로 해당 임시 계정의 items/profiles만 먼저 정리했다. 검증 전/정리 후 기존 items·profiles·outfits의 건수와 정렬된 전체 행 지문이 모두 일치했다. 로컬 임시 계정 비밀 파일도 제거했다.
 - 검증: `npm --prefix frontend run check` 통과(핵심 42개·흐름 소스 계약 8/8·하네스 6개, 기존 아바타 경고 4개), `cd backend && ./mvnw --batch-mode verify` 39개 통과(출처 관련 7개 추가), 로컬 실행 스크립트 문법·실기동 health/사전 요청 HTTP 200·`git diff --check` 통과. F-05 완료. 운영 서버 배포·실기기 전체 회귀는 R-02/R-04에 남긴다.
 
+- 실제 연결 검증 변경 요청: [PR #211](https://github.com/Catsmanager/Clothic/pull/211). GitHub 자동 검증·병합 상태는 PR 참조.
+
 ## 2026-11-11 — F-05 오류 복구·계정 전환 회귀 검증 (#205 후속)
 
 - 브랜치: `feat/205-app-items-api`, 기준 `1ffd727954f17748eab080c6d4aa2636439abae8`. 기존 원격 브랜치를 같은 커밋으로 맞추고 ref 확인 후 수정. 동시에 진행 중인 Java 업그레이드와 분리하기 위해 `/private/tmp/clothic-f05-verification` 작업 트리를 사용했다.
