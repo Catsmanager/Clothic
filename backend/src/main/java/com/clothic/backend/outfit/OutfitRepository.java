@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,6 +33,13 @@ public class OutfitRepository {
                 select id, user_id, date, mood, weather, memo, item_ids, item_colors, is_favorite, created_at
                 from public.outfits where user_id = ? order by date desc, created_at desc, id asc
                 """, (row, index) -> map(row), userId);
+    }
+
+    public Optional<OutfitResponse> findOwnedById(UUID userId, UUID outfitId) {
+        return jdbc.query("""
+                select id, user_id, date, mood, weather, memo, item_ids, item_colors, is_favorite, created_at
+                from public.outfits where user_id = ? and id = ?
+                """, (row, index) -> map(row), userId, outfitId).stream().findFirst();
     }
 
     private OutfitResponse map(ResultSet row) throws SQLException {

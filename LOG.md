@@ -1,5 +1,15 @@
 # LOG
 
+## 2026-11-12 — F-08 코디 상세 서버·앱 전환 완료 (#216)
+
+- 기준 main `b6b7824`와 `feat/216-outfit-detail` 원격 ref 일치 확인 후 편집했다. 경로: 상세 딥링크/새로고침 → fetchOutfitById → 세션 토큰 GET /api/outfits/{id} → 인증 사용자+코디 ID 조건 → 빈 store 복원 → 오류/없음 상태·재시도·목록 복귀. 사용자 원본 Java 업그레이드 브랜치는 보존했다.
+- 본인 기록만 200, 타인/없는 기록은 같은 404이며 ID만으로 먼저 조회하지 않는다. 잘못된 UUID·사용자 지정 쿼리 400, 누락/변조 토큰·비UUID 주체 401, DB 오류 500·접속 정보 미노출을 확인했다. 목록과 같은 필드·과거 ID·색상·날짜·생성시각을 그대로 반환하고 새 스키마/쓰기 권한은 추가하지 않았다.
+- 앱은 404를 found:false/error:null로 구분하고 다른 실패는 오류로 종료한다. 설정된 서버 실패 때 직접 조회로 우회하지 않는다. 먼저 완료된 전체 목록·mutation·삭제, 계정 변경·로그아웃 뒤의 단건 응답은 현재 store를 덮지 않는다. 응답 ID를 검사하고 본문 읽기까지 제한 시간을 유지한다. 리뷰에서 대문자 UUID의 화면 조회 불일치를 정규화했고 잘못된 비문자열 경로가 예외나 무한 로딩이 되지 않게 방어했다.
+- 고정 실제 store 검사: 기존 9/16 → 구현 16/16, 새 상세 검사 7개 전부 baseline 실패/candidate 성공. evaluator/fixture/runtime/environment hash 일치와 모든 gate 통과, adopted 기록. 이후 문구·UUID 경로 보완은 최종 전체 검사와 실환경 검증으로 확인했다. 근거: `.autoresearch/f08-evaluator.json`, `.autoresearch/f08-evaluation.jsonl`. 리텐션·화면 점수로 해석하지 않는다.
+- `npm --prefix frontend run check` 통과(핵심 71개·흐름 8/8·하네스 6개, 기존 아바타 경고 4개). 서버 `./mvnw --batch-mode verify` 61개 통과(상세 5개·DB 실패 1개 추가). 실제 ES256 토큰·DB·HTTP·authStore/outfitStore 연동 14개 통과: 두 계정 상세 복원과 목록 필드 일치, 타인/없는 기록·잘못된 ID/사용자 지정 거부, 상세·목록 지연 중 계정 전환/로그아웃, 오류·재시도·자동 우회 없음. 응답 지연과 HTTP 500은 검증 주입이며 네이티브 화면·실기기는 확인하지 않았다.
+- 표식을 다시 확인한 임시 계정 두 개와 그 계정 데이터만 정리했다. 검증 전/정리 후 기존 items/profiles/outfits 건수·정렬된 전체 행 지문이 일치했고 비밀 파일을 제거했다. 근거: `.autoresearch/f08-live-verification.json`. 운영 배포는 R-02/R-04에 남긴다.
+- 변경 요청: [PR #217](https://github.com/Catsmanager/Clothic/pull/217), 이슈 #216. GitHub 자동 검증·main 통합 상태는 해당 PR 참조.
+
 ## 2026-11-12 — F-07 코디 목록 서버·앱 전환 완료 (#214)
 
 - 기준 main `19e32a1`과 `feat/214-outfit-list` 원격 ref가 일치함을 편집 전에 확인했다. 사용자 원본 Java 업그레이드 브랜치는 변경하지 않았다. 경로: 홈/캘린더/저장한 코디/분석 화면 → 기존 fetchOutfits → 세션 토큰 GET /api/outfits → 인증 사용자 조건의 outfits 조회 → 현재 store 반영 → 오류 재시도/재방문.

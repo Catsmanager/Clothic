@@ -52,43 +52,88 @@ export function parseOutfitsResponse(payload: unknown): Outfit[] | null {
   return outfits
 }
 
-export async function fetchOwnedOutfitsFromApi({
-  baseUrl,
-  accessToken,
-  fetchImpl = fetch,
-  timeoutMs = OUTFITS_API_TIMEOUT_MS,
-}: {
+interface OutfitsApiOptions {
   baseUrl: string
   accessToken: string
   fetchImpl?: typeof fetch
   timeoutMs?: number
-}): Promise<{ outfits: Outfit[]; error: null } | { outfits: null; error: string }> {
+}
+
+type JsonResult =
+  | { payload: unknown; error: null; notFound: false }
+  | { payload: null; error: null; notFound: true }
+  | { payload: null; error: string; notFound: false }
+
+async function requestOutfitJson({
+  baseUrl,
+  accessToken,
+  fetchImpl = fetch,
+  timeoutMs = OUTFITS_API_TIMEOUT_MS,
+  outfitId,
+}: OutfitsApiOptions & { outfitId?: string }): Promise<JsonResult> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
+  const label = outfitId === undefined ? '코디 목록' : '코디'
+  const objectLabel = outfitId === undefined ? '코디 목록을' : '코디를'
   try {
-    const response = await fetchImpl(`${baseUrl}/api/outfits`, {
+    const path =
+      outfitId === undefined ? '/api/outfits' : `/api/outfits/${encodeURIComponent(outfitId)}`
+    const response = await fetchImpl(`${baseUrl}${path}`, {
       method: 'GET',
       headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
       signal: controller.signal,
     })
     if (response.status === 401) {
-      return { outfits: null, error: '로그인이 만료되었어요. 다시 로그인해주세요.' }
+      return {
+        payload: null,
+        error: '로그인이 만료되었어요. 다시 로그인해주세요.',
+        notFound: false,
+      }
+    }
+    if (response.status === 404 && outfitId !== undefined) {
+      return { payload: null, error: null, notFound: true }
     }
     if (!response.ok) {
-      return { outfits: null, error: `코디 목록을 불러오지 못했어요. (${response.status})` }
+      return {
+        payload: null,
+        error: `${objectLabel} 불러오지 못했어요. (${response.status})`,
+        notFound: false,
+      }
     }
     const payload: unknown = await response.json()
-    const outfits = parseOutfitsResponse(payload)
-    if (!outfits) return { outfits: null, error: '서버 응답 형식이 올바르지 않아요.' }
-    return { outfits, error: null }
+    return { payload, error: null, notFound: false }
   } catch {
     return {
-      outfits: null,
+      payload: null,
       error: controller.signal.aborted
-        ? '코디 목록 요청이 시간을 초과했어요. 다시 시도해주세요.'
-        : '코디 목록을 불러오지 못했어요. 다시 시도해주세요.',
+        ? `${label} 요청이 시간을 초과했어요. 다시 시도해주세요.`
+        : `${objectLabel} 불러오지 못했어요. 다시 시도해주세요.`,
+      notFound: false,
     }
   } finally {
     clearTimeout(timer)
   }
+}
+
+export async function fetchOwnedOutfitsFromApi(
+  options: OutfitsApiOptions
+): Promise<{ outfits: Outfit[]; error: null } | { outfits: null; error: string }> {
+  const result = await requestOutfitJson(options)
+  if (result.error !== null) return { outfits: null, error: result.error }
+  const outfits = parseOutfitsResponse(result.payload)
+  if (!outfits) return { outfits: null, error: '서버 응답 형식이 올바르지 않아요.' }
+  return { outfits, error: null }
+}
+
+export async function fetchOwnedOutfitFromApi(
+  options: OutfitsApiOptions & { outfitId: string }
+): Promise<{ outfit: Outfit | null; error: string | null }> {
+  const result = await requestOutfitJson(options)
+  if (result.error !== null || result.notFound) return { outfit: null, error: result.error }
+  const parsed = parseOutfitsResponse([result.payload])
+  const outfit = parsed?.[0]
+  if (!outfit || outfit.id.toLowerCase() !== options.outfitId.toLowerCase()) {
+    return { outfit: null, error: '서버 응답 형식이 올바르지 않아요.' }
+  }
+  return { outfit, error: null }
 }

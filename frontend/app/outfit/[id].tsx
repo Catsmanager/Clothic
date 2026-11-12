@@ -23,7 +23,8 @@ import OutfitAvatar from '../../components/OutfitAvatar'
 import { formatFullDateWithWeekday } from '../../lib/date'
 
 export default function OutfitDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>()
+  const { id: routeId } = useLocalSearchParams<{ id: string }>()
+  const id = typeof routeId === 'string' ? routeId.toLowerCase() : undefined
   const outfit = useOutfitStore((s) => s.outfits.find((o) => o.id === id))
   const fetchOutfitById = useOutfitStore((s) => s.fetchOutfitById)
   const toggleFavorite = useOutfitStore((s) => s.toggleFavorite)
@@ -39,7 +40,7 @@ export default function OutfitDetailScreen() {
     error: string | null
   }>({ id, state: outfit ? 'ready' : 'loading', error: null })
   const catalogItems = useMemo(() => buildResolvableCatalogItems(userItems), [userItems])
-  const lookupState = lookup.id === id ? lookup.state : 'loading'
+  const lookupState = !id ? 'ready' : lookup.id === id ? lookup.state : 'loading'
   const lookupError = lookup.id === id ? lookup.error : null
   const leaveDetail = useCallback(() => {
     if (router.canGoBack()) {

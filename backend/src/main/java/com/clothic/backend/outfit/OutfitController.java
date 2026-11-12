@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -23,17 +24,36 @@ public class OutfitController {
 
     @GetMapping(value = "/api/outfits", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<OutfitResponse> listOwnedOutfits(@AuthenticationPrincipal Jwt jwt, HttpServletRequest request) {
+        rejectUserParameters(request);
+        return service.findOwnedOutfits(parseUuid(jwt.getSubject(), HttpStatus.UNAUTHORIZED));
+    }
+
+    @GetMapping(value = "/api/outfits/{outfitId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public OutfitResponse getOwnedOutfit(@AuthenticationPrincipal Jwt jwt,
+            @PathVariable String outfitId, HttpServletRequest request) {
+        rejectUserParameters(request);
+        UUID userId = parseUuid(jwt.getSubject(), HttpStatus.UNAUTHORIZED);
+        UUID id = parseUuid(outfitId, HttpStatus.BAD_REQUEST);
+        // 타인 기록과 없는 기록은 같은 404다. ID만으로 먼저 조회하지 않는다.
+        return service.findOwnedOutfit(userId, id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "outfit not found"));
+    }
+
+    private static void rejectUserParameters(HttpServletRequest request) {
         for (String parameter : List.of("userId", "user_id")) {
             if (request.getParameterMap().containsKey(parameter)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the target user comes from the token");
             }
         }
-        UUID userId;
+    }
+
+    private static UUID parseUuid(String value, HttpStatus failureStatus) {
         try {
-            userId = UUID.fromString(jwt.getSubject());
+            UUID parsed = UUID.fromString(value);
+            if (!parsed.toString().equalsIgnoreCase(value)) throw new IllegalArgumentException("non-canonical UUID");
+            return parsed;
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "invalid user subject");
+            throw new ResponseStatusException(failureStatus, "invalid identifier");
         }
-        return service.findOwnedOutfits(userId);
     }
 }

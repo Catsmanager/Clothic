@@ -1,7 +1,11 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
-import { fetchOwnedOutfitsFromApi, getOutfitsApiBaseUrl } from '../lib/outfitsApi'
+import {
+  fetchOwnedOutfitFromApi,
+  fetchOwnedOutfitsFromApi,
+  getOutfitsApiBaseUrl,
+} from '../lib/outfitsApi'
 
 // DB(snake_case) Row를 앱(camelCase) 모델로 매핑한다. (DATA_MODEL.md 기준)
 type OutfitRow = Database['public']['Tables']['outfits']['Row']
@@ -201,23 +205,50 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
   },
 
   // 상세 딥링크/새로고침처럼 메모리 목록이 비어 있어도 id 한 건을 복원한다.
-  fetchOutfitById: async (id) => {
+  fetchOutfitById: async (requestedId) => {
+    const id = requestedId.toLowerCase()
     const generation = storeGeneration
     if (blockedOutfitIds.has(id)) return { error: null, found: false }
 
-    const { data, error } = await supabase.from('outfits').select('*').eq('id', id).maybeSingle()
+    let mappedOutfit: Outfit | null = null
+    let lookupError: string | null = null
+    try {
+      const baseUrl = getOutfitsApiBaseUrl()
+      if (baseUrl) {
+        const { data, error } = await supabase.auth.getSession()
+        if (generation !== storeGeneration) return { error: null, found: false }
+        if (error || !data.session?.access_token) {
+          return { error: '로그인이 필요해요.', found: false }
+        }
+        const result = await fetchOwnedOutfitFromApi({
+          baseUrl,
+          accessToken: data.session.access_token,
+          outfitId: id,
+        })
+        mappedOutfit = result.outfit
+        lookupError = result.error
+      } else {
+        const { data, error } = await supabase
+          .from('outfits')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle()
+        mappedOutfit = data ? mapRow(data) : null
+        lookupError = error?.message ?? null
+      }
+    } catch {
+      lookupError = '코디를 불러오지 못했어요. 다시 시도해주세요.'
+    }
 
     if (generation !== storeGeneration) return { error: null, found: false }
     if (blockedOutfitIds.has(id)) return { error: null, found: false }
-    // 단건 조회를 기다리는 동안 full fetch나 mutation이 같은 row를 채웠다면 현재 store가
-    // 더 최신인 사용자 상태다. 먼저 시작한 SELECT 결과로 다시 덮지 않는다.
+    // 먼저 완료된 전체 목록이나 mutation이 채운 현재 상태를 과거 단건 응답으로 덮지 않는다.
     if (get().outfits.some((outfit) => outfit.id === id)) {
       return { error: null, found: true }
     }
-    if (error) return { error: error.message, found: false }
-    if (!data) return { error: null, found: false }
+    if (lookupError) return { error: lookupError, found: false }
+    if (!mappedOutfit) return { error: null, found: false }
 
-    const mappedOutfit = mapRow(data)
     const pendingFavorite = pendingFavoriteValues.get(id)
     if (!pendingFavorite) confirmedFavoriteValues.set(id, mappedOutfit.isFavorite)
     const outfit = pendingFavorite

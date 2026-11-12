@@ -1,6 +1,6 @@
 # Clothic backend
 
-현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 조회·등록 API(F-04/F-06), 코디 목록 API(F-07), 본인 프로필 조회·변경 API(F-13)다. F-05는 실제 Supabase 토큰·개발 DB와 연결한 앱 store 실행 검증까지 완료했다. 실기기 화면·운영 서버 배포는 별도다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
+현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 조회·등록 API(F-04/F-06), 코디 목록·상세 API(F-07/F-08), 본인 프로필 조회·변경 API(F-13)다. F-05는 실제 Supabase 토큰·개발 DB와 연결한 앱 store 실행 검증까지 완료했다. 실기기 화면·운영 서버 배포는 별도다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
 
 ## 실행
 
@@ -132,6 +132,19 @@ node --import tsx scripts/verify-live-outfits.mjs --credentials <private-test-cr
 ```
 
 이 스크립트는 표식·예약 이메일·로그인 주체를 확인한 임시 계정에만 데이터를 추가한다. 응답 지연과 HTTP 500은 검증용 주입이다. 네이티브 화면·실기기·운영 배포는 포함하지 않는다. 근거: [.autoresearch/f07-live-verification.json](../.autoresearch/f07-live-verification.json).
+
+## 코디 상세 API (F-08)
+
+```http
+GET /api/outfits/{outfitId}
+Authorization: Bearer <Supabase 사용자 접근 토큰>
+```
+
+코디 ID와 인증 사용자를 함께 조건으로 조회하고 목록과 같은 `Outfit` 한 건을 반환한다. 본인 기록 `200`, 다른 사용자 기록과 없는 ID는 모두 `404`, UUID 형식이 아닌 ID `400`, 사용자 지정 쿼리 `400`, 누락·변조·잘못된 인증 주체 `401`, 데이터베이스 실패 `500`이다. 오류 본문에는 다른 사용자의 기록이나 SQL·접속 정보를 넣지 않는다. 새 쓰기 권한이나 스키마 변경은 없다.
+
+앱의 상세 딥링크·새로고침은 `fetchOutfitById`에서 설정된 서버로 복원한다. `404`는 `found: false, error: null`이고 서버 실패는 `found: false`와 재시도 오류다. 주소 미설정 시 기존 직접 조회를 유지하며, 설정된 서버 실패 때 직접 조회로 우회하지 않는다. 먼저 완료된 목록·mutation, 삭제 중인 ID, 계정 변경·로그아웃 이후의 늦은 응답은 현재 상태를 덮지 않는다. 대문자 UUID는 화면과 store에서 표준 소문자로 맞춘다.
+
+위 실연동 명령에 `--include-detail true`를 추가하면 목록 검사와 상세 복원·다른 사용자/없는 기록·계정 변경/로그아웃 지연·오류 재시도를 함께 확인한다. 실제 임시 계정 두 개로 14개 검사를 통과했다. 근거: [.autoresearch/f08-live-verification.json](../.autoresearch/f08-live-verification.json). 실제 화면 렌더링·기기·운영 배포는 별도다.
 
 ## 본인 프로필 조회·변경 API (F-13)
 

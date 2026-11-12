@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js'
 import ts from 'typescript'
 
 // 실제 서비스 검증에는 이 runId에 속한 임시 계정만 사용한다.
-// Never pass production users here: the script clears and seeds each verified test user's outfits.
+// Never pass production users here: the script seeds only the verified disposable accounts.
 const options = new Map()
 for (let index = 2; index < process.argv.length; index += 2) {
   options.set(process.argv[index], process.argv[index + 1])
@@ -16,6 +16,7 @@ assert.equal(options.get('--allow-test-writes'), 'true', 'Explicit test-write op
 assert.ok(options.get('--credentials'), 'A private test-credential file is required')
 const config = JSON.parse(readFileSync(options.get('--credentials'), 'utf8'))
 const fixtureCounts = [3, 1]
+const includeDetail = options.get('--include-detail') === 'true'
 assert.match(config.runId, /^f05-[a-f0-9]{12}$/)
 assert.equal(config.users.length, 2)
 assert.notEqual(config.users[0].id, config.users[1].id)
@@ -119,13 +120,13 @@ function deferred() {
   return { promise, resolve }
 }
 
-async function holdNextResponse(action, whilePending) {
+async function holdNextResponse(action, whilePending, path = '/api/outfits') {
   const received = deferred()
   const release = deferred()
   let hold = true
   globalThis.fetch = async (...args) => {
     const response = await originalFetch(...args)
-    if (hold && String(args[0]) === `${baseUrl}/api/outfits`) {
+    if (hold && String(args[0]) === `${baseUrl}${path}`) {
       hold = false
       received.resolve()
       await release.promise
@@ -261,6 +262,73 @@ async function main() {
   assert.equal(expected[0][2].memo, null)
   assert.deepEqual(expected[0][2].itemIds, [])
   pass('legacy-and-server-lists-match-in-date-time-order-with-all-fields')
+  if (includeDetail) {
+    for (const [index, scoped] of stores.entries()) {
+      scoped.useOutfitStore.getState().reset()
+      const id = expected[index][0].id
+      const before = scoped.directCalls()
+      assert.deepEqual(await scoped.useOutfitStore.getState().fetchOutfitById(id.toUpperCase()), {
+        error: null,
+        found: true,
+      })
+      assert.deepEqual(canonical(scoped.useOutfitStore.getState().outfits), [expected[index][0]])
+      assert.equal(scoped.useOutfitStore.getState().loaded, false)
+      assert.equal(scoped.directCalls(), before)
+      await fetchOutfits(scoped, fixtureCounts[index])
+    }
+    pass('real-detail-restores-empty-store-and-matches-list-fields-for-each-owner')
+    const otherId = expected[1][0].id
+    for (const id of [otherId, 'ffffffff-ffff-4fff-8fff-ffffffffffff']) {
+      assert.deepEqual(await stores[0].useOutfitStore.getState().fetchOutfitById(id), {
+        error: null,
+        found: false,
+      })
+      const response = await originalFetch(`${baseUrl}/api/outfits/${id}`, {
+        headers: { Authorization: `Bearer ${sessions[0].access_token}` },
+      })
+      assert.equal(response.status, 404)
+      assert.equal((await response.text()).includes('B only'), false)
+    }
+    assert.ok((await stores[0].useOutfitStore.getState().fetchOutfitById('not-a-uuid')).error)
+    for (const key of ['userId', 'user_id']) {
+      assert.equal(
+        (
+          await originalFetch(`${baseUrl}/api/outfits/${otherId}?${key}=${config.users[1].id}`, {
+            headers: { Authorization: `Bearer ${sessions[0].access_token}` },
+          })
+        ).status,
+        400
+      )
+    }
+    assert.equal((await originalFetch(`${baseUrl}/api/outfits/${expected[0][0].id}`)).status, 401)
+    pass('real-detail-rejects-other-owner-missing-invalid-and-user-override-requests')
+    const id = expected[0][0].id
+    stores[0].useOutfitStore.getState().reset()
+    const stale = await holdNextResponse(
+      () => stores[0].useOutfitStore.getState().fetchOutfitById(id),
+      async () => {
+        await signIn(clients[0], config.users[1])
+        assert.deepEqual(canonical(await fetchOutfits(stores[0], 1)), expected[1])
+      },
+      `/api/outfits/${id}`
+    )
+    assert.deepEqual(stale, { error: null, found: false })
+    assert.deepEqual(canonical(stores[0].useOutfitStore.getState().outfits), expected[1])
+    await signIn(clients[0], config.users[0])
+    pass('real-account-switch-discards-delayed-detail-response')
+    const loggedOut = await holdNextResponse(
+      () => stores[0].useOutfitStore.getState().fetchOutfitById(id),
+      async () => {
+        assert.equal((await clients[0].auth.signOut()).error, null)
+      },
+      `/api/outfits/${id}`
+    )
+    assert.deepEqual(loggedOut, { error: null, found: false })
+    assert.deepEqual(stores[0].useOutfitStore.getState().outfits, [])
+    await signIn(clients[0], config.users[0])
+    await fetchOutfits(stores[0], 3)
+    pass('real-logout-discards-delayed-detail-response')
+  }
   for (const key of ['userId', 'user_id']) {
     assert.equal(
       (
@@ -319,6 +387,23 @@ async function main() {
   process.env.EXPO_PUBLIC_CLOTHIC_API_URL = baseUrl
   assert.deepEqual(canonical(await fetchOutfits(stores[0], 3)), expected[0])
   pass('injected-http-500-retains-data-without-fallback-and-retry-recovers')
+  if (includeDetail) {
+    stores[0].useOutfitStore.getState().reset()
+    const before = stores[0].directCalls()
+    process.env.EXPO_PUBLIC_CLOTHIC_API_URL = errorOrigin
+    const failed = await stores[0].useOutfitStore.getState().fetchOutfitById(expected[0][0].id)
+    assert.equal(failed.found, false)
+    assert.ok(failed.error)
+    assert.equal(stores[0].directCalls(), before)
+    process.env.EXPO_PUBLIC_CLOTHIC_API_URL = baseUrl
+    assert.deepEqual(await stores[0].useOutfitStore.getState().fetchOutfitById(expected[0][0].id), {
+      error: null,
+      found: true,
+    })
+    assert.deepEqual(canonical(stores[0].useOutfitStore.getState().outfits), [expected[0][0]])
+    await fetchOutfits(stores[0], 3)
+    pass('injected-detail-http-500-is-an-error-without-fallback-and-retry-recovers')
+  }
   await new Promise((resolve) => servers[0].close(resolve))
   process.env.EXPO_PUBLIC_CLOTHIC_API_URL = errorOrigin
   await stores[0].useOutfitStore.getState().fetchOutfits()
@@ -334,6 +419,7 @@ async function main() {
     authAlgorithm: 'ES256',
     testUsers: 2,
     fixtureOutfits: fixtureCounts,
+    detailIncluded: includeDetail,
     passed,
     limitations: [
       'Native UI, device rendering and production deployment are not tested.',
