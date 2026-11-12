@@ -13,5 +13,7 @@ public interface ItemRepository extends Repository<Item, UUID> {
 
     List<Item> findByUserIdOrderByCreatedAtDescIdAsc(UUID userId);
 
+    Optional<Item> findByIdAndUserId(UUID id, UUID userId);
+
     Optional<Item> findByUserIdAndCatalogItemId(UUID userId, String catalogItemId);
 }

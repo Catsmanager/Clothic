@@ -6,3 +6,4 @@ grant usage on schema public to clothic_rls_probe;
 grant select on public.items to clothic_rls_probe;
 grant select, update on public.profiles to clothic_backend;
 grant select on public.outfits to clothic_backend;
+grant insert on public.outfits to clothic_backend;

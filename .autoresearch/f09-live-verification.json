@@ -1,0 +1,104 @@
+{
+  "recordedAt": "2026-11-12T05:20:39.869Z",
+  "projectRef": "pjjkkwphdkqwqjhlayqe",
+  "backendOrigin": "http://127.0.0.1:18080",
+  "authAlgorithm": "ES256",
+  "testUsers": 2,
+  "fixtureOutfits": [5, 1],
+  "detailIncluded": true,
+  "saveIncluded": true,
+  "passed": [
+    "health-unauthenticated-rejection-and-browser-preflight",
+    "real-es256-tokens-and-empty-lists-for-two-disposable-users",
+    "server-app-save-path-seeds-static-and-owned-ids-with-colors",
+    "legacy-and-server-lists-match-in-date-time-order-with-all-fields",
+    "real-concurrent-server-saves-create-one-row-and-preserve-the-original-timestamp",
+    "real-app-retry-reuses-request-id-and-conflicting-replays-never-overwrite",
+    "real-save-rejects-owner-overrides-invalid-fields-and-another-users-owned-item",
+    "account-switch-discards-delayed-save-result-without-claiming-server-rollback",
+    "real-detail-restores-empty-store-and-matches-list-fields-for-each-owner",
+    "real-detail-rejects-other-owner-missing-invalid-and-user-override-requests",
+    "real-account-switch-discards-delayed-detail-response",
+    "real-logout-discards-delayed-detail-response",
+    "user-overrides-and-tampered-real-token-are-rejected",
+    "real-account-switch-discards-delayed-previous-user-list",
+    "real-logout-clears-data-and-discards-delayed-list",
+    "injected-http-500-retains-data-without-fallback-and-retry-recovers",
+    "injected-detail-http-500-is-an-error-without-fallback-and-retry-recovers",
+    "real-connection-failure-ends-loading-and-retry-recovers"
+  ],
+  "limitations": [
+    "Native UI, device rendering and production deployment are not tested.",
+    "Real HTTP responses are deliberately delayed; HTTP 500 is injected by a local test server.",
+    "Only verified disposable accounts are seeded; existing data preservation is checked after cleanup."
+  ],
+  "baselineSha": "fde7d80a4125ec25ef14383592c7a77573b66289",
+  "branch": "feat/218-save-outfits",
+  "issue": 218,
+  "localGates": {
+    "frontendCore": 82,
+    "sourceContract": "8/8",
+    "harness": 6,
+    "backendTests": 70
+  },
+  "database": {
+    "role": "clothic_backend_dev",
+    "selectOutfits": true,
+    "insertOutfits": true,
+    "updateOutfits": false,
+    "deleteOutfits": false,
+    "existingPoliciesChanged": false,
+    "sslMode": "verify-full"
+  },
+  "fixedStoreEvaluator": {
+    "baselinePassed": 16,
+    "candidatePassed": 24,
+    "newSaveCases": 8,
+    "decision": "adopted",
+    "evidence": ".autoresearch/f09-evaluation.jsonl",
+    "scope": "Actual store/Zustand, mocked HTTP/native boundaries; separate real integration required."
+  },
+  "contract": {
+    "createStatus": 201,
+    "replayStatus": 200,
+    "changedReplayStatus": 409,
+    "sameDayDistinctRequestsAllowed": true,
+    "memoMaxUtf16Units": 100,
+    "selectedItemsMin": 1,
+    "selectedItemsMax": 100,
+    "selectedItemIdMaxLength": 120,
+    "colorFormat": "#RRGGBB",
+    "idempotencyScope": "Same request UUID while its outfit row exists; closing/reopening the sheet starts a new operation. Deletion is the separate F-12 feature."
+  },
+  "review": [
+    "Whitelist body fields and take owner only from verified token.",
+    "Match current save screen memo limit; validate real calendar dates, mood/weather and selected-item color keys.",
+    "Allow known static catalog IDs or the authenticated users own item UUIDs; preserve legacy reads.",
+    "Keep one request UUID through retries without adding a per-day uniqueness constraint.",
+    "Preserve local saves across delayed lists and do not overwrite current mutations or revive locally deleted rows.",
+    "A stale save response is discarded without claiming the committed server transaction was cancelled.",
+    "Real response delays and local HTTP 500 injection are explicit; native screen behavior is not tested."
+  ],
+  "sourceSha256": {
+    "frontend/hooks/useSaveOutfitForm.ts": "4680c8c55d8bb8977251443ae44a95c791e646b555b902a348c3bb9ce26790f1",
+    "frontend/lib/outfitsApi.ts": "af2897d0e6b2ec5d139ce587b33e8cf43baa8b4b1853a4826600c4a29f4c16ba",
+    "frontend/stores/outfitStore.ts": "ac3786f66d275c503e177930930daad35548acf31bf976c3d7432e064303c69a",
+    "frontend/scripts/verify-live-outfits.mjs": "4c7073a9baa27a368f4697d00ac9fca101d86c85f78ef688a9abbf5a9d260b93",
+    "frontend/tests/outfitStore.test.mjs": "ea6f3f853c7bfc6fee9c1211c334973325260950f6ce675f8ce016852e185f36",
+    "frontend/tests/outfitsApi.test.mjs": "7d7858fa65b6b4cd1e1f87c56a34abaa3c7f12a7014b8e1623b64caa64d8633c",
+    "backend/src/main/java/com/clothic/backend/item/ItemRepository.java": "7580ed38249dd85a5bef42e6e4ec86d32155a17846832ee0cf6b692c715e3f1e",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitWriter.java": "d5c025fe6ed4ef010f424527771666a42ff6ff51a58ce6dc451409e9ea8ad581",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitCreateRequest.java": "06ab830909ec1c53116955760ff69ee92b02ff49adb1502f0e9ac4a5d8372e4b",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitController.java": "ad655153f66bc1e7777ae2110780d7630c6557772f78358469b403abb6c7dd0d",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitQueryService.java": "efdbda4af2b7e3a845fa5b4a51a9436c96cba6688572c7f62903b92b71030f93",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitResponse.java": "960abfbab9385d364b5a69d4997ccf4fb9ad3872f7fc2ade60796049e9443b1c",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitRepository.java": "6ab934f47d2a014c63618032fb20a7b95719f5b2567522949f3ba8fcca8fcf3b",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitCreateService.java": "5b9c382d2d0c312961da456cf4c73bd53554cc0c899ef00d714c66d0db263791"
+  },
+  "dataPreservation": {
+    "testAccountsRemoved": 2,
+    "existingApplicationDataUnchanged": true,
+    "comparedTables": ["items", "profiles", "outfits"],
+    "comparison": "row counts and ordered full-row digest before account creation versus after cleanup"
+  }
+}
