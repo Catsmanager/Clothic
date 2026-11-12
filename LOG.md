@@ -1,5 +1,13 @@
 # LOG
 
+## 2026-11-12 — R-02 AWS Lightsail 배포 대상 선택·절차 준비 (#223)
+
+- 사용자가 기능 전환보다 배포 대상 결정을 우선한 뒤 AWS를 선택했다. 제안했던 Lightsail 서울 `ap-northeast-2`, Linux/Unix 공개 IPv4·1GB 가상 서버를 첫 검증 대상으로 기록했다. Supabase Auth·PostgreSQL은 유지한다. 실제 메모리 여유는 미확인이며 7 USD는 월 최대 기본 요금으로 총 청구액 보장이 아니다.
+- 기준 main `ca20f7c`를 원격과 대조하고 `docs/223-aws-lightsail-deployment` 원격 ref의 동일 SHA를 편집 전에 확인했다. 별도 작업 트리에서 문서만 수정해 원본 Java 업그레이드 브랜치와 진행 중인 F-11 변경을 보존했다.
+- 변경 파일: `docs/architecture/ADR.md`, `docs/operations/CICD.md`, `plan.md`, `LOG.md`. 계정 접근·HTTPS 주소·Java 21 실행 JAR·환경변수·고정 IP/방화벽·오류 관측·이전 서버 버전 복귀·실환경 인증/DB 조회 검증을 준비 절차로 적었다. 실행 구성과 리소스는 아직 생성하지 않았다.
+- AWS 공식 요금·서울 지원·고정 IP·방화벽, NGINX 역방향 프록시, Let's Encrypt IP 인증서 지원 범위를 확인했다. 공식 자료는 제품 기능·요금의 근거이며 Clothic의 배포 성공 근거가 아니다. 현재 서버 설정·Java 버전은 main 코드와 대조했다. 관련 문서의 로컬 링크 13개(앵커 포함)와 `git diff --check`가 통과했다.
+- 코드 변경 없음. 로컬 앱·서버 실행 검사는 생략하며 GitHub 앱·서버 CI와 통합 상태는 해당 작업 PR에서 확인한다. AWS 계정 접근과 HTTPS 주소는 확인 대기이며 실제 서버 배포·복귀·실기기 검증을 수행하지 않았다. R-02는 `[ ]`로 유지한다.
+
 ## 2026-11-12 — F-10 본인 코디 기분·메모 수정 전환 완료 (#220)
 
 - 기준 main `2cf50a0`과 `feat/220-update-outfit-diary` 원격 ref 일치 확인 후 편집했다. 현재 수정 경로는 홈 index.tsx의 saveMood/saveMemo → updateDiary → 세션 토큰 PATCH /api/outfits/{id} → 본인 행의 제공된 열만 수정 → 전체 응답의 기분/메모 확인 → 편집 종료/실패 재시도다. 날짜·착장 전체 편집 UI를 새로 만들지 않고 기존 동작을 전환했다. 사용자 원본 Java 업그레이드 브랜치는 보존했다.

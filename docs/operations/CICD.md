@@ -92,6 +92,7 @@ Actions에서 `Release iOS to TestFlight`를 선택하고 **main의 workflow**�
 
 - 앱은 `app-v1.2.0`처럼 표시한다.
 - 서버는 구현 후 `backend-v0.1.0` 같은 별도 규칙으로 버전·배포를 관리한다. 현재 서버 배포 workflow는 없다.
+- 첫 서버 배포 대상은 AWS Lightsail 서울이다. [아래 배포 준비 절차](#9-aws-lightsail-첫-배포-준비-r-02)를 따르며 실제 실행 전까지 R-02는 미완료로 유지한다.
 - 서버만 바뀌었고 기존 앱과 호환된다면 앱 버전·스토어 제출이 항상 필요한 것은 아니다. 응답 계약·인증·지원 앱 버전의 호환성을 확인한 뒤 판단한다.
 - 기존 앱이 사용하는 API(Application Programming Interface)를 바꾸는 경우, 서버와 앱을 함께 전환할지 일정 기간 호환 경로를 유지할지 정한다.
 
@@ -123,3 +124,49 @@ GitHub Actions 앱 명령과 EAS 명령은 `frontend/`에서 실행하며 `app.j
 루트 `vercel.json`은 `npm --prefix frontend ci`, `npm --prefix frontend run vercel-build`, `frontend/dist`를 지정한다. SPA rewrite는 유지한다. 폴더 분리만으로 Supabase 연결 대상이나 앱 API를 바꾸지 않는다.
 
 [Expo의 모노레포 빌드 안내](https://docs.expo.dev/build-reference/build-with-monorepos/)는 앱 디렉터리에서 EAS 명령을 실행하고 그곳에 eas.json을 둘 것을 설명한다. [Vercel 설정 안내](https://vercel.com/docs/project-configuration/vercel-json)는 설치·빌드·출력 경로 재정의의 근거다. 이 문서들은 프로젝트 자격증명이나 실제 호스팅·스토어 배포 성공을 증명하지 않는다.
+
+## 9. AWS Lightsail 첫 배포 준비 (R-02)
+
+2026-11-12 AWS 선택을 반영한 준비 절차다. 인스턴스·아래 실행 구성·자동 배포 workflow는 아직 만들지 않았다. 실제 완료 조건은 [plan.md](../../plan.md)의 R-02이며, 선택 근거는 [ADR-003](../architecture/ADR.md#adr-003-spring-boot-첫-배포-대상은-aws-lightsail-서울)에 있다.
+
+### 배포 전 확정할 값
+
+| 항목 | 준비 기준 / 남은 확인 |
+| --- | --- |
+| 제품·리전·용량 | Lightsail **가상 서버**, 서울 `ap-northeast-2`, Linux/Unix 공개 IPv4·1GB. 기본 요금 월 최대 7 USD. 실제 계정에서 선택 가능한 플랜·요금을 생성 전에 다시 대조한다. |
+| 계정 접근 | 사용자 AWS 로그인과 Lightsail 권한을 확인한다. 현재 로컬에는 AWS 프로필·CLI가 없다. 비밀 액세스 키를 채팅으로 받지 않는다. |
+| HTTPS 주소 | 보유 도메인 여부를 확인한 뒤 주소를 정한다. 주소·인증서가 검증되기 전에는 앱의 API 주소를 바꾸지 않는다. |
+| 서버 버전 | main에 포함된 검증 커밋·서버 버전 태그·JAR의 SHA-256 지문을 고정한다. 기존 태그를 옮기지 않는다. |
+| DB 접속 | 기존 Supabase를 유지한다. 서버 배포용 역할·필요한 테이블/열 권한·비밀 전달 경로를 확인한다. 개발용 비밀번호를 문서나 서버 이미지에 복사하지 않는다. |
+
+1GB에서 충분히 동작하는지는 미검증이다. 빌드·테스트는 개발/지속적 통합(CI) 환경에서 수행하고 서버에는 검증한 실행 JAR를 전달하는 구성을 우선한다. 실제 메모리와 부하를 보고 용량을 판단한다. 단일 서버이므로 배포/복귀 때 짧은 중단이 발생할 수 있다.
+
+### 서버에 구성할 실행 경로
+
+`앱 → HTTPS 443 → NGINX 역방향 프록시 → 127.0.0.1:8080의 Spring Boot → 기존 Supabase`
+
+Java 21 실행 JAR를 전용 OS 사용자와 systemd 서비스로 실행하고 재시작·로그를 관리하는 구성을 준비한다. 개발 전용 `scripts/run-local.py`나 서버에서의 `spring-boot:run`을 운영 시작 명령으로 사용하지 않는다. NGINX는 외부 요청을 내부 서버에 전달하는 역할이며 [공식 역방향 프록시 문서](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/)를 따른다. 이 구성의 설치·실행 검증은 아직 남아 있다.
+
+- 인스턴스에 고정 IPv4를 연결하고, 외부에는 80·443만 공개한다. 원격 관리용 Secure Shell(SSH) 22번 포트는 관리자 출처 또는 필요한 브라우저 SSH 경로로 제한한다. Spring Boot 8080은 외부에 열지 않는다. IPv6를 사용하면 그 방화벽도 따로 확인한다. [고정 IP](https://docs.aws.amazon.com/lightsail/latest/userguide/lightsail-create-static-ip.html)·[Lightsail 방화벽](https://docs.aws.amazon.com/lightsail/latest/userguide/understanding-firewall-and-port-mappings-in-amazon-lightsail.html)
+- 도메인이 없다고 HTTPS가 불가능한 것은 아니다. Let's Encrypt의 IP 인증서와 Certbot 5.4 이상 webroot 방식도 사용할 수 있다. 다만 짧은 유효기간에 맞춘 자동 갱신·NGINX 인증서 재적용·실기기 신뢰 검증까지 필요하다. 실제 주소와 방식은 계정/도메인 확인 뒤 정한다. [Let's Encrypt의 지원 범위와 설정 조건](https://letsencrypt.org/2026/03/11/shorter-certs-certbot)
+- 추가 로드 밸런서·별도 DB·스냅샷 등 유료 리소스를 이 기본 요금에 포함된 것으로 간주하지 않는다. 연결하지 않은 고정 IP도 별도 과금될 수 있다. [Lightsail 요금 FAQ](https://aws.amazon.com/lightsail/faq/)
+
+환경변수는 저장소 밖 권한을 제한한 서비스 설정으로 전달한다. 현재 코드의 이름은 [application.properties](../../backend/src/main/resources/application.properties)와 대조했다.
+
+| 환경변수 | 배포 시 확인 |
+| --- | --- |
+| `SERVER_ADDRESS`, `SERVER_PORT` | 위 프록시 구성에서는 `127.0.0.1`, `8080` |
+| `CLOTHIC_AUTH_ISSUER`, `CLOTHIC_AUTH_AUDIENCE` | 현재 Supabase 발급자, `authenticated` |
+| `CLOTHIC_AUTH_JWK_SET_URI` | 현재 ES256 공개 서명 키 주소. 이 구성에서는 HMAC Secret을 함께 설정하지 않는다. |
+| `CLOTHIC_DB_URL` | IPv4 session pooler와 `sslmode=verify-full`, 서버에 설치한 공식 루트 인증서 절대 경로. 로컬 임시 경로를 복사하지 않는다. |
+| `CLOTHIC_DB_USERNAME`, `CLOTHIC_DB_PASSWORD`, `CLOTHIC_DB_POOL_SIZE` | 배포용 역할·비밀·실제 접속 제한에 맞춘 풀 크기 |
+| `CLOTHIC_WEB_ALLOWED_ORIGINS` | 실제 웹 출처만 명시한다. 네이티브 앱 토큰 인증과 별개의 브라우저 출처 설정이다. |
+
+### 배포 환경 검증과 이전 버전 복귀
+
+1. main 포함 커밋에서 `backend/`의 `./mvnw --batch-mode verify`와 앱 검사를 통과시킨다. 서버 버전·커밋·JAR 지문·환경 설정 버전을 기록한다. 첫 서버 릴리스 태그는 실제 배포를 진행할 때 확정하며 문서 준비만으로 발행하지 않는다.
+2. JAR를 버전별 디렉터리에 보존한다. 새 JAR와 환경 설정을 준비하고 현재 실행 버전 경로를 기록한 뒤 서비스를 전환한다. DB 스키마·기존 사용자 데이터는 이 배포에서 변경하지 않는다.
+3. 외부 HTTPS에서 `GET /api/health`의 `200`을 확인한다. 이는 프로세스 응답만 입증하므로, 무토큰 `401`과 임시 검증 계정의 `/api/me`·`/api/items`·`/api/outfits` 조회, 두 계정 격리, 기존 직접 조회와의 일치를 별도로 확인한다. 쓰기 검증은 표식을 확인한 임시 계정만 사용하고 정리 후 기존 데이터 보존을 대조한다.
+4. 재부팅 후 서비스 복구, 실제 메모리·응답시간, 오류 응답과 서비스/프록시 로그를 확인한다. 로그에는 토큰·비밀번호·메모 본문을 남기지 않도록 구성하고, 디스크를 소진하지 않게 보존량을 제한한다. 인증서 갱신과 서버 실패를 어디에서 확인할지도 정한다.
+5. 다음 배포에서는 이전 JAR와 그 버전에 맞는 환경 설정으로 전환·재시작하고, 외부 HTTPS·인증·DB 조회가 복구되는지 확인한다. **최초 배포에서 이전 서버 버전이 없으면 이 단계는 미검증으로 기록한다.** 앱의 기존 Supabase 경로로 돌아가려면 API 주소를 비운 앱 빌드/배포가 필요하므로 즉시 서버 복귀와 같은 것으로 취급하지 않는다.
+6. 실제 배포 주소·버전·검증 결과·복귀 결과를 비밀값 없이 LOG.md에 기록한 뒤 R-02의 완료 여부를 판단한다. 앱의 `EXPO_PUBLIC_CLOTHIC_API_URL` 전환과 실기기 전체 검증은 해당 앱 배포 및 R-04에서 따로 확인한다.

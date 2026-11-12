@@ -61,7 +61,7 @@
 ## 운영 전환과 기존 문제
 
 - [ ] **R-01 main 병합 보호** — 사용자 운영 방식에 맞는 PR·필수 검사 규칙을 실제 설정하고 강제 여부를 확인한다.
-- [ ] **R-02 서버 배포·복귀** — 별도 서버 버전과 환경변수·상태 확인·오류 관측·복귀 절차를 구성하고 배포 환경에서 검증한다. 선행: F-04.
+- [ ] **R-02 서버 배포·복귀** — AWS Lightsail 서울의 Linux/Unix 공개 IPv4·1GB 가상 서버를 첫 검증 대상으로 선택했다. 기존 Supabase Auth·DB를 유지한다. 별도 서버 버전과 환경변수·HTTPS·상태 확인·오류 관측·복귀 절차를 구성하고 배포 환경에서 검증한다. 현재는 계정 접속·HTTPS 주소 확인과 실제 배포/복귀 검증이 남아 있다. 선행: F-04. 준비 추적: [#223](https://github.com/Catsmanager/Clothic/issues/223), [결정 근거](docs/architecture/ADR.md#adr-003-spring-boot-첫-배포-대상은-aws-lightsail-서울)·[배포 절차](docs/operations/CICD.md#9-aws-lightsail-첫-배포-준비-r-02).
 - [ ] **R-03 앱 릴리스 검증** — app-store 승인/태그 정책, 지정 버전 빌드와 TestFlight 처리, 실제 공개 버전 대조를 확인한다. 코드·설정 작성만으로 체크하지 않는다.
 - [ ] **R-04 전체 사용자 흐름 회귀** — 가입·로그인·옷장·코디·캘린더·통계·접근성·계정 전환을 실기기에서 확인하고 전환 전후 데이터 보존을 검증한다. 선행: 필요한 F 항목과 R-02.
 - [ ] **B-01 공개 정책 문서 복구** — 원문과 공개 주소를 대조하고 비로그인·모바일에서 본문을 확인한다. 추적: [#168](https://github.com/Catsmanager/Clothic/issues/168).
@@ -80,6 +80,7 @@
 | P-07 | 컴포넌트 7개 이동 후 `npm run check` 통과(typecheck·lint·format·핵심 28개·소유 계약 8/8·하네스 6개), 웹 export 성공 | [PR #193](https://github.com/Catsmanager/Clothic/pull/193) 병합(f3991f2) | 해당 없음 |
 | P-08 | 파일 이동·참조 2곳 갱신, 로컬 문서 링크 검사 통과, `git check-ignore .vscode` 확인. 코드 변경 없음 | [PR #194](https://github.com/Catsmanager/Clothic/pull/194) 병합(bc9c347) | 해당 없음 |
 | P-09 | 규칙 문서 3개 갱신, 코드 변경 없음 | [PR #198](https://github.com/Catsmanager/Clothic/pull/198) | 해당 없음 |
+| R-02 준비 | 사용자 AWS 선택을 반영해 Lightsail 서울·1GB와 기존 Supabase 유지, 비용 경계·환경변수·HTTPS·관측·버전 복귀 검증 절차를 문서화. 코드 변경 없음. 실제 계정 접속·배포·복귀는 미검증이므로 미완료 유지 | 이슈 [#223](https://github.com/Catsmanager/Clothic/issues/223) | 미배포 |
 | F-13 | 서버 범위 완료. Maven verify 32개 통과(프로필 5개 추가): 가입 트리거로 생긴 행 조회, 변경 후 재조회 복원, 부분 변경 시 나머지 유지, 다른 사용자 불변, 빈/미지 키(id·username)/비불리언/비JSON 400, 401, 행 없음 404(생성 안 함). 앱의 설정 화면 전환과 재로그인 복원 확인은 F-14 | [PR #208](https://github.com/Catsmanager/Clothic/pull/208) | 미배포 |
 | F-10 | PATCH /api/outfits/{id}와 기분·메모 편집 연결. 제공/미제공/null, 본인/타인·없는 행·입력/인증 오류, 다른 필드 보존 확인. 연속 부분 수정·후속 실패·최신 재조회/상세/삭제 복원 보호. 앱 핵심 96개·흐름 8/8·하네스 6개, 서버 77개·실환경 24개 통과. 임시 계정 정리 후 기존 데이터 건수·전체 행 지문 일치. 근거: `.autoresearch/f10-live-verification.json` | [PR #221](https://github.com/Catsmanager/Clothic/pull/221), 이슈 #220 | 미배포 |
 | F-09 | POST /api/outfits와 앱 저장 연결. 요청 UUID의 최초 201·중복 200·다른 내용 409, 동시 4건 한 행·동일 날짜 별도 저장·입력/본인 아이템 검증·재조회 확인. 앱 핵심 82개·흐름 8/8·하네스 6개, 서버 70개·실환경 18개 통과. 임시 계정 정리 후 기존 데이터 건수·전체 행 지문 일치. 근거: `.autoresearch/f09-live-verification.json` | [PR #219](https://github.com/Catsmanager/Clothic/pull/219), 이슈 #218 | 미배포 |
