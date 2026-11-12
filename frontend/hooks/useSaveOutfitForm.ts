@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import * as Crypto from 'expo-crypto'
 import { getTodayDateKey } from '../lib/date'
 import type { CatalogItem } from '../constants/items'
 import type { Mood, NewOutfit, Weather } from '../stores/outfitStore'
@@ -17,6 +18,7 @@ function buildDefaultColors(items: CatalogItem[]): Record<string, string> {
 }
 
 export function useSaveOutfitForm({ items, visible }: Params) {
+  const requestId = useRef<string | null>(null)
   const [mood, setMood] = useState<Mood | null>(null)
   const [weather, setWeather] = useState<Weather | null>(null)
   const [memo, setMemo] = useState('')
@@ -29,6 +31,7 @@ export function useSaveOutfitForm({ items, visible }: Params) {
   useEffect(() => {
     if (!visible) return
 
+    requestId.current = Crypto.randomUUID()
     setMood(null)
     setWeather(null)
     setMemo('')
@@ -51,8 +54,10 @@ export function useSaveOutfitForm({ items, visible }: Params) {
 
   function buildInput(): NewOutfit {
     const trimmedMemo = memo.trim()
+    requestId.current ??= Crypto.randomUUID()
 
     return {
+      requestId: requestId.current,
       date: getTodayDateKey(),
       mood,
       weather,

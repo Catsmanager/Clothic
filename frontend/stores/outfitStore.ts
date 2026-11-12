@@ -5,6 +5,7 @@ import {
   fetchOwnedOutfitFromApi,
   fetchOwnedOutfitsFromApi,
   getOutfitsApiBaseUrl,
+  saveOwnedOutfitToApi,
 } from '../lib/outfitsApi'
 
 // DB(snake_case) Row를 앱(camelCase) 모델로 매핑한다. (DATA_MODEL.md 기준)
@@ -14,6 +15,7 @@ type OutfitUpdate = Database['public']['Tables']['outfits']['Update']
 
 // 코디 저장 입력 (신규 저장 시 화면에서 받는 값)
 export interface NewOutfit {
+  requestId: string // 한 번 연 저장 시트에서 재시도하는 동안 유지하는 UUID
   date: string // YYYY-MM-DD
   mood: Mood | null
   weather: Weather | null
@@ -261,39 +263,72 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
   // 코디 저장: 현재 로그인 사용자로 insert하고 목록 맨 앞에 반영한다.
   addOutfit: async (input) => {
     const generation = storeGeneration
-    const { data: userData } = await supabase.auth.getUser()
-    if (generation !== storeGeneration) {
-      return { error: '계정이 변경되었습니다. 다시 시도해주세요.' }
-    }
-    const userId = userData.user?.id
-    if (!userId) return { error: '로그인이 필요합니다.' }
+    try {
+      const baseUrl = getOutfitsApiBaseUrl()
+      if (baseUrl) {
+        if (!input.requestId)
+          return { error: '저장 요청을 준비하지 못했어요. 화면을 다시 열어주세요.' }
+        const { data, error } = await supabase.auth.getSession()
+        if (generation !== storeGeneration)
+          return { error: '계정이 변경되어 저장 결과를 반영하지 않았어요.' }
+        if (error || !data.session?.access_token) return { error: '로그인이 필요해요.' }
+        const result = await saveOwnedOutfitToApi({
+          baseUrl,
+          accessToken: data.session.access_token,
+          input,
+        })
+        if (generation !== storeGeneration)
+          return { error: '계정이 변경되어 저장 결과를 반영하지 않았어요.' }
+        if (result.error || !result.outfit)
+          return { error: result.error ?? '저장 결과를 읽지 못했어요.' }
+        const id = result.outfit.id
+        if (blockedOutfitIds.has(id))
+          return { error: '코디가 삭제되어 저장 결과를 반영하지 않았어요.' }
+        // 동시 중복 응답이 그 사이 적용한 수정·즐겨찾기보다 오래됐을 수 있다.
+        const outfit = get().outfits.find((row) => row.id === id) ?? result.outfit
+        if (!pendingFavoriteValues.has(id)) confirmedFavoriteValues.set(id, outfit.isFavorite)
+        locallyAddedOutfits.set(id, outfit)
+        set({ outfits: [outfit, ...get().outfits.filter((row) => row.id !== id)] })
+        return { error: null }
+      }
+      const { data: userData } = await supabase.auth.getUser()
+      if (generation !== storeGeneration) {
+        return { error: '계정이 변경되었습니다. 다시 시도해주세요.' }
+      }
+      const userId = userData.user?.id
+      if (!userId) return { error: '로그인이 필요합니다.' }
 
-    const payload: OutfitInsert = {
-      user_id: userId,
-      date: input.date,
-      mood: input.mood,
-      weather: input.weather,
-      memo: input.memo,
-      item_ids: input.itemIds,
-      item_colors: input.itemColors,
-    }
+      const payload: OutfitInsert = {
+        user_id: userId,
+        date: input.date,
+        mood: input.mood,
+        weather: input.weather,
+        memo: input.memo,
+        item_ids: input.itemIds,
+        item_colors: input.itemColors,
+      }
 
-    const { data, error } = await supabase.from('outfits').insert(payload).select().single()
-    if (generation !== storeGeneration) {
-      return { error: '계정이 변경되었습니다. 저장 결과를 다시 확인해주세요.' }
+      const { data, error } = await supabase.from('outfits').insert(payload).select().single()
+      if (generation !== storeGeneration) {
+        return { error: '계정이 변경되었습니다. 저장 결과를 다시 확인해주세요.' }
+      }
+      if (error) return { error: error.message }
+      if (data) {
+        blockedOutfitIds.delete(data.id)
+        deletedOutfitIds.delete(data.id)
+        const outfit = mapRow(data)
+        confirmedFavoriteValues.set(outfit.id, outfit.isFavorite)
+        locallyAddedOutfits.set(outfit.id, outfit)
+        set({
+          outfits: [outfit, ...get().outfits.filter((current) => current.id !== outfit.id)],
+        })
+      }
+      return { error: null }
+    } catch {
+      if (generation !== storeGeneration)
+        return { error: '계정이 변경되어 저장 결과를 반영하지 않았어요.' }
+      return { error: '코디를 저장하지 못했어요. 다시 시도해주세요.' }
     }
-    if (error) return { error: error.message }
-    if (data) {
-      blockedOutfitIds.delete(data.id)
-      deletedOutfitIds.delete(data.id)
-      const outfit = mapRow(data)
-      confirmedFavoriteValues.set(outfit.id, outfit.isFavorite)
-      locallyAddedOutfits.set(outfit.id, outfit)
-      set({
-        outfits: [outfit, ...get().outfits.filter((current) => current.id !== outfit.id)],
-      })
-    }
-    return { error: null }
   },
 
   updateDiary: async (id, patch) => {

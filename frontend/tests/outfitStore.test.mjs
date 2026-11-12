@@ -304,7 +304,9 @@ test('늦은 목록도 저장 직후 로컬 코디와 진행 중인 즐겨찾기
   const favorite = deferred()
   let reads = 0
   const fixture = setup(t, {
-    fetchImpl: async () => {
+    fetchImpl: async (_url, init) => {
+      if (init.method === 'POST')
+        return response(outfit(a, '91111111-1111-4111-8111-111111111111'), 201)
       if (reads++ === 0) {
         started.resolve()
         return held.promise
@@ -317,8 +319,9 @@ test('늦은 목록도 저장 직후 로컬 코디와 진행 중인 즐겨찾기
   const pending = fixture.store.getState().fetchOutfits()
   await started.promise
   await fixture.store.getState().addOutfit({
+    requestId: '91111111-1111-4111-8111-111111111111',
     date: '2026-11-12',
-    itemIds: [],
+    itemIds: ['top_001'],
     itemColors: {},
     mood: null,
     weather: null,
@@ -328,7 +331,7 @@ test('늦은 목록도 저장 직후 로컬 코디와 진행 중인 즐겨찾기
   await pending
   assert.deepEqual(
     fixture.store.getState().outfits.map((value) => value.id),
-    ['new', `outfit-${a}`]
+    [fixture.store.getState().outfits[0].id, `outfit-${a}`]
   )
   const toggle = fixture.store.getState().toggleFavorite(`outfit-${a}`, true)
   await fixture.store.getState().fetchOutfits()
@@ -509,4 +512,195 @@ test('상세의 기존 직접 조회와 예외·세션 없음도 결과를 반�
   assert.ok((await fixture.store.getState().fetchOutfitById('detail')).error)
   process.env.EXPO_PUBLIC_CLOTHIC_API_URL = 'http://server.test'
   assert.ok((await fixture.store.getState().fetchOutfitById('detail')).error)
+})
+
+const saveInput = (requestId = '91111111-1111-4111-8111-111111111111') => ({
+  requestId,
+  date: '2026-11-12',
+  mood: 'calm',
+  weather: 'sunny',
+  memo: '저장',
+  itemIds: ['top_001'],
+  itemColors: { top_001: '#ABCDEF' },
+})
+const saved = (input = saveInput()) => ({ ...outfit(a, input.requestId), ...input })
+
+test(
+  '저장은 요청 ID와 입력 필드만 서버로 보내고 한 행을 반영한다',
+  { timeout: 1000 },
+  async (t) => {
+    const input = saveInput()
+    let calls = 0
+    const fixture = setup(t, {
+      fetchImpl: async (url, init) => {
+        calls += 1
+        assert.equal(url, 'http://server.test/api/outfits')
+        assert.equal(init.method, 'POST')
+        assert.equal(init.headers.Authorization, `Bearer token-${a}`)
+        assert.deepEqual(JSON.parse(init.body), input)
+        return response(saved(input), 201)
+      },
+      mutate: async () => assert.fail('서버 경로는 기존 직접 쓰기를 사용하지 않는다'),
+    })
+    assert.equal((await fixture.store.getState().addOutfit(input)).error, null)
+    assert.equal(fixture.store.getState().outfits[0].id, input.requestId)
+    assert.equal(calls, 1)
+  }
+)
+
+test(
+  '저장 실패 후 같은 요청 ID로 재시도하고 서버 중복 응답도 한 행만 유지한다',
+  { timeout: 1000 },
+  async (t) => {
+    const input = saveInput()
+    let count = 0
+    const fixture = setup(t, {
+      fetchImpl: async (_url, init) => {
+        assert.equal(JSON.parse(init.body).requestId, input.requestId)
+        return count++ === 0 ? response({}, 500) : response(saved(input), 200)
+      },
+      mutate: async () => assert.fail('직접 쓰기 우회 없음'),
+    })
+    assert.ok((await fixture.store.getState().addOutfit(input)).error)
+    assert.deepEqual(fixture.store.getState().outfits, [])
+    assert.equal((await fixture.store.getState().addOutfit(input)).error, null)
+    assert.equal((await fixture.store.getState().addOutfit(input)).error, null)
+    assert.equal(fixture.store.getState().outfits.length, 1)
+  }
+)
+
+test('동시 저장 응답은 같은 ID를 중복 삽입하지 않는다', { timeout: 1000 }, async (t) => {
+  const input = saveInput()
+  let calls = 0
+  const fixture = setup(t, {
+    fetchImpl: async () => {
+      calls += 1
+      return response(saved(input), calls === 1 ? 201 : 200)
+    },
+    mutate: async () => assert.fail('직접 쓰기 우회 없음'),
+  })
+  const results = await Promise.all([
+    fixture.store.getState().addOutfit(input),
+    fixture.store.getState().addOutfit(input),
+  ])
+  assert.ok(results.every((r) => r.error === null))
+  assert.equal(fixture.store.getState().outfits.length, 1)
+  assert.equal(calls, 2)
+})
+
+test(
+  '계정 변경 뒤 늦은 저장 결과를 반영하지 않고 서버 취소를 주장하지 않는다',
+  { timeout: 1000 },
+  async (t) => {
+    const held = deferred()
+    const started = deferred()
+    const fixture = setup(t, {
+      fetchImpl: async () => {
+        started.resolve()
+        return held.promise
+      },
+    })
+    await fixture.auth.getState().initialize()
+    const pending = fixture.store.getState().addOutfit(saveInput())
+    await Promise.race([
+      started.promise,
+      pending.then(() => assert.fail('저장 서버 요청이 시작되지 않았다')),
+    ])
+    fixture.changeSession(session(b))
+    held.resolve(response(saved(), 201))
+    assert.match((await pending).error, /반영하지/)
+    assert.deepEqual(fixture.store.getState().outfits, [])
+  }
+)
+
+test(
+  '늦은 중복 저장 응답은 그 사이 삭제된 코디를 복원하지 않는다',
+  { timeout: 1000 },
+  async (t) => {
+    const held = deferred()
+    const started = deferred()
+    const fixture = setup(t, {
+      fetchImpl: async () => {
+        started.resolve()
+        return held.promise
+      },
+    })
+    const input = saveInput()
+    const pending = fixture.store.getState().addOutfit(input)
+    await Promise.race([
+      started.promise,
+      pending.then(() => assert.fail('저장 서버 요청이 시작되지 않았다')),
+    ])
+    await fixture.store.getState().removeOutfit(input.requestId)
+    held.resolve(response(saved(input), 200))
+    assert.ok((await pending).error)
+    assert.deepEqual(fixture.store.getState().outfits, [])
+  }
+)
+
+test(
+  '저장 요청 중 세션 없음·세션 예외·요청 ID 누락은 오류로 종료한다',
+  { timeout: 1000 },
+  async (t) => {
+    let state = 'missing'
+    let calls = 0
+    const fixture = setup(t, {
+      getSession: async () => {
+        if (state === 'throws') throw new Error('secure storage unavailable')
+        return { data: { session: state === 'valid' ? session(a) : null } }
+      },
+      fetchImpl: async () => {
+        calls += 1
+        return response(saved())
+      },
+    })
+    assert.ok((await fixture.store.getState().addOutfit(saveInput())).error)
+    state = 'throws'
+    assert.ok((await fixture.store.getState().addOutfit(saveInput())).error)
+    state = 'valid'
+    const input = saveInput()
+    delete input.requestId
+    assert.ok((await fixture.store.getState().addOutfit(input)).error)
+    assert.equal(calls, 0)
+  }
+)
+
+test(
+  '늦은 중복 저장은 그 사이 수정한 현재 store 값을 덮지 않는다',
+  { timeout: 1000 },
+  async (t) => {
+    const held = deferred()
+    const started = deferred()
+    const input = saveInput()
+    const fixture = setup(t, {
+      fetchImpl: async () => {
+        started.resolve()
+        return held.promise
+      },
+    })
+    fixture.store.setState({
+      outfits: [{ ...saved(input), memo: '수정된 기록', isFavorite: true }],
+    })
+    const pending = fixture.store.getState().addOutfit(input)
+    await Promise.race([
+      started.promise,
+      pending.then(() => assert.fail('저장 서버 요청이 시작되지 않았다')),
+    ])
+    held.resolve(response(saved(input), 200))
+    assert.equal((await pending).error, null)
+    assert.equal(fixture.store.getState().outfits[0].memo, '수정된 기록')
+    assert.equal(fixture.store.getState().outfits[0].isFavorite, true)
+  }
+)
+
+test('서버 저장 연결이 실패해도 이미 조회한 코디는 보존한다', { timeout: 1000 }, async (t) => {
+  const fixture = setup(t, {
+    fetchImpl: async () => {
+      throw new Error('offline')
+    },
+    mutate: async () => assert.fail('직접 쓰기 우회 없음'),
+  })
+  fixture.store.setState({ outfits: [outfit(a)] })
+  assert.ok((await fixture.store.getState().addOutfit(saveInput())).error)
+  assert.deepEqual(fixture.store.getState().outfits, [outfit(a)])
 })

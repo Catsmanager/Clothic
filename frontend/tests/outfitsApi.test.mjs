@@ -5,6 +5,7 @@ import {
   fetchOwnedOutfitsFromApi,
   getOutfitsApiBaseUrl,
   parseOutfitsResponse,
+  saveOwnedOutfitToApi,
 } from '../lib/outfitsApi.ts'
 
 const row = {
@@ -139,6 +140,92 @@ test('단건 경로 입력을 인코딩하고 본문 시간 제한을 유지한�
           }),
       }
     },
+  })
+  assert.equal(result.outfit, null)
+  assert.match(result.error, /시간을 초과/)
+})
+
+test('저장 요청은 요청 ID와 허용 필드만 전송하고 생성·재시도 응답을 읽는다', async () => {
+  const input = {
+    requestId: 'a',
+    date: row.date,
+    mood: 'calm',
+    weather: null,
+    memo: null,
+    itemIds: ['top_001'],
+    itemColors: { top_001: '#123456' },
+    userId: 'forged',
+  }
+  for (const status of [201, 200]) {
+    const result = await saveOwnedOutfitToApi({
+      baseUrl: 'http://server.test',
+      accessToken: 'test',
+      input,
+      fetchImpl: async (url, init) => {
+        assert.equal(url, 'http://server.test/api/outfits')
+        assert.equal(init.method, 'POST')
+        assert.equal(init.headers.Authorization, 'Bearer test')
+        const payload = JSON.parse(init.body)
+        assert.equal(payload.requestId, 'a')
+        assert.equal(Object.hasOwn(payload, 'userId'), false)
+        return new Response(JSON.stringify(row), { status })
+      },
+    })
+    assert.equal(result.error, null)
+    assert.deepEqual(result.outfit, row)
+  }
+})
+
+test('저장 충돌·오류·다른 ID 응답은 성공으로 반영하지 않는다', async () => {
+  const input = {
+    requestId: 'a',
+    date: row.date,
+    mood: null,
+    weather: null,
+    memo: null,
+    itemIds: ['top_001'],
+    itemColors: {},
+  }
+  for (const [status, body] of [
+    [409, { private: true }],
+    [500, { private: true }],
+    [201, { ...row, id: 'other' }],
+  ]) {
+    const result = await saveOwnedOutfitToApi({
+      baseUrl: 'http://server.test',
+      accessToken: 'test',
+      input,
+      fetchImpl: async () => new Response(JSON.stringify(body), { status }),
+    })
+    assert.equal(result.outfit, null)
+    assert.ok(result.error)
+    assert.equal(result.error.includes('private'), false)
+  }
+})
+
+test('저장 본문 읽기도 시간 제한 안에 끝난다', async () => {
+  const input = {
+    requestId: 'a',
+    date: row.date,
+    mood: null,
+    weather: null,
+    memo: null,
+    itemIds: ['top_001'],
+    itemColors: {},
+  }
+  const result = await saveOwnedOutfitToApi({
+    baseUrl: 'http://server.test',
+    accessToken: 'test',
+    input,
+    timeoutMs: 10,
+    fetchImpl: async (_url, init) => ({
+      status: 201,
+      ok: true,
+      json: () =>
+        new Promise((_resolve, reject) => {
+          init.signal.addEventListener('abort', () => reject(new Error('aborted')), { once: true })
+        }),
+    }),
   })
   assert.equal(result.outfit, null)
   assert.match(result.error, /시간을 초과/)

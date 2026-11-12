@@ -1,6 +1,6 @@
 # Clothic backend
 
-현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 조회·등록 API(F-04/F-06), 코디 목록·상세 API(F-07/F-08), 본인 프로필 조회·변경 API(F-13)다. F-05는 실제 Supabase 토큰·개발 DB와 연결한 앱 store 실행 검증까지 완료했다. 실기기 화면·운영 서버 배포는 별도다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
+현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 조회·등록 API(F-04/F-06), 코디 목록·상세·저장 API(F-07~F-09), 본인 프로필 조회·변경 API(F-13)다. F-05는 실제 Supabase 토큰·개발 DB와 연결한 앱 store 실행 검증까지 완료했다. 실기기 화면·운영 서버 배포는 별도다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
 
 ## 실행
 
@@ -29,7 +29,7 @@ curl http://127.0.0.1:18080/api/health
 
 Supabase shared session pooler를 사용하는 경우 Connect 화면이나 관리 API로 확인한 호스트·5432 포트와 `<역할>.<project-ref>` 사용자명을 사용한다. `sslmode=verify-full`과 공식 루트 인증서의 절대 경로를 `sslrootcert`에 함께 지정한다. 인증서는 `.local/`에 두며 `.env.local`과 함께 Git에서 제외한다. [공식 연결 문서](https://supabase.com/docs/guides/database/connecting-to-postgres)는 연결 방식·인증서 설정의 근거이며 실제 프로젝트 연결 성공은 아래 검증 기록으로 별도 확인했다.
 
-2026-11-12 확인한 `clothic_backend_dev` 역할은 관리자·역할 생성 권한 없이 `public.items`의 SELECT/INSERT와 `public.profiles`와 `public.outfits`의 SELECT를 허용한다. F-07에서 outfits SELECT만 추가했고 해당 테이블의 쓰기는 허용하지 않았다. F-06에서 items INSERT만 추가했고 items UPDATE/DELETE는 허용하지 않았다. 행 수준 보안(Row Level Security, RLS)을 우회하므로 서버의 인증 사용자 조건이 데이터 격리를 담당한다. 프로필 변경 등 다른 쓰기 전환은 해당 기능에서 별도 권한 확인이 필요하다.
+2026-11-12 확인한 `clothic_backend_dev` 역할은 관리자·역할 생성 권한 없이 `public.items`의 SELECT/INSERT와 `public.profiles`의 SELECT와 `public.outfits`의 SELECT/INSERT를 허용한다. F-09에서 outfits INSERT만 추가했고 UPDATE/DELETE는 허용하지 않았다. F-07에서 outfits SELECT만 추가했고 해당 테이블의 쓰기는 허용하지 않았다. F-06에서 items INSERT만 추가했고 items UPDATE/DELETE는 허용하지 않았다. 행 수준 보안(Row Level Security, RLS)을 우회하므로 서버의 인증 사용자 조건이 데이터 격리를 담당한다. 프로필 변경 등 다른 쓰기 전환은 해당 기능에서 별도 권한 확인이 필요하다.
 
 브라우저에서 호출하려면 `CLOTHIC_WEB_ALLOWED_ORIGINS`에 정확한 개발 출처를 쉼표로 구분해 넣는다(예: `http://localhost:8081,http://127.0.0.1:8081`). 출처 설정이 비어 있으면 교차 출처 요청을 거부하며, 허용한 브라우저에서도 실제 API 요청의 토큰 검증은 유지한다. 와일드카드·경로·사용자 정보가 포함된 값은 기동 시 거부한다. [Spring Security 문서](https://docs.spring.io/spring-security/reference/servlet/integrations/cors.html)는 사전 요청을 인증보다 먼저 처리하는 구성의 근거이며 허용·거부 동작은 통합 테스트와 실제 HTTP 요청으로 확인했다.
 
@@ -123,7 +123,7 @@ Authorization: Bearer <Supabase 사용자 접근 토큰>
 
 `OutfitController` → `OutfitQueryService` → `OutfitRepository`가 검증된 토큰 사용자 조건으로 `public.outfits`를 조회한다. 기존 조회와 같은 `date DESC, created_at DESC`이며 둘 다 같을 때만 `id ASC`로 순서를 고정한다. 응답은 앱 `Outfit[]`의 `id`, `userId`, `date`, `mood`, `weather`, `memo`, `itemIds`, `itemColors`, `isFavorite`, `createdAt`이며 없으면 `[]`다. 과거 카탈로그 ID·소유 UUID·이미 없어진 과거 ID와 색상은 제거하거나 변환하지 않는다. 날짜는 달력 날짜로, 생성시각은 시간대와 마이크로초를 유지해 반환한다.
 
-토큰 누락·변조·비UUID 주체는 `401`, 사용자 지정 쿼리(`userId`/`user_id`)는 `400`, 조회 실패는 접속 정보 없는 `500`이다. 개발 역할은 outfits 조회만 허용한다. 서버 주소를 설정한 앱은 `fetchOutfits`에서 세션 토큰과 이 경로를 사용하며 실패 시 직접 조회로 자동 우회하지 않는다. 주소가 비어 있으면 기존 Supabase 경로를 유지한다. 목록을 반영할 때 기존 저장·즐겨찾기·삭제 보호와 늦은 응답 차단을 유지한다.
+토큰 누락·변조·비UUID 주체는 `401`, 사용자 지정 쿼리(`userId`/`user_id`)는 `400`, 조회 실패는 접속 정보 없는 `500`이다. F-07 검증 당시에는 개발 역할에 outfits 조회만 허용했고 F-09에서 INSERT를 추가했다. 서버 주소를 설정한 앱은 `fetchOutfits`에서 세션 토큰과 이 경로를 사용하며 실패 시 직접 조회로 자동 우회하지 않는다. 주소가 비어 있으면 기존 Supabase 경로를 유지한다. 목록을 반영할 때 기존 저장·즐겨찾기·삭제 보호와 늦은 응답 차단을 유지한다.
 
 앱 검사 62개·서버 검사 55개와 실제 임시 계정 두 개의 연동 검사 9개를 통과했다. 날짜/생성일 정렬·전체 필드의 기존/새 조회 일치, 사용자 격리·계정 전환·로그아웃·오류/재시도를 확인했다. 임시 데이터 정리 후 기존 items/profiles/outfits 전체 행 지문이 일치했다. 실행 방법은 `frontend/`에서 다음과 같다. 비밀 파일에는 이 실행에서 생성한 두 임시 계정만 들어가야 하며, 검증 후 계정 정리와 데이터 보존 대조는 별도로 수행한다.
 
@@ -145,6 +145,24 @@ Authorization: Bearer <Supabase 사용자 접근 토큰>
 앱의 상세 딥링크·새로고침은 `fetchOutfitById`에서 설정된 서버로 복원한다. `404`는 `found: false, error: null`이고 서버 실패는 `found: false`와 재시도 오류다. 주소 미설정 시 기존 직접 조회를 유지하며, 설정된 서버 실패 때 직접 조회로 우회하지 않는다. 먼저 완료된 목록·mutation, 삭제 중인 ID, 계정 변경·로그아웃 이후의 늦은 응답은 현재 상태를 덮지 않는다. 대문자 UUID는 화면과 store에서 표준 소문자로 맞춘다.
 
 위 실연동 명령에 `--include-detail true`를 추가하면 목록 검사와 상세 복원·다른 사용자/없는 기록·계정 변경/로그아웃 지연·오류 재시도를 함께 확인한다. 실제 임시 계정 두 개로 14개 검사를 통과했다. 근거: [.autoresearch/f08-live-verification.json](../.autoresearch/f08-live-verification.json). 실제 화면 렌더링·기기·운영 배포는 별도다.
+
+## 코디 저장 API (F-09)
+
+```http
+POST /api/outfits
+Authorization: Bearer <Supabase 사용자 접근 토큰>
+Content-Type: application/json
+
+{"requestId":"91111111-1111-4111-8111-111111111111","date":"2026-11-12","mood":"calm","weather":null,"memo":null,"itemIds":["top_001"],"itemColors":{"top_001":"#ABCDEF"}}
+```
+
+서버는 위 필드만 받고 사용자·즐겨찾기·생성시각을 클라이언트가 지정할 수 없게 한다. 실제 달력 날짜, 현재 기분/날씨 값 또는 null, 메모 100 UTF-16 단위(기존 화면의 `maxLength=100`), 중복 없는 아이템 1~100개와 아이템 ID 길이 120 이하를 검사한다. 색상은 선택된 ID의 `#RRGGBB`만 허용한다. 신규 저장은 서버 카탈로그의 정적 ID 또는 본인 소유 UUID만 받으며, 다른 사용자 소유·없는 ID는 `400`이다. 과거 코디 읽기는 이 새 입력 검사를 적용하지 않는다.
+
+`requestId` UUID를 기존 outfits 기본 키로 사용한다. 최초 저장은 `201`, 같은 사용자/요청/내용은 행과 생성시각을 바꾸지 않고 `200`, 다른 내용 또는 충돌은 `409`다. `ON CONFLICT DO NOTHING`과 동일 트랜잭션의 본인 행 재조회로 동시 요청도 한 행만 만든다. 서로 다른 요청은 같은 날짜에도 저장한다. 이 중복 보호는 해당 행이 존재하는 동안 적용된다. 삭제 이후 재생 방지는 F-12에서 다루며 별도 이력 테이블을 만들지 않았다.
+
+앱은 저장 시트 한 번의 열림/착장 구성에 같은 UUID를 유지해 재시도한다. 기존 연속 클릭 방지·실패 시 입력 유지·성공 후 홈 이동을 보존한다. 새로 시트를 열면 다른 저장 작업이 된다. 서버 실패 때 직접 쓰기로 우회하지 않고, 계정 변경이나 로컬 삭제 뒤 늦은 저장 결과를 반영하지 않는다. 저장이 서버에서도 취소됐다고 표시하지 않는다. 로컬 메모·즐겨찾기 변경을 이전 중복 응답으로 덮지 않는다.
+
+실연동 명령에 `--include-detail true --include-save true`를 추가하면 실제 store 저장·목록/상세 재조회, 동시 저장 4건, 중복·충돌·입력/소유 확인과 계정 변경을 함께 확인한다. 개발 역할은 outfits SELECT/INSERT만 필요하다. 실제 임시 계정 두 개의 검사 18개와 앱 핵심 82개·서버 70개가 통과했다. 근거: [.autoresearch/f09-live-verification.json](../.autoresearch/f09-live-verification.json). 비밀 파일과 임시 계정 정리·기존 데이터 지문 비교를 별도로 완료한 뒤 기능을 체크한다.
 
 ## 본인 프로필 조회·변경 API (F-13)
 

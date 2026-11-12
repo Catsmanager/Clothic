@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { randomUUID } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { createRequire } from 'node:module'
@@ -17,6 +18,7 @@ assert.ok(options.get('--credentials'), 'A private test-credential file is requi
 const config = JSON.parse(readFileSync(options.get('--credentials'), 'utf8'))
 const fixtureCounts = [3, 1]
 const includeDetail = options.get('--include-detail') === 'true'
+const includeSave = options.get('--include-save') === 'true'
 assert.match(config.runId, /^f05-[a-f0-9]{12}$/)
 assert.equal(config.users.length, 2)
 assert.notEqual(config.users[0].id, config.users[1].id)
@@ -209,11 +211,12 @@ async function main() {
     mood: 'calm',
     weather: 'sunny',
     memo: '코디 조회 검증\n다음 줄',
-    itemIds: ['top_001', owned.id, 'deleted-legacy-id'],
+    itemIds: ['top_001', owned.id, ...(includeSave ? [] : ['deleted-legacy-id'])],
     itemColors: { top_001: '#ABCDEF', [owned.id]: '#000000' },
   }
-  // F-09 save migration is separate; exercise the existing app write function.
-  delete process.env.EXPO_PUBLIC_CLOTHIC_API_URL
+  // Explicitly choose legacy or server save; each new operation has one stable request id.
+  if (includeSave) process.env.EXPO_PUBLIC_CLOTHIC_API_URL = baseUrl
+  else delete process.env.EXPO_PUBLIC_CLOTHIC_API_URL
   for (const input of [
     seed,
     {
@@ -222,22 +225,34 @@ async function main() {
       mood: null,
       weather: null,
       memo: null,
-      itemIds: [],
+      itemIds: includeSave ? ['top_002'] : [],
       itemColors: {},
     },
     { ...seed, memo: '같은 날짜 최신 기록' },
   ]) {
-    assert.equal((await stores[0].useOutfitStore.getState().addOutfit(input)).error, null)
+    assert.equal(
+      (await stores[0].useOutfitStore.getState().addOutfit({ ...input, requestId: randomUUID() }))
+        .error,
+      null
+    )
   }
   assert.equal(
     (
-      await stores[1].useOutfitStore
-        .getState()
-        .addOutfit({ ...seed, itemIds: ['top_002'], itemColors: {}, memo: 'B only' })
+      await stores[1].useOutfitStore.getState().addOutfit({
+        ...seed,
+        requestId: randomUUID(),
+        itemIds: ['top_002'],
+        itemColors: {},
+        memo: 'B only',
+      })
     ).error,
     null
   )
-  pass('existing-app-save-path-seeds-static-owned-and-legacy-ids-with-colors')
+  pass(
+    includeSave
+      ? 'server-app-save-path-seeds-static-and-owned-ids-with-colors'
+      : 'existing-app-save-path-seeds-static-owned-and-legacy-ids-with-colors'
+  )
   const expected = []
   for (const [index, count] of fixtureCounts.entries()) {
     stores[index].useOutfitStore.getState().reset()
@@ -260,8 +275,81 @@ async function main() {
   assert.deepEqual(expected[0][1].itemIds, seed.itemIds)
   assert.deepEqual(expected[0][1].itemColors, seed.itemColors)
   assert.equal(expected[0][2].memo, null)
-  assert.deepEqual(expected[0][2].itemIds, [])
+  assert.deepEqual(expected[0][2].itemIds, includeSave ? ['top_002'] : [])
   pass('legacy-and-server-lists-match-in-date-time-order-with-all-fields')
+  if (includeSave) {
+    const input = {
+      requestId: randomUUID(),
+      date: '2026-11-13',
+      mood: 'happy',
+      weather: 'sunny',
+      memo: '동시 요청 검증',
+      itemIds: ['top_001'],
+      itemColors: { top_001: '#ABCDEF' },
+    }
+    const submit = async (payload, index = 0) =>
+      originalFetch(`${baseUrl}/api/outfits`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${sessions[index].access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+    const responses = await Promise.all(Array.from({ length: 4 }, () => submit(input)))
+    assert.equal(responses.filter((value) => value.status === 201).length, 1)
+    const rows = []
+    for (const response of responses) {
+      assert.ok(response.status === 201 || response.status === 200)
+      rows.push(await response.json())
+    }
+    assert.ok(rows.every((row) => row.id === input.requestId && row.userId === config.users[0].id))
+    assert.ok(rows.every((row) => row.createdAt === rows[0].createdAt))
+    fixtureCounts[0] += 1
+    pass('real-concurrent-server-saves-create-one-row-and-preserve-the-original-timestamp')
+    const before = stores[0].directCalls()
+    assert.equal((await stores[0].useOutfitStore.getState().addOutfit(input)).error, null)
+    assert.equal(stores[0].directCalls(), before)
+    assert.equal((await submit({ ...input, memo: '달라진 내용' })).status, 409)
+    assert.equal((await submit(input, 1)).status, 409)
+    pass('real-app-retry-reuses-request-id-and-conflicting-replays-never-overwrite')
+    for (const payload of [
+      { ...input, requestId: randomUUID(), userId: config.users[1].id },
+      { ...input, requestId: randomUUID(), date: '2026-02-29' },
+      { ...input, requestId: randomUUID(), itemColors: { top_001: 'invalid' } },
+      { ...input, requestId: randomUUID(), itemIds: ['unknown-template'], itemColors: {} },
+    ]) {
+      assert.equal((await submit(payload)).status, 400)
+    }
+    assert.equal(
+      (await submit({ ...input, requestId: randomUUID(), itemIds: [owned.id], itemColors: {} }, 1))
+        .status,
+      400
+    )
+    pass('real-save-rejects-owner-overrides-invalid-fields-and-another-users-owned-item')
+    const delayedInput = {
+      ...input,
+      requestId: randomUUID(),
+      date: '2026-11-14',
+      memo: '저장 응답 지연',
+    }
+    const delayed = await holdNextResponse(
+      () => stores[0].useOutfitStore.getState().addOutfit(delayedInput),
+      async () => {
+        await signIn(clients[0], config.users[1])
+        await fetchOutfits(stores[0], 1)
+      }
+    )
+    assert.match(delayed.error, /반영하지/)
+    assert.ok(
+      stores[0].useOutfitStore.getState().outfits.every((row) => row.userId === config.users[1].id)
+    )
+    await signIn(clients[0], config.users[0])
+    fixtureCounts[0] += 1
+    expected[0] = canonical(await fetchOutfits(stores[0], fixtureCounts[0]))
+    assert.ok(expected[0].some((row) => row.id === delayedInput.requestId))
+    pass('account-switch-discards-delayed-save-result-without-claiming-server-rollback')
+  }
   if (includeDetail) {
     for (const [index, scoped] of stores.entries()) {
       scoped.useOutfitStore.getState().reset()
@@ -326,7 +414,7 @@ async function main() {
     assert.deepEqual(loggedOut, { error: null, found: false })
     assert.deepEqual(stores[0].useOutfitStore.getState().outfits, [])
     await signIn(clients[0], config.users[0])
-    await fetchOutfits(stores[0], 3)
+    await fetchOutfits(stores[0], fixtureCounts[0])
     pass('real-logout-discards-delayed-detail-response')
   }
   for (const key of ['userId', 'user_id']) {
@@ -375,7 +463,7 @@ async function main() {
   assert.equal(stores[0].useOutfitStore.getState().loaded, false)
   pass('real-logout-clears-data-and-discards-delayed-list')
   await signIn(clients[0], config.users[0])
-  await fetchOutfits(stores[0], 3)
+  await fetchOutfits(stores[0], fixtureCounts[0])
   const directBefore = stores[0].directCalls()
   const errorOrigin = await startErrorServer()
   process.env.EXPO_PUBLIC_CLOTHIC_API_URL = errorOrigin
@@ -385,7 +473,7 @@ async function main() {
   assert.deepEqual(canonical(stores[0].useOutfitStore.getState().outfits), expected[0])
   assert.equal(stores[0].directCalls(), directBefore)
   process.env.EXPO_PUBLIC_CLOTHIC_API_URL = baseUrl
-  assert.deepEqual(canonical(await fetchOutfits(stores[0], 3)), expected[0])
+  assert.deepEqual(canonical(await fetchOutfits(stores[0], fixtureCounts[0])), expected[0])
   pass('injected-http-500-retains-data-without-fallback-and-retry-recovers')
   if (includeDetail) {
     stores[0].useOutfitStore.getState().reset()
@@ -401,7 +489,7 @@ async function main() {
       found: true,
     })
     assert.deepEqual(canonical(stores[0].useOutfitStore.getState().outfits), [expected[0][0]])
-    await fetchOutfits(stores[0], 3)
+    await fetchOutfits(stores[0], fixtureCounts[0])
     pass('injected-detail-http-500-is-an-error-without-fallback-and-retry-recovers')
   }
   await new Promise((resolve) => servers[0].close(resolve))
@@ -410,7 +498,7 @@ async function main() {
   assert.ok(stores[0].useOutfitStore.getState().error)
   assert.equal(stores[0].useOutfitStore.getState().loading, false)
   process.env.EXPO_PUBLIC_CLOTHIC_API_URL = baseUrl
-  assert.deepEqual(canonical(await fetchOutfits(stores[0], 3)), expected[0])
+  assert.deepEqual(canonical(await fetchOutfits(stores[0], fixtureCounts[0])), expected[0])
   pass('real-connection-failure-ends-loading-and-retry-recovers')
   const report = {
     recordedAt: new Date().toISOString(),
@@ -420,6 +508,7 @@ async function main() {
     testUsers: 2,
     fixtureOutfits: fixtureCounts,
     detailIncluded: includeDetail,
+    saveIncluded: includeSave,
     passed,
     limitations: [
       'Native UI, device rendering and production deployment are not tested.',

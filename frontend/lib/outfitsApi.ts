@@ -1,4 +1,4 @@
-import type { Mood, Outfit, Weather } from '../stores/outfitStore'
+import type { Mood, NewOutfit, Outfit, Weather } from '../stores/outfitStore'
 
 export const OUTFITS_API_TIMEOUT_MS = 10_000
 
@@ -70,17 +70,31 @@ async function requestOutfitJson({
   fetchImpl = fetch,
   timeoutMs = OUTFITS_API_TIMEOUT_MS,
   outfitId,
-}: OutfitsApiOptions & { outfitId?: string }): Promise<JsonResult> {
+  method = 'GET',
+  body,
+}: OutfitsApiOptions & {
+  outfitId?: string
+  method?: 'GET' | 'POST'
+  body?: NewOutfit
+}): Promise<JsonResult> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
-  const label = outfitId === undefined ? '코디 목록' : '코디'
-  const objectLabel = outfitId === undefined ? '코디 목록을' : '코디를'
+  const label = method === 'POST' ? '코디 저장' : outfitId === undefined ? '코디 목록' : '코디'
+  const failureText =
+    method === 'POST'
+      ? '코디를 저장하지 못했어요.'
+      : `${outfitId === undefined ? '코디 목록을' : '코디를'} 불러오지 못했어요.`
   try {
     const path =
       outfitId === undefined ? '/api/outfits' : `/api/outfits/${encodeURIComponent(outfitId)}`
     const response = await fetchImpl(`${baseUrl}${path}`, {
-      method: 'GET',
-      headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/json',
+        ...(method === 'POST' ? { 'Content-Type': 'application/json' } : {}),
+      },
+      ...(body ? { body: JSON.stringify(body) } : {}),
       signal: controller.signal,
     })
     if (response.status === 401) {
@@ -93,10 +107,17 @@ async function requestOutfitJson({
     if (response.status === 404 && outfitId !== undefined) {
       return { payload: null, error: null, notFound: true }
     }
+    if (method === 'POST' && response.status === 409) {
+      return {
+        payload: null,
+        error: '이미 저장된 요청의 내용이 달라요. 저장된 코디를 확인해주세요.',
+        notFound: false,
+      }
+    }
     if (!response.ok) {
       return {
         payload: null,
-        error: `${objectLabel} 불러오지 못했어요. (${response.status})`,
+        error: `${failureText} (${response.status})`,
         notFound: false,
       }
     }
@@ -107,7 +128,7 @@ async function requestOutfitJson({
       payload: null,
       error: controller.signal.aborted
         ? `${label} 요청이 시간을 초과했어요. 다시 시도해주세요.`
-        : `${objectLabel} 불러오지 못했어요. 다시 시도해주세요.`,
+        : `${failureText} 다시 시도해주세요.`,
       notFound: false,
     }
   } finally {
@@ -134,6 +155,31 @@ export async function fetchOwnedOutfitFromApi(
   const outfit = parsed?.[0]
   if (!outfit || outfit.id.toLowerCase() !== options.outfitId.toLowerCase()) {
     return { outfit: null, error: '서버 응답 형식이 올바르지 않아요.' }
+  }
+  return { outfit, error: null }
+}
+
+export async function saveOwnedOutfitToApi(
+  options: OutfitsApiOptions & { input: NewOutfit }
+): Promise<{ outfit: Outfit | null; error: string | null }> {
+  const { requestId, date, mood, weather, memo, itemIds, itemColors } = options.input
+  const result = await requestOutfitJson({
+    ...options,
+    method: 'POST',
+    body: {
+      requestId,
+      date,
+      mood,
+      weather,
+      memo,
+      itemIds,
+      itemColors,
+    },
+  })
+  if (result.error !== null) return { outfit: null, error: result.error }
+  const outfit = parseOutfitsResponse([result.payload])?.[0]
+  if (!outfit || outfit.id.toLowerCase() !== requestId.toLowerCase()) {
+    return { outfit: null, error: '저장 결과 형식이 올바르지 않아요.' }
   }
   return { outfit, error: null }
 }

@@ -1,5 +1,17 @@
 # LOG
 
+## 2026-11-12 — F-09 코디 서버 저장·재조회 전환 완료 (#218)
+
+- 기준 main `fde7d80`과 `feat/218-save-outfits` 원격 ref 일치 확인 후 편집했다. 경로: 만들기 → SaveOutfitSheet/useSaveOutfitForm의 요청 UUID → addOutfit → 토큰 POST /api/outfits → 본인 행 저장 → store 반영·홈 이동 → 목록/상세 재조회. 기존 화면의 연속 클릭 방지, 실패 시 입력 유지와 성공 시 이동을 보존했다. 사용자 원본 Java 업그레이드 브랜치는 변경하지 않았다.
+- 서버는 요청 ID·실제 날짜·기분/날씨·메모·아이템/색상만 받는다. 메모 100 UTF-16 단위는 기존 SaveOutfitMemoField의 maxLength=100에서 확인했다. 아이템 1~100개·ID 120자 이하·중복 없음, 선택된 아이템의 #RRGGBB만 허용한다. 서버 카탈로그 정적 ID 또는 본인 소유 UUID를 확인하고 다른 사용자 소유/없는 아이템은 400이다. 과거 기록의 미해석 ID·빈 착장·기분 문자열 읽기는 좁히지 않는다.
+- 요청 UUID를 기존 PK로 사용해 최초 201·같은 내용 재시도 200·다른 내용/충돌 409로 처리한다. 같은 날짜의 다른 요청을 제한하지 않는다. ON CONFLICT DO NOTHING과 본인 행 재조회가 같은 트랜잭션에서 실행되어 동시 4건도 한 행과 같은 생성시각을 유지했다. 중복 보호는 행이 존재하는 동안이며 삭제 이후 재생/경합 방지는 F-12 완료 기준에 남겼다. 새 테이블·정책 변경은 없고 개발 역할에는 outfits INSERT만 추가했다(UPDATE/DELETE 불허).
+- 앱은 한 번 연 저장 시트의 재시도에 UUID를 유지하며, 설정된 서버 오류 때 직접 쓰기로 우회하지 않는다. 계정 변경 뒤 늦은 저장 결과와 로컬 삭제된 ID는 반영하지 않고 서버 취소를 주장하지 않는다. 이전 중복 응답으로 현재 메모/즐겨찾기를 덮지 않으며 늦은 목록에서도 새 로컬 기록을 보존한다. 기존 직접 쓰기는 서버 주소 미설정 시 유지한다.
+- 고정 실제 store 검사 16/24 → 24/24, 새 저장 검사 8개 baseline 실패/candidate 성공. evaluator/fixture/runtime/environment hash 일치, 모든 gate 통과·adopted. 근거: `.autoresearch/f09-evaluator.json`, `.autoresearch/f09-evaluation.jsonl`. 사용자 행동·리텐션 개선 수치가 아니다.
+- `npm --prefix frontend run check` 통과(핵심 82개·흐름 8/8·하네스 6개, 기존 아바타 경고 4개). 서버 `./mvnw --batch-mode verify` 70개 통과(저장 API 8개·실패 응답 1개 추가): 전체 필드 재조회, 재시도/충돌·같은 날짜 다중 저장·null 필드·동시 요청·타인 아이템/키 충돌·입력/인증 거부·과거 행 보존·SQL/접속 정보 미노출.
+- 실제 ES256 토큰·DB·HTTP·authStore/outfitStore 검사 18개 통과. A 5개/B 1개 코디로 서버 저장·기존/새 조회·상세 복원, 동시 저장·생성시각 보존·동일 요청 재시도, 임의 소유자/잘못된 입력·타인 아이템 거부, 저장/상세/목록 응답 지연 중 계정 전환·로그아웃·오류/재시도 확인. 응답 지연과 HTTP 500은 명시적 검증 주입이며 네이티브 화면·실기기·운영 배포는 확인하지 않았다.
+- 임시 계정 두 개와 그 데이터만 정리했다. 검증 전/정리 후 기존 items/profiles/outfits 건수·정렬된 전체 행 지문이 일치했고 비밀 파일을 제거했다. 근거: `.autoresearch/f09-live-verification.json`.
+- 최종 포맷 검사에서 실연동 검증 스크립트의 체인 줄바꿈 차이를 정리하고 코드 동작 불변을 확인했다. 변경 요청: [PR #219](https://github.com/Catsmanager/Clothic/pull/219), 이슈 #218. GitHub 자동 검증·main 통합 상태는 해당 PR 참조.
+
 ## 2026-11-12 — F-08 코디 상세 서버·앱 전환 완료 (#216)
 
 - 기준 main `b6b7824`와 `feat/216-outfit-detail` 원격 ref 일치 확인 후 편집했다. 경로: 상세 딥링크/새로고침 → fetchOutfitById → 세션 토큰 GET /api/outfits/{id} → 인증 사용자+코디 ID 조건 → 빈 store 복원 → 오류/없음 상태·재시도·목록 복귀. 사용자 원본 Java 업그레이드 브랜치는 보존했다.
