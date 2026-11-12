@@ -1,6 +1,7 @@
 package com.clothic.backend.item;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.repository.Repository;
@@ -11,4 +12,6 @@ import org.springframework.data.repository.Repository;
 public interface ItemRepository extends Repository<Item, UUID> {
 
     List<Item> findByUserIdOrderByCreatedAtDescIdAsc(UUID userId);
+
+    Optional<Item> findByUserIdAndCatalogItemId(UUID userId, String catalogItemId);
 }

@@ -1,0 +1,76 @@
+{
+  "recordedAt": "2026-11-12T03:56:01.116Z",
+  "projectRef": "pjjkkwphdkqwqjhlayqe",
+  "backendOrigin": "http://127.0.0.1:18080",
+  "authAlgorithm": "ES256",
+  "testUsers": 2,
+  "fixtureItems": [4, 1],
+  "catalogAddIncluded": true,
+  "passed": [
+    "backend-health-and-unauthenticated-rejection",
+    "configured-browser-origin-preflight-and-untrusted-origin-rejection",
+    "real-es256-tokens-and-empty-lists-for-two-disposable-users",
+    "app-server-add-path-seeds-owned-items",
+    "real-concurrent-adds-create-one-owned-row-with-server-catalog-metadata",
+    "real-add-rejects-owner-metadata-overrides-and-unknown-templates",
+    "legacy-and-spring-queries-match-for-both-users-with-catalog-compatibility",
+    "query-user-override-and-tampered-real-token-are-rejected",
+    "account-change-discards-delayed-add-result-without-claiming-a-server-rollback",
+    "real-account-change-discards-delayed-previous-user-response",
+    "real-logout-discards-delayed-response-and-clears-user-data",
+    "injected-http-500-keeps-account-isolation-and-retry-recovers-without-fallback",
+    "real-connection-failure-ends-loading-and-retry-restores-the-current-user"
+  ],
+  "limitations": [
+    "Native UI, device rendering and store distribution are not tested.",
+    "Real HTTP responses are delayed for stale-response cases; HTTP 500 is injected by a local test server.",
+    "Only disposable verification accounts are seeded; existing-user preservation is checked separately."
+  ],
+  "dataPreservation": {
+    "testAccountsRemoved": 2,
+    "existingApplicationDataUnchanged": true,
+    "comparedTables": ["items", "profiles", "outfits"],
+    "comparison": "row counts and ordered full-row digest before account creation versus after cleanup"
+  },
+  "baselineSha": "6bdf02c4aae7e887e707fea3fc19ea3c830aa279",
+  "database": {
+    "role": "clothic_backend_dev",
+    "selectItems": true,
+    "insertItems": true,
+    "updateItems": false,
+    "deleteItems": false,
+    "existingPoliciesChanged": false,
+    "sslMode": "verify-full"
+  },
+  "localGates": {
+    "frontendCore": 49,
+    "sourceContract": "8/8",
+    "harness": 6,
+    "backendTests": 48
+  },
+  "catalogTemplates": 36,
+  "staleReadRegression": {
+    "targetedChecksBeforeFix": {
+      "passed": 20,
+      "failed": 1
+    },
+    "targetedChecksAfterFix": {
+      "passed": 21,
+      "failed": 0
+    },
+    "intermediateSourceArchived": false,
+    "scope": "A delayed pre-add list cannot remove the successfully added owned item."
+  },
+  "sourceSha256": {
+    "frontend/constants/itemCatalog.ts": "527d654f79c31c34de4cd32f85401e218895adc46c1c7d7571209cc0afa17ad0",
+    "frontend/lib/itemsApi.ts": "e9683b0a20b0ababf146b45fa95c127b05e818ce4841f4bf8ed3f90d81dc6ce5",
+    "frontend/stores/itemStore.ts": "0b8f94e9b010a974cac3a19712811df37995c2cd287edb27337bb70eedb72577",
+    "frontend/scripts/verify-live-items.mjs": "dc8fb6ab7038a150c7c2a67e5393f3764392e5e0d9249ea12cadd94c7c5b5642",
+    "backend/src/main/java/com/clothic/backend/item/ItemController.java": "1ea9ba048c2fc69efd55c06c50980232a574d690d300e775640a3385c1ea4c82",
+    "backend/src/main/java/com/clothic/backend/item/ItemTemplateCatalog.java": "7d3d0cf33b6ca8e3e8e76812a07134009666cd3632a50a3965dd230da7fba042",
+    "backend/src/main/java/com/clothic/backend/item/CatalogItemRequest.java": "29c7808e8665e30039c842c18798509ef5780cabf4b2d8ebc0fbf6c3086dd8e9",
+    "backend/src/main/java/com/clothic/backend/item/CatalogItemService.java": "583281c118a0246cb76a694179738d7e25ff7af83b5cc8cc2359a5f09cff7a2f",
+    "backend/src/main/java/com/clothic/backend/item/CatalogItemWriter.java": "39472201cae12ea2001df1df2ca6705250120a8be0b515de6b365ba311b1775f",
+    "backend/src/main/resources/catalog-items.json": "af10ddf121973c7542feee3da59bbe01caf79fb9aaffff7dde3c086cb49a3649"
+  }
+}

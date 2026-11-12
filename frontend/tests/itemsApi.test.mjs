@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { fetchOwnedItemsFromApi, getItemsApiBaseUrl, parseItemsResponse } from '../lib/itemsApi.ts'
+import {
+  addOwnedCatalogItemFromApi,
+  fetchOwnedItemsFromApi,
+  getItemsApiBaseUrl,
+  parseItemsResponse,
+} from '../lib/itemsApi.ts'
 
 const validRow = {
   id: '4aaaaaaa-0000-4000-8000-000000000002',
@@ -147,4 +152,47 @@ test('헤더를 받은 뒤 본문 수신이 멈춰도 시간 제한 안에 종�
     rejectBody?.(new Error('test cleanup'))
     await pending
   }
+})
+
+test('추가 요청은 메타데이터 대신 카탈로그 ID와 토큰만 보내고 생성·중복 응답을 읽는다', async () => {
+  for (const status of [201, 200]) {
+    const result = await addOwnedCatalogItemFromApi({
+      baseUrl: 'http://server.test',
+      accessToken: 'test-token',
+      catalogItemId: 'shoes_002_white',
+      fetchImpl: async (url, init) => {
+        assert.equal(url, 'http://server.test/api/items')
+        assert.equal(init.method, 'POST')
+        assert.equal(init.headers.Authorization, 'Bearer test-token')
+        assert.equal(init.headers['Content-Type'], 'application/json')
+        assert.deepEqual(JSON.parse(init.body), { catalogItemId: 'shoes_002_white' })
+        return jsonResponse(validRow, status)
+      },
+    })
+    assert.equal(result.error, null)
+    assert.equal(result.item.id, validRow.id)
+    assert.deepEqual(result.item.styleTags, ['sporty'])
+  }
+})
+
+test('추가 응답의 잘못된 형식과 서버 실패는 성공으로 반영하지 않는다', async () => {
+  for (const payload of [[], { ...validRow, category: 'hat' }, { ...validRow, id: null }]) {
+    const result = await addOwnedCatalogItemFromApi({
+      baseUrl: 'http://server.test',
+      accessToken: 'test-token',
+      catalogItemId: 'shoes_002_white',
+      fetchImpl: async () => jsonResponse(payload, 201),
+    })
+    assert.equal(result.item, null)
+    assert.match(result.error, /형식/)
+  }
+  const failure = await addOwnedCatalogItemFromApi({
+    baseUrl: 'http://server.test',
+    accessToken: 'test-token',
+    catalogItemId: 'shoes_002_white',
+    fetchImpl: async () => jsonResponse({ error: 'insert into items' }, 500),
+  })
+  assert.equal(failure.item, null)
+  assert.match(failure.error, /500/)
+  assert.doesNotMatch(failure.error, /insert/)
 })

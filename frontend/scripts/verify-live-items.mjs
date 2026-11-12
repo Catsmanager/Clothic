@@ -17,6 +17,8 @@ for (let index = 2; index < process.argv.length; index += 2) {
 assert.equal(options.get('--allow-test-writes'), 'true', 'Explicit test-write opt-in is required')
 assert.ok(options.get('--credentials'), 'A private test-credential file is required')
 const config = JSON.parse(readFileSync(options.get('--credentials'), 'utf8'))
+const includeCatalogAdd = options.get('--include-catalog-add') === 'true'
+const fixtureCounts = [2, 1]
 assert.match(config.runId, /^f05-[a-f0-9]{12}$/)
 assert.equal(config.users.length, 2)
 assert.notEqual(config.users[0].id, config.users[1].id)
@@ -136,6 +138,7 @@ async function holdNextResponse(action, whilePending) {
     return response
   }
   const pending = action()
+  let result
   try {
     // If an earlier step rejects, fail instead of waiting indefinitely for a request that never began.
     await Promise.race([
@@ -145,9 +148,10 @@ async function holdNextResponse(action, whilePending) {
     await whilePending()
   } finally {
     release.resolve()
-    await pending
+    result = await pending
     globalThis.fetch = originalFetch
   }
+  return result
 }
 
 async function startErrorServer() {
@@ -225,6 +229,7 @@ async function main() {
   const top = ITEMS.find((item) => item.id === 'top_001')
   const shoes = ITEMS.find((item) => item.category === 'shoes' && item.imagePath)
   assert.ok(top && shoes)
+  if (!includeCatalogAdd) delete process.env.EXPO_PUBLIC_CLOTHIC_API_URL
   for (const [index, catalogItems] of [[top, shoes], [top]].entries()) {
     for (const catalogItem of catalogItems) {
       const result = await stores[index].useItemStore.getState().addCatalogItem(catalogItem)
@@ -232,14 +237,67 @@ async function main() {
       assert.equal(result.item.userId, config.users[index].id)
     }
   }
-  pass('existing-app-write-path-seeds-owned-items-with-real-user-tokens')
+  process.env.EXPO_PUBLIC_CLOTHIC_API_URL = baseUrl
+  pass(
+    includeCatalogAdd
+      ? 'app-server-add-path-seeds-owned-items'
+      : 'existing-app-write-path-seeds-owned-items-with-real-user-tokens'
+  )
+
+  if (includeCatalogAdd) {
+    const template = ITEMS.find((item) => item.id === 'top_002')
+    assert.ok(template)
+    const responses = await Promise.all(
+      Array.from({ length: 4 }, () =>
+        originalFetch(`${baseUrl}/api/items`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${sessions[0].access_token}`,
+            'Content-Type': 'application/json',
+            Origin: origin,
+          },
+          body: JSON.stringify({ catalogItemId: template.id }),
+        })
+      )
+    )
+    assert.equal(responses.filter((response) => response.status === 201).length, 1)
+    const ids = new Set()
+    for (const response of responses) {
+      assert.ok(response.status === 200 || response.status === 201)
+      assert.equal(response.headers.get('access-control-allow-origin'), origin)
+      const created = await response.json()
+      ids.add(created.id)
+      assert.equal(created.userId, config.users[0].id)
+      for (const key of ['name', 'category', 'imagePath', 'color', 'styleTags'])
+        assert.deepEqual(created[key], template[key])
+    }
+    assert.equal(ids.size, 1)
+    fixtureCounts[0] += 1
+    pass('real-concurrent-adds-create-one-owned-row-with-server-catalog-metadata')
+    for (const body of [
+      { catalogItemId: 'top_002', userId: config.users[1].id },
+      { catalogItemId: 'top_002', name: 'tampered' },
+      { catalogItemId: 'unknown-template' },
+    ]) {
+      const response = await originalFetch(`${baseUrl}/api/items`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${sessions[0].access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+      assert.equal(response.status, 400)
+    }
+    pass('real-add-rejects-owner-metadata-overrides-and-unknown-templates')
+  }
 
   for (const [index, scopedStores] of stores.entries()) {
     delete process.env.EXPO_PUBLIC_CLOTHIC_API_URL
-    const legacyItems = canonical(await fetchItems(scopedStores, index === 0 ? 2 : 1))
+    const legacyItems = canonical(await fetchItems(scopedStores, fixtureCounts[index]))
     scopedStores.useItemStore.getState().reset()
     process.env.EXPO_PUBLIC_CLOTHIC_API_URL = baseUrl
-    const apiItems = await fetchItems(scopedStores, index === 0 ? 2 : 1)
+    const apiItems = await fetchItems(scopedStores, fixtureCounts[index])
     assert.deepEqual(canonical(apiItems), legacyItems)
     assert.ok(apiItems.every((item) => item.userId === config.users[index].id))
     assert.equal(scopedStores.buildOwnedCatalogItems(apiItems).length, apiItems.length)
@@ -264,6 +322,27 @@ async function main() {
   pass('query-user-override-and-tampered-real-token-are-rejected')
 
   const shared = stores[0]
+  if (includeCatalogAdd) {
+    const template = ITEMS.find((item) => item.id === 'top_003')
+    assert.ok(template)
+    const result = await holdNextResponse(
+      () => shared.useItemStore.getState().addCatalogItem(template),
+      async () => {
+        await signIn(clients[0], config.users[1])
+        assert.deepEqual(shared.useItemStore.getState().items, [])
+        await fetchItems(shared, fixtureCounts[1])
+      }
+    )
+    assert.equal(result.item, null)
+    assert.match(result.error, /반영하지/)
+    assert.ok(
+      shared.useItemStore.getState().items.every((item) => item.userId === config.users[1].id)
+    )
+    fixtureCounts[0] += 1
+    await signIn(clients[0], config.users[0])
+    await fetchItems(shared, fixtureCounts[0])
+    pass('account-change-discards-delayed-add-result-without-claiming-a-server-rollback')
+  }
   await holdNextResponse(
     () => shared.useItemStore.getState().fetchItems(),
     async () => {
@@ -321,7 +400,8 @@ async function main() {
     backendOrigin: baseUrl,
     authAlgorithm: 'ES256',
     testUsers: 2,
-    fixtureItems: [2, 1],
+    fixtureItems: fixtureCounts,
+    catalogAddIncluded: includeCatalogAdd,
     passed,
     limitations: [
       'Native UI, device rendering and store distribution are not tested.',

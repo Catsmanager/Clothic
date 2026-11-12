@@ -1,7 +1,11 @@
 import { create } from 'zustand'
 import { type CatalogItem, type StyleTag, isCategory, isStyleTag } from '../constants/items'
 import type { Database } from '../lib/database.types'
-import { fetchOwnedItemsFromApi, getItemsApiBaseUrl } from '../lib/itemsApi'
+import {
+  addOwnedCatalogItemFromApi,
+  fetchOwnedItemsFromApi,
+  getItemsApiBaseUrl,
+} from '../lib/itemsApi'
 import { supabase } from '../lib/supabase'
 import {
   buildAnalyticsCatalogItems,
@@ -78,6 +82,36 @@ export const useItemStore = create<ItemState>((set, get) => ({
     if (existing) return { item: existing, error: null }
 
     const generation = storeGeneration
+    const apiBaseUrl = getItemsApiBaseUrl()
+    if (apiBaseUrl) {
+      const staleResult = { item: null, error: '계정이 변경되어 추가 결과를 반영하지 않았어요.' }
+      try {
+        const { data: sessionData } = await supabase.auth.getSession()
+        if (generation !== storeGeneration) return staleResult
+        const accessToken = sessionData.session?.access_token
+        if (!accessToken) return { item: null, error: '로그인이 필요해요.' }
+        const result = await addOwnedCatalogItemFromApi({
+          baseUrl: apiBaseUrl,
+          accessToken,
+          catalogItemId: catalogItem.id,
+        })
+        if (generation !== storeGeneration) return staleResult
+        if (result.error !== null || !result.item) return result
+        const item = result.item
+        // 등록보다 먼저 시작한 목록이 새 소유 행을 덮지 않도록 무효화한다.
+        fetchSequence += 1
+        set((state) => ({
+          items: [item, ...state.items.filter((candidate) => candidate.id !== item.id)],
+          loading: false,
+          loaded: true,
+          error: null,
+        }))
+        return result
+      } catch {
+        if (generation !== storeGeneration) return staleResult
+        return { item: null, error: '옷을 추가하지 못했어요. 다시 시도해주세요.' }
+      }
+    }
     const { data: authData, error: authError } = await supabase.auth.getUser()
     if (authError || !authData.user) {
       return { item: null, error: authError?.message ?? '로그인이 필요해요.' }
@@ -95,7 +129,7 @@ export const useItemStore = create<ItemState>((set, get) => ({
     const { data, error } = await supabase.from('items').insert(payload).select().single()
 
     if (generation !== storeGeneration) {
-      return { item: null, error: '계정이 변경되어 옷 추가를 취소했어요.' }
+      return { item: null, error: '계정이 변경되어 추가 결과를 반영하지 않았어요.' }
     }
 
     if (error) {
@@ -112,8 +146,10 @@ export const useItemStore = create<ItemState>((set, get) => ({
     const item = mapRow(data)
     if (!item) return { item: null, error: '추가한 옷의 정보를 읽지 못했어요.' }
 
+    fetchSequence += 1
     set((state) => ({
       items: [item, ...state.items.filter((candidate) => candidate.id !== item.id)],
+      loading: false,
       loaded: true,
       error: null,
     }))

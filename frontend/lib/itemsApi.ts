@@ -69,45 +69,64 @@ export function parseItemsResponse(payload: unknown): UserItem[] | null {
   return items
 }
 
-interface FetchOwnedItemsOptions {
+interface ItemsApiOptions {
   baseUrl: string
   accessToken: string
   fetchImpl?: typeof fetch
   timeoutMs?: number
 }
 
-export async function fetchOwnedItemsFromApi({
+type JsonResult = { payload: unknown; error: null } | { payload: null; error: string }
+
+async function requestItemsJson({
   baseUrl,
   accessToken,
   fetchImpl = fetch,
   timeoutMs = ITEMS_API_TIMEOUT_MS,
-}: FetchOwnedItemsOptions): Promise<ItemsApiResult> {
+  method,
+  catalogItemId,
+}: ItemsApiOptions & { method: 'GET' | 'POST'; catalogItemId?: string }): Promise<JsonResult> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
+  const timeoutError =
+    method === 'GET'
+      ? '옷 목록 요청이 시간을 초과했어요. 다시 시도해주세요.'
+      : '옷 추가 요청이 시간을 초과했어요. 다시 시도해주세요.'
 
   try {
     let response: Response
     try {
       response = await fetchImpl(`${baseUrl}/api/items`, {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
+        method,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: 'application/json',
+          ...(method === 'POST' ? { 'Content-Type': 'application/json' } : {}),
+        },
+        ...(method === 'POST' ? { body: JSON.stringify({ catalogItemId }) } : {}),
         signal: controller.signal,
       })
     } catch (error) {
       if (controller.signal.aborted) {
-        return { items: null, error: '옷 목록 요청이 시간을 초과했어요. 다시 시도해주세요.' }
+        return { payload: null, error: timeoutError }
       }
       return {
-        items: null,
+        payload: null,
         error: error instanceof Error && error.message ? error.message : '서버에 연결할 수 없어요.',
       }
     }
 
     if (response.status === 401) {
-      return { items: null, error: '로그인이 만료되었어요. 다시 로그인해주세요.' }
+      return { payload: null, error: '로그인이 만료되었어요. 다시 로그인해주세요.' }
     }
     if (!response.ok) {
-      return { items: null, error: `서버에서 옷 목록을 불러오지 못했어요. (${response.status})` }
+      return {
+        payload: null,
+        error:
+          method === 'GET'
+            ? `서버에서 옷 목록을 불러오지 못했어요. (${response.status})`
+            : `옷을 추가하지 못했어요. (${response.status})`,
+      }
     }
 
     let payload: unknown
@@ -115,15 +134,31 @@ export async function fetchOwnedItemsFromApi({
       payload = await response.json()
     } catch {
       if (controller.signal.aborted) {
-        return { items: null, error: '옷 목록 요청이 시간을 초과했어요. 다시 시도해주세요.' }
+        return { payload: null, error: timeoutError }
       }
-      return { items: null, error: '서버 응답을 읽지 못했어요.' }
+      return { payload: null, error: '서버 응답을 읽지 못했어요.' }
     }
-    const items = parseItemsResponse(payload)
-    if (!items) return { items: null, error: '서버 응답 형식이 올바르지 않아요.' }
-    return { items, error: null }
+    return { payload, error: null }
   } finally {
     // fetch()는 헤더 수신 시 끝나므로 본문 읽기가 끝날 때까지 제한을 유지한다.
     clearTimeout(timer)
   }
+}
+
+export async function fetchOwnedItemsFromApi(options: ItemsApiOptions): Promise<ItemsApiResult> {
+  const result = await requestItemsJson({ ...options, method: 'GET' })
+  if (result.error !== null) return { items: null, error: result.error }
+  const items = parseItemsResponse(result.payload)
+  if (!items) return { items: null, error: '서버 응답 형식이 올바르지 않아요.' }
+  return { items, error: null }
+}
+
+export async function addOwnedCatalogItemFromApi(
+  options: ItemsApiOptions & { catalogItemId: string }
+): Promise<{ item: UserItem | null; error: string | null }> {
+  const result = await requestItemsJson({ ...options, method: 'POST' })
+  if (result.error !== null) return { item: null, error: result.error }
+  const item = parseItem(result.payload)
+  if (!item) return { item: null, error: '서버 응답 형식이 올바르지 않아요.' }
+  return { item, error: null }
 }

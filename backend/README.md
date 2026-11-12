@@ -1,6 +1,6 @@
 # Clothic backend
 
-현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 목록 API(F-04), 본인 프로필 조회·변경 API(F-13)다. F-05는 실제 Supabase 토큰·개발 DB와 연결한 앱 store 실행 검증까지 완료했다. 실기기 화면·운영 서버 배포는 별도다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
+현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 조회·등록 API(F-04/F-06), 본인 프로필 조회·변경 API(F-13)다. F-05는 실제 Supabase 토큰·개발 DB와 연결한 앱 store 실행 검증까지 완료했다. 실기기 화면·운영 서버 배포는 별도다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
 
 ## 실행
 
@@ -29,7 +29,7 @@ curl http://127.0.0.1:18080/api/health
 
 Supabase shared session pooler를 사용하는 경우 Connect 화면이나 관리 API로 확인한 호스트·5432 포트와 `<역할>.<project-ref>` 사용자명을 사용한다. `sslmode=verify-full`과 공식 루트 인증서의 절대 경로를 `sslrootcert`에 함께 지정한다. 인증서는 `.local/`에 두며 `.env.local`과 함께 Git에서 제외한다. [공식 연결 문서](https://supabase.com/docs/guides/database/connecting-to-postgres)는 연결 방식·인증서 설정의 근거이며 실제 프로젝트 연결 성공은 아래 검증 기록으로 별도 확인했다.
 
-2026-11-12 확인한 `clothic_backend_dev` 역할은 관리자·역할 생성 권한 없이 `public.items`, `public.profiles`의 조회만 허용한다. 행 수준 보안(Row Level Security, RLS)을 우회하므로 서버의 인증 사용자 조건이 데이터 격리를 담당한다. 아이템 추가·프로필 변경 등 쓰기 전환에는 해당 기능에서 별도 권한 확인이 필요하다.
+2026-11-12 확인한 `clothic_backend_dev` 역할은 관리자·역할 생성 권한 없이 `public.items`의 SELECT/INSERT와 `public.profiles`의 SELECT를 허용한다. F-06에서 items INSERT만 추가했고 items UPDATE/DELETE는 허용하지 않았다. 행 수준 보안(Row Level Security, RLS)을 우회하므로 서버의 인증 사용자 조건이 데이터 격리를 담당한다. 프로필 변경 등 다른 쓰기 전환은 해당 기능에서 별도 권한 확인이 필요하다.
 
 브라우저에서 호출하려면 `CLOTHIC_WEB_ALLOWED_ORIGINS`에 정확한 개발 출처를 쉼표로 구분해 넣는다(예: `http://localhost:8081,http://127.0.0.1:8081`). 출처 설정이 비어 있으면 교차 출처 요청을 거부하며, 허용한 브라우저에서도 실제 API 요청의 토큰 검증은 유지한다. 와일드카드·경로·사용자 정보가 포함된 값은 기동 시 거부한다. [Spring Security 문서](https://docs.spring.io/spring-security/reference/servlet/integrations/cors.html)는 사전 요청을 인증보다 먼저 처리하는 구성의 근거이며 허용·거부 동작은 통합 테스트와 실제 HTTP 요청으로 확인했다.
 
@@ -97,6 +97,22 @@ Authorization: Bearer <Supabase 사용자 접근 토큰>
 - 응답은 앱 `UserItem[]`과 같은 필드·순서의 배열이다: `id`, `userId`, `catalogItemId`, `name`, `category`, `imagePath`, `color`, `styleTags`, `createdAt`(시간대 포함 ISO-8601). 아이템이 없으면 `[]`.
 - 앱 `mapRow()`와 같은 규칙으로 허용 카테고리 7종 외 행은 제외하고 허용 스타일 태그 10종 외 값은 제거한다. 허용값 목록은 `ItemContract`에 있으며 앱 `constants/items.ts`와 같아야 한다.
 - 토큰 없음·무효 `401`, `sub`가 UUID가 아니면 `401`, DB 조회 실패 `500`(SQL·접속 정보 없음).
+
+## 기본 옷을 내 옷장에 추가 (F-06)
+
+```http
+POST /api/items
+Authorization: Bearer <Supabase 사용자 접근 토큰>
+Content-Type: application/json
+
+{"catalogItemId":"top_001"}
+```
+
+서버는 요청의 사용자 ID·이름·색상 등 메타데이터를 받지 않는다. 토큰 사용자와 서버 카탈로그로 저장할 값을 결정한다. 처음 등록하면 `201`, 같은 사용자에게 이미 등록돼 있으면 기존 행을 바꾸지 않고 `200`과 같은 소유 ID를 반환한다. 응답은 GET과 같은 `UserItem` 필드다. 현재 부분 고유 인덱스와 `ON CONFLICT DO NOTHING`으로 동시 요청도 한 행만 만들며 기존 `catalog_item_id`가 없는 행은 변경하지 않는다. 다른 사용자도 같은 기본 옷을 각자의 UUID로 소유할 수 있다.
+
+없는 카탈로그 ID·추가 필드·잘못된 JSON·사용자 지정 쿼리는 `400`, 토큰 누락/변조·비UUID 주체는 `401`이다. 서버에 이미 있는 행이 앱에서 해석할 수 없는 분류라면 덮어쓰지 않고 `409`, 데이터베이스 실패는 상세 접속 정보 없는 `500`으로 끝난다.
+
+등록 메타데이터는 `src/main/resources/catalog-items.json`에서 읽는다. 앱 카탈로그를 바꿨을 때 `frontend/`에서 `node --import tsx scripts/export-server-catalog.mjs --write`로 갱신한다. 앱 핵심 검사에서 원본 카탈로그와 메타데이터가 같은지 확인하므로 서로 다른 상태로 통합할 수 없다. 기본 옷 개수와 실제 실연동 결과는 [.autoresearch/f06-live-verification.json](../.autoresearch/f06-live-verification.json)에 기록했다.
 
 ## 본인 프로필 조회·변경 API (F-13)
 
