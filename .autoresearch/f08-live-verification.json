@@ -1,0 +1,75 @@
+{
+  "recordedAt": "2026-11-12T04:49:25.296Z",
+  "projectRef": "pjjkkwphdkqwqjhlayqe",
+  "backendOrigin": "http://127.0.0.1:18080",
+  "authAlgorithm": "ES256",
+  "testUsers": 2,
+  "fixtureOutfits": [3, 1],
+  "detailIncluded": true,
+  "passed": [
+    "health-unauthenticated-rejection-and-browser-preflight",
+    "real-es256-tokens-and-empty-lists-for-two-disposable-users",
+    "existing-app-save-path-seeds-static-owned-and-legacy-ids-with-colors",
+    "legacy-and-server-lists-match-in-date-time-order-with-all-fields",
+    "real-detail-restores-empty-store-and-matches-list-fields-for-each-owner",
+    "real-detail-rejects-other-owner-missing-invalid-and-user-override-requests",
+    "real-account-switch-discards-delayed-detail-response",
+    "real-logout-discards-delayed-detail-response",
+    "user-overrides-and-tampered-real-token-are-rejected",
+    "real-account-switch-discards-delayed-previous-user-list",
+    "real-logout-clears-data-and-discards-delayed-list",
+    "injected-http-500-retains-data-without-fallback-and-retry-recovers",
+    "injected-detail-http-500-is-an-error-without-fallback-and-retry-recovers",
+    "real-connection-failure-ends-loading-and-retry-recovers"
+  ],
+  "limitations": [
+    "Native UI, device rendering and production deployment are not tested.",
+    "Real HTTP responses are deliberately delayed; HTTP 500 is injected by a local test server.",
+    "Only verified disposable accounts are seeded; existing data preservation is checked after cleanup."
+  ],
+  "baselineSha": "b6b7824ccf8854e757d3cc739b069db37203843a",
+  "branch": "feat/216-outfit-detail",
+  "issue": 216,
+  "localGates": {
+    "frontendCore": 71,
+    "sourceContract": "8/8",
+    "harness": 6,
+    "backendTests": 61
+  },
+  "fixedStoreEvaluator": {
+    "baselinePassed": 9,
+    "candidatePassed": 16,
+    "totalCases": 16,
+    "newDetailCases": 7,
+    "decision": "adopted",
+    "evidence": ".autoresearch/f08-evaluation.jsonl",
+    "limitations": "Actual store and Zustand with mocked HTTP/native boundaries; not a retention or visual metric."
+  },
+  "review": [
+    "Query by authenticated user and outfit id together; do not look up by id first.",
+    "Return identical not-found semantics for missing and other-user records.",
+    "Validate response id and retain timeout through response body.",
+    "Preserve existing full-list, mutation, deletion and account-generation guards.",
+    "Normalize uppercase UUID routes and store lookup ids; verified in live detail reads.",
+    "After the recorded candidate, wording and UUID route normalization were finalized; the final full app check and live run cover these changes.",
+    "Route values that are not strings render the missing-record state instead of calling toLowerCase or waiting indefinitely; native rendering remains untested."
+  ],
+  "sourceSha256": {
+    "frontend/app/outfit/[id].tsx": "53d3075d0024951ee3cdc8a93cee6f591e8e40e0e0d57bb1384370e00d84a04b",
+    "frontend/lib/outfitsApi.ts": "79afacc5ee12cc4e5bc5d0b43909b2cdbf15dc5c91b6be40472d885458860790",
+    "frontend/stores/outfitStore.ts": "de2701b32e372e9876bc8052641cf649ea5c5461e2e5128b12356f3574a02f77",
+    "frontend/scripts/verify-live-outfits.mjs": "55f456bb47a6bdcffab21438f178d3cb4aaef2fa0e32c88f8fa8451b458c3341",
+    "frontend/tests/outfitStore.test.mjs": "bb414825c6bfbd1326d5f1a867f43fc0c293f124c65ddcebaa58e4848a176e07",
+    "frontend/tests/outfitsApi.test.mjs": "bc66d023acebea6a26aa686e45d1fdc657603e17664bf82570b6a1051040fb7f",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitController.java": "cc15f559b909e6f7810db8cdeda76c24faaa5846e3fefc7fb5627673b2c809f1",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitQueryService.java": "efdbda4af2b7e3a845fa5b4a51a9436c96cba6688572c7f62903b92b71030f93",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitResponse.java": "960abfbab9385d364b5a69d4997ccf4fb9ad3872f7fc2ade60796049e9443b1c",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitRepository.java": "6ab934f47d2a014c63618032fb20a7b95719f5b2567522949f3ba8fcca8fcf3b"
+  },
+  "dataPreservation": {
+    "testAccountsRemoved": 2,
+    "existingApplicationDataUnchanged": true,
+    "comparedTables": ["items", "profiles", "outfits"],
+    "comparison": "row counts and ordered full-row digest before account creation versus after cleanup"
+  }
+}

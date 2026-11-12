@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  fetchOwnedOutfitFromApi,
   fetchOwnedOutfitsFromApi,
   getOutfitsApiBaseUrl,
   parseOutfitsResponse,
@@ -86,4 +87,59 @@ test('요청 중 시간 제한과 깨진 JSON도 실패로 반환한다', async 
   })
   assert.ok(broken.error)
   assert.equal(broken.outfits, null)
+})
+
+test('단건 응답은 요청 ID를 확인하고 없는 기록과 실패를 구분한다', async () => {
+  const options = { baseUrl: 'http://server.test', accessToken: 'test', outfitId: 'a' }
+  assert.deepEqual(
+    await fetchOwnedOutfitFromApi({
+      ...options,
+      fetchImpl: async () => new Response(JSON.stringify(row)),
+    }),
+    { outfit: row, error: null }
+  )
+  assert.deepEqual(
+    await fetchOwnedOutfitFromApi({
+      ...options,
+      fetchImpl: async () => new Response('private detail', { status: 404 }),
+    }),
+    { outfit: null, error: null }
+  )
+  for (const [body, status] of [
+    [row, 401],
+    [row, 500],
+    [{ ...row, id: 'wrong-id' }, 200],
+    [[row], 200],
+  ]) {
+    const result = await fetchOwnedOutfitFromApi({
+      ...options,
+      fetchImpl: async () => new Response(JSON.stringify(body), { status }),
+    })
+    assert.equal(result.outfit, null)
+    assert.ok(result.error)
+  }
+})
+
+test('단건 경로 입력을 인코딩하고 본문 시간 제한을 유지한다', async () => {
+  const result = await fetchOwnedOutfitFromApi({
+    baseUrl: 'http://server.test',
+    accessToken: 'test',
+    outfitId: '../other?userId=b',
+    timeoutMs: 10,
+    fetchImpl: async (url, init) => {
+      assert.equal(url, 'http://server.test/api/outfits/..%2Fother%3FuserId%3Db')
+      return {
+        status: 200,
+        ok: true,
+        json: () =>
+          new Promise((_resolve, reject) => {
+            init.signal.addEventListener('abort', () => reject(new Error('aborted')), {
+              once: true,
+            })
+          }),
+      }
+    },
+  })
+  assert.equal(result.outfit, null)
+  assert.match(result.error, /시간을 초과/)
 })

@@ -2,6 +2,7 @@ package com.clothic.backend.outfit;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -18,5 +19,11 @@ public class OutfitQueryService {
     @Transactional(readOnly = true)
     public List<OutfitResponse> findOwnedOutfits(UUID authenticatedUserId) {
         return repository.findOwned(Objects.requireNonNull(authenticatedUserId, "authenticatedUserId"));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<OutfitResponse> findOwnedOutfit(UUID authenticatedUserId, UUID outfitId) {
+        return repository.findOwnedById(Objects.requireNonNull(authenticatedUserId, "authenticatedUserId"),
+                Objects.requireNonNull(outfitId, "outfitId"));
     }
 }

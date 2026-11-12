@@ -60,7 +60,7 @@ function deferred() {
   })
   return { promise, resolve }
 }
-function setup(t, { fetchImpl, getSession, read, mutate } = {}) {
+function setup(t, { fetchImpl, getSession, read, detailRead, mutate } = {}) {
   const oldUrl = process.env.EXPO_PUBLIC_CLOTHIC_API_URL
   const oldFetch = globalThis.fetch
   process.env.EXPO_PUBLIC_CLOTHIC_API_URL = 'http://server.test'
@@ -87,6 +87,11 @@ function setup(t, { fetchImpl, getSession, read, mutate } = {}) {
       assert.equal(table, 'outfits')
       const query = {
         select: () => query,
+        eq: () => query,
+        maybeSingle: async () => {
+          directReads += 1
+          return detailRead?.() ?? { data: null, error: null }
+        },
         order: (key, value) => {
           orders.push([key, value])
           return query
@@ -345,4 +350,163 @@ test('삭제 대기 중 재조회는 삭제 코디를 부활시키지 않고 실
   deletion.resolve({ error: { message: 'delete failed' } })
   assert.equal((await pending).error, 'delete failed')
   assert.deepEqual(fixture.store.getState().outfits, [outfit(a)])
+})
+
+test('상세 조회는 토큰과 ID를 보내고 빈 store에 한 건을 복원한다', { timeout: 1000 }, async (t) => {
+  const value = outfit(a, 'owned-detail')
+  let calls = 0
+  const fixture = setup(t, {
+    fetchImpl: async (url, init) => {
+      calls += 1
+      assert.equal(url, 'http://server.test/api/outfits/owned-detail')
+      assert.equal(init.headers.Authorization, `Bearer token-${a}`)
+      return response(value)
+    },
+  })
+  assert.deepEqual(await fixture.store.getState().fetchOutfitById(value.id), {
+    error: null,
+    found: true,
+  })
+  assert.deepEqual(fixture.store.getState().outfits, [value])
+  assert.equal(fixture.store.getState().loaded, false, '한 건 복원은 전체 목록 완료가 아니다')
+  assert.equal(calls, 1)
+  assert.equal(fixture.directReads(), 0)
+})
+
+test(
+  '타인·없는 상세는 404로 구분하고 직접 조회로 우회하지 않는다',
+  { timeout: 1000 },
+  async (t) => {
+    let calls = 0
+    const fixture = setup(t, {
+      fetchImpl: async () => {
+        calls += 1
+        return response({ private: true }, 404)
+      },
+    })
+    assert.deepEqual(await fixture.store.getState().fetchOutfitById('missing'), {
+      error: null,
+      found: false,
+    })
+    assert.deepEqual(fixture.store.getState().outfits, [])
+    assert.equal(calls, 1)
+    assert.equal(fixture.directReads(), 0)
+  }
+)
+
+test(
+  '상세 서버 오류·연결 오류는 오류로 종료하고 재시도할 수 있다',
+  { timeout: 1000 },
+  async (t) => {
+    let next = response({}, 500)
+    const fixture = setup(t, {
+      fetchImpl: async () => {
+        if (next instanceof Error) throw next
+        return next
+      },
+    })
+    for (next of [response({}, 500), new Error('offline'), response({ invalid: true })]) {
+      const result = await fixture.store.getState().fetchOutfitById('detail')
+      assert.equal(result.found, false)
+      assert.ok(result.error)
+    }
+    next = response(outfit(a, 'detail'))
+    assert.deepEqual(await fixture.store.getState().fetchOutfitById('detail'), {
+      error: null,
+      found: true,
+    })
+    assert.equal(fixture.directReads(), 0)
+  }
+)
+
+test(
+  '계정 전환 후 늦은 상세 응답은 다른 계정 store에 들어가지 않는다',
+  { timeout: 1000 },
+  async (t) => {
+    const held = deferred()
+    const started = deferred()
+    const fixture = setup(t, {
+      fetchImpl: async () => {
+        started.resolve()
+        return held.promise
+      },
+    })
+    await fixture.auth.getState().initialize()
+    const pending = fixture.store.getState().fetchOutfitById('detail')
+    await Promise.race([
+      started.promise,
+      pending.then(() => assert.fail('상세 서버 요청이 시작되지 않았다')),
+    ])
+    fixture.changeSession(session(b))
+    held.resolve(response(outfit(a, 'detail')))
+    assert.deepEqual(await pending, { error: null, found: false })
+    assert.deepEqual(fixture.store.getState().outfits, [])
+  }
+)
+
+test(
+  '늦은 상세는 먼저 완료된 전체 목록과 즐겨찾기 값을 덮지 않는다',
+  { timeout: 1000 },
+  async (t) => {
+    const held = deferred()
+    const started = deferred()
+    const latest = { ...outfit(a, 'detail'), memo: '새 메모', isFavorite: true }
+    const fixture = setup(t, {
+      fetchImpl: async (url) => {
+        if (url.endsWith('/detail')) {
+          started.resolve()
+          return held.promise
+        }
+        return response([latest])
+      },
+    })
+    const pending = fixture.store.getState().fetchOutfitById('detail')
+    await Promise.race([
+      started.promise,
+      pending.then(() => assert.fail('상세 서버 요청이 시작되지 않았다')),
+    ])
+    await fixture.store.getState().fetchOutfits()
+    held.resolve(response(outfit(a, 'detail')))
+    assert.equal((await pending).found, true)
+    assert.deepEqual(fixture.store.getState().outfits, [latest])
+  }
+)
+
+test('상세 응답 대기 중 삭제된 코디는 복원되지 않는다', { timeout: 1000 }, async (t) => {
+  const held = deferred()
+  const started = deferred()
+  const fixture = setup(t, {
+    fetchImpl: async () => {
+      started.resolve()
+      return held.promise
+    },
+  })
+  const pending = fixture.store.getState().fetchOutfitById('detail')
+  await Promise.race([
+    started.promise,
+    pending.then(() => assert.fail('상세 서버 요청이 시작되지 않았다')),
+  ])
+  await fixture.store.getState().removeOutfit('detail')
+  held.resolve(response(outfit(a, 'detail')))
+  assert.deepEqual(await pending, { error: null, found: false })
+  assert.deepEqual(fixture.store.getState().outfits, [])
+})
+
+test('상세의 기존 직접 조회와 예외·세션 없음도 결과를 반환한다', { timeout: 1000 }, async (t) => {
+  let state = 'row'
+  const fixture = setup(t, {
+    getSession: async () => ({ data: { session: null } }),
+    detailRead: async () => {
+      if (state === 'throws') throw new Error('legacy unavailable')
+      return { data: toRow(outfit(a, 'detail')), error: null }
+    },
+  })
+  delete process.env.EXPO_PUBLIC_CLOTHIC_API_URL
+  assert.equal((await fixture.store.getState().fetchOutfitById('detail')).found, true)
+  assert.deepEqual(fixture.store.getState().outfits, [outfit(a, 'detail')])
+  fixture.store.getState().reset()
+  state = 'throws'
+  assert.ok((await fixture.store.getState().fetchOutfitById('detail')).error)
+  process.env.EXPO_PUBLIC_CLOTHIC_API_URL = 'http://server.test'
+  assert.ok((await fixture.store.getState().fetchOutfitById('detail')).error)
 })

@@ -47,4 +47,16 @@ class OutfitsApiFailureTest {
         assertFalse(response.body().contains("clothic_backend"));
         assertFalse(response.body().contains("password"));
     }
+
+    @Test
+    void detailDatabaseFailureIsNotReportedAsMissingOrLeaked() throws Exception {
+        when(service.findOwnedOutfit(any(), any())).thenThrow(new DataAccessResourceFailureException(SECRET_DETAIL));
+        String token = TestTokens.sign(new MACSigner(OutfitsApiTest.SECRET), JWSAlgorithm.HS256, null,
+                TestTokens.supabaseClaims().build());
+        var response = TestTokens.get(port, "/api/outfits/8aaaaaaa-0000-4000-8000-000000000003", token);
+        assertEquals(500, response.statusCode());
+        assertFalse(response.body().contains("select"));
+        assertFalse(response.body().contains("clothic_backend"));
+        assertFalse(response.body().contains("password"));
+    }
 }

@@ -146,4 +146,56 @@ class OutfitsApiTest {
                 TestTokens.supabaseClaims().subject("not-a-user").build());
         assertEquals(401, TestTokens.get(port, "/api/outfits", invalid).statusCode());
     }
+
+    @Test
+    void detailMatchesSameRowInListIncludingLegacyIdsAndColors() throws Exception {
+        String id = "8aaaaaaa-0000-4000-8000-000000000003";
+        var response = TestTokens.get(port, "/api/outfits/" + id, token(A));
+        assertEquals(200, response.statusCode());
+        JsonNode detail = JSON.readTree(response.body());
+        JsonNode listed = JSON.readTree(TestTokens.get(port, "/api/outfits", token(A)).body()).get(2);
+        assertEquals(listed, detail);
+        assertEquals(detail, JSON.readTree(TestTokens.get(port, "/api/outfits/" + id.toUpperCase(), token(A)).body()));
+    }
+
+    @Test
+    void detailNeverRevealsAnotherUsersRecord() throws Exception {
+        String other = "8bbbbbbb-0000-4000-8000-000000000001";
+        for (String id : List.of(other, "8fffffff-0000-4000-8000-000000000001")) {
+            var response = TestTokens.get(port, "/api/outfits/" + id, token(A));
+            assertEquals(404, response.statusCode());
+            assertFalse(response.body().contains("B only"));
+            assertFalse(response.body().contains(B.toString()));
+            assertFalse(response.body().contains("itemIds"));
+        }
+        assertEquals(404, TestTokens.get(port, "/api/outfits/8aaaaaaa-0000-4000-8000-000000000003", token(EMPTY)).statusCode());
+    }
+
+    @Test
+    void malformedDetailIdsAreBadRequests() throws Exception {
+        for (String id : List.of("not-a-uuid", "1-1-1-1-1", "8aaaaaaa000040008000000000000003")) {
+            assertEquals(400, TestTokens.get(port, "/api/outfits/" + id, token(A)).statusCode());
+        }
+    }
+
+    @Test
+    void detailRequiresValidTokenAndUuidSubject() throws Exception {
+        String path = "/api/outfits/8aaaaaaa-0000-4000-8000-000000000003";
+        assertEquals(401, TestTokens.get(port, path, null).statusCode());
+        String forged = TestTokens.sign(new MACSigner("wrong-outfits-key-at-least-32-bytes-0123456789"), JWSAlgorithm.HS256, null,
+                TestTokens.supabaseClaims().subject(A.toString()).build());
+        assertEquals(401, TestTokens.get(port, path, forged).statusCode());
+        String invalid = TestTokens.sign(new MACSigner(SECRET), JWSAlgorithm.HS256, null,
+                TestTokens.supabaseClaims().subject("not-a-user").build());
+        assertEquals(401, TestTokens.get(port, path, invalid).statusCode());
+    }
+
+    @Test
+    void detailUserParametersCannotOverrideOwnership() throws Exception {
+        for (String parameter : List.of("userId", "user_id")) {
+            var response = TestTokens.get(port, "/api/outfits/8bbbbbbb-0000-4000-8000-000000000001?" + parameter + "=" + B, token(A));
+            assertEquals(400, response.statusCode());
+            assertFalse(response.body().contains("B only"));
+        }
+    }
 }
