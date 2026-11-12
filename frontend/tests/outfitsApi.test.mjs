@@ -6,6 +6,7 @@ import {
   getOutfitsApiBaseUrl,
   parseOutfitsResponse,
   saveOwnedOutfitToApi,
+  updateOwnedOutfitDiaryFromApi,
 } from '../lib/outfitsApi.ts'
 
 const row = {
@@ -225,6 +226,65 @@ test('저장 본문 읽기도 시간 제한 안에 끝난다', async () => {
         new Promise((_resolve, reject) => {
           init.signal.addEventListener('abort', () => reject(new Error('aborted')), { once: true })
         }),
+    }),
+  })
+  assert.equal(result.outfit, null)
+  assert.match(result.error, /시간을 초과/)
+})
+
+test('부분 수정은 제공한 기분·메모만 PATCH하고 null과 미제공을 구분한다', async () => {
+  for (const patch of [{ mood: 'happy' }, { memo: null }, { mood: null, memo: '수정' }]) {
+    const result = await updateOwnedOutfitDiaryFromApi({
+      baseUrl: 'http://server.test',
+      accessToken: 'test',
+      outfitId: 'a',
+      patch,
+      fetchImpl: async (url, init) => {
+        assert.equal(url, 'http://server.test/api/outfits/a')
+        assert.equal(init.method, 'PATCH')
+        assert.deepEqual(JSON.parse(init.body), patch)
+        assert.equal(init.headers['Content-Type'], 'application/json')
+        return new Response(JSON.stringify({ ...row, ...patch }))
+      },
+    })
+    assert.equal(result.error, null)
+    assert.equal(result.outfit.id, 'a')
+  }
+})
+
+test('수정 대상 없음과 잘못된 응답도 오류이며 내부 본문을 노출하지 않는다', async () => {
+  for (const [status, body] of [
+    [404, { sql: 'private' }],
+    [500, { sql: 'private' }],
+    [200, { ...row, id: 'wrong' }],
+  ]) {
+    const result = await updateOwnedOutfitDiaryFromApi({
+      baseUrl: 'http://server.test',
+      accessToken: 'test',
+      outfitId: 'a',
+      patch: { memo: null },
+      fetchImpl: async () => new Response(JSON.stringify(body), { status }),
+    })
+    assert.equal(result.outfit, null)
+    assert.ok(result.error)
+    assert.equal(result.error.includes('private'), false)
+  }
+})
+
+test('수정 본문을 기다릴 때도 시간 제한을 유지한다', async () => {
+  const result = await updateOwnedOutfitDiaryFromApi({
+    baseUrl: 'http://server.test',
+    accessToken: 'test',
+    outfitId: 'a',
+    patch: { memo: null },
+    timeoutMs: 10,
+    fetchImpl: async (_url, init) => ({
+      status: 200,
+      ok: true,
+      json: () =>
+        new Promise((_resolve, reject) =>
+          init.signal.addEventListener('abort', () => reject(new Error('aborted')), { once: true })
+        ),
     }),
   })
   assert.equal(result.outfit, null)

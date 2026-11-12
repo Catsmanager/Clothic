@@ -6,6 +6,7 @@ import {
   fetchOwnedOutfitsFromApi,
   getOutfitsApiBaseUrl,
   saveOwnedOutfitToApi,
+  updateOwnedOutfitDiaryFromApi,
 } from '../lib/outfitsApi'
 
 // DB(snake_case) Row를 앱(camelCase) 모델로 매핑한다. (DATA_MODEL.md 기준)
@@ -60,7 +61,7 @@ function mapRow(row: OutfitRow): Outfit {
 
 type Result = { error: string | null }
 type FetchOutfitResult = Result & { found: boolean }
-type DiaryPatch = {
+export type DiaryPatch = {
   mood?: Mood | null
   memo?: string | null
 }
@@ -88,6 +89,8 @@ const mutationQueues = new Map<string, Promise<void>>()
 const blockedOutfitIds = new Map<string, number>()
 const pendingFavoriteValues = new Map<string, { version: number; value: boolean }>()
 const confirmedFavoriteValues = new Map<string, boolean>()
+const confirmedDiaryValues = new Map<string, { mood: Mood | null; memo: string | null }>()
+const pendingDiaryVersions = new Map<string, number>()
 const locallyAddedOutfits = new Map<string, Outfit>()
 const deletedOutfitIds = new Set<string>()
 
@@ -131,6 +134,8 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
     blockedOutfitIds.clear()
     pendingFavoriteValues.clear()
     confirmedFavoriteValues.clear()
+    confirmedDiaryValues.clear()
+    pendingDiaryVersions.clear()
     locallyAddedOutfits.clear()
     deletedOutfitIds.clear()
     set({ outfits: [], loading: false, loaded: false, error: null })
@@ -185,6 +190,9 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
       .filter((outfit) => !blockedOutfitIds.has(outfit.id))
       .map((outfit) => {
         locallyAddedOutfits.delete(outfit.id)
+        if (!pendingDiaryVersions.has(outfit.id)) {
+          confirmedDiaryValues.set(outfit.id, { mood: outfit.mood, memo: outfit.memo })
+        }
         const pendingFavorite = pendingFavoriteValues.get(outfit.id)
         if (pendingFavorite) {
           return { ...outfit, isFavorite: pendingFavorite.value }
@@ -210,6 +218,7 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
   fetchOutfitById: async (requestedId) => {
     const id = requestedId.toLowerCase()
     const generation = storeGeneration
+    const diaryVersion = mutationVersions.get(`${id}:diary`)
     if (blockedOutfitIds.has(id)) return { error: null, found: false }
 
     let mappedOutfit: Outfit | null = null
@@ -251,6 +260,12 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
     if (lookupError) return { error: lookupError, found: false }
     if (!mappedOutfit) return { error: null, found: false }
 
+    if (diaryVersion !== mutationVersions.get(`${id}:diary`) || pendingDiaryVersions.has(id)) {
+      const confirmed = confirmedDiaryValues.get(id)
+      if (confirmed) mappedOutfit = { ...mappedOutfit, ...confirmed }
+    } else {
+      confirmedDiaryValues.set(id, { mood: mappedOutfit.mood, memo: mappedOutfit.memo })
+    }
     const pendingFavorite = pendingFavoriteValues.get(id)
     if (!pendingFavorite) confirmedFavoriteValues.set(id, mappedOutfit.isFavorite)
     const outfit = pendingFavorite
@@ -331,31 +346,63 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
     }
   },
 
-  updateDiary: async (id, patch) => {
+  updateDiary: async (requestedId, patch) => {
+    const id = requestedId.toLowerCase()
     const generation = storeGeneration
     const mutationKey = `${id}:diary`
     const mutationVersion = beginMutation(mutationKey)
+    const current = get().outfits.find((row) => row.id === id)
+    if (current && !pendingDiaryVersions.has(id)) {
+      confirmedDiaryValues.set(id, { mood: current.mood, memo: current.memo })
+    }
+    pendingDiaryVersions.set(id, mutationVersion)
     fetchSequence += 1
     set({ loading: false })
-    const update: OutfitUpdate = {}
-    if (patch.mood !== undefined) update.mood = patch.mood
-    if (patch.memo !== undefined) update.memo = patch.memo
-
     const errorMessage = await enqueueMutation(mutationKey, async () => {
       if (generation !== storeGeneration) return null
-      const { error } = await supabase.from('outfits').update(update).eq('id', id)
-      return error?.message ?? null
+      try {
+        const baseUrl = getOutfitsApiBaseUrl()
+        if (baseUrl) {
+          const { data, error } = await supabase.auth.getSession()
+          if (generation !== storeGeneration) return null
+          if (error || !data.session?.access_token) return '로그인이 필요해요.'
+          const result = await updateOwnedOutfitDiaryFromApi({
+            baseUrl,
+            accessToken: data.session.access_token,
+            outfitId: id,
+            patch,
+          })
+          if (result.error || !result.outfit) return result.error ?? '수정 결과를 읽지 못했어요.'
+          if (generation === storeGeneration && !deletedOutfitIds.has(id)) {
+            confirmedDiaryValues.set(id, { mood: result.outfit.mood, memo: result.outfit.memo })
+          }
+          return null
+        }
+        const update: OutfitUpdate = {}
+        if (patch.mood !== undefined) update.mood = patch.mood
+        if (patch.memo !== undefined) update.memo = patch.memo
+        const { error } = await supabase.from('outfits').update(update).eq('id', id)
+        if (!error && generation === storeGeneration && !deletedOutfitIds.has(id)) {
+          const previous = confirmedDiaryValues.get(id)
+          if (previous) confirmedDiaryValues.set(id, { ...previous, ...patch })
+        }
+        return error?.message ?? null
+      } catch {
+        return '코디를 수정하지 못했어요. 다시 시도해주세요.'
+      }
     })
     if (generation !== storeGeneration) return { error: null }
     if (!isCurrentMutation(mutationKey, mutationVersion)) return { error: null }
     fetchSequence += 1
-    if (errorMessage) return { error: errorMessage }
-
+    if (pendingDiaryVersions.get(id) === mutationVersion) pendingDiaryVersions.delete(id)
+    const confirmed = confirmedDiaryValues.get(id)
     set({
       loading: false,
-      outfits: get().outfits.map((outfit) => (outfit.id === id ? { ...outfit, ...patch } : outfit)),
+      outfits: get().outfits.map((row) =>
+        row.id === id && confirmed ? { ...row, ...confirmed } : row
+      ),
     })
-    return { error: null }
+    return { error: errorMessage }
   },
 
   // 즐겨찾기 토글: 낙관적 업데이트 후 실패 시 롤백한다.
@@ -430,7 +477,11 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
           pendingFavoriteValues.get(id)?.value ??
           confirmedFavoriteValues.get(id) ??
           removedOutfit.isFavorite
-        const restoredOutfit = { ...removedOutfit, isFavorite: restoredFavorite }
+        const restoredOutfit = {
+          ...removedOutfit,
+          ...confirmedDiaryValues.get(id),
+          isFavorite: restoredFavorite,
+        }
         if (wasLocallyAdded) locallyAddedOutfits.set(id, restoredOutfit)
         set({
           loading: false,
@@ -447,6 +498,7 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
     }
     deletedOutfitIds.add(id)
     confirmedFavoriteValues.delete(id)
+    confirmedDiaryValues.delete(id)
     pendingFavoriteValues.delete(id)
     locallyAddedOutfits.delete(id)
     set({ loading: false })

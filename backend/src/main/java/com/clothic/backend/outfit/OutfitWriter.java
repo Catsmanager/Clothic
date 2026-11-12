@@ -18,6 +18,19 @@ public class OutfitWriter {
         this.json = json;
     }
 
+    int updateDiary(UUID userId, UUID outfitId, OutfitDiaryPatch patch) {
+        if (patch.hasMood() && patch.hasMemo()) {
+            return jdbc.update("update public.outfits set mood=?, memo=? where user_id=? and id=?",
+                    patch.mood(), patch.memo(), userId, outfitId);
+        }
+        if (patch.hasMood()) {
+            return jdbc.update("update public.outfits set mood=? where user_id=? and id=?",
+                    patch.mood(), userId, outfitId);
+        }
+        return jdbc.update("update public.outfits set memo=? where user_id=? and id=?",
+                patch.memo(), userId, outfitId);
+    }
+
     int insertIfAbsent(UUID userId, OutfitCreateRequest input) {
         return Objects.requireNonNull(jdbc.execute((ConnectionCallback<Integer>) connection -> {
             try (var statement = connection.prepareStatement("""

@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,10 +24,12 @@ public class OutfitController {
     private final OutfitQueryService service;
 
     private final OutfitCreateService creation;
+    private final OutfitDiaryService diary;
 
-    public OutfitController(OutfitQueryService service, OutfitCreateService creation) {
+    public OutfitController(OutfitQueryService service, OutfitCreateService creation, OutfitDiaryService diary) {
         this.service = service;
         this.creation = creation;
+        this.diary = diary;
     }
 
     @GetMapping(value = "/api/outfits", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,6 +56,15 @@ public class OutfitController {
         UUID userId = parseUuid(jwt.getSubject(), HttpStatus.UNAUTHORIZED);
         var result = creation.create(userId, OutfitCreateRequest.fromJson(body));
         return ResponseEntity.status(result.created() ? HttpStatus.CREATED : HttpStatus.OK).body(result.outfit());
+    }
+
+    @PatchMapping(value = "/api/outfits/{outfitId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public OutfitResponse updateDiary(@AuthenticationPrincipal Jwt jwt, @PathVariable String outfitId,
+            @RequestBody Map<String, Object> body, HttpServletRequest request) {
+        rejectUserParameters(request);
+        UUID userId = parseUuid(jwt.getSubject(), HttpStatus.UNAUTHORIZED);
+        UUID id = parseUuid(outfitId, HttpStatus.BAD_REQUEST);
+        return diary.update(userId, id, OutfitDiaryPatch.fromJson(body));
     }
 
     private static void rejectUserParameters(HttpServletRequest request) {
