@@ -1,0 +1,64 @@
+{
+  "recordedAt": "2026-11-12T02:53:25.943Z",
+  "projectRef": "pjjkkwphdkqwqjhlayqe",
+  "backendOrigin": "http://127.0.0.1:18080",
+  "authAlgorithm": "ES256",
+  "testUsers": 2,
+  "fixtureItems": [2, 1],
+  "passed": [
+    "backend-health-and-unauthenticated-rejection",
+    "configured-browser-origin-preflight-and-untrusted-origin-rejection",
+    "real-es256-tokens-and-empty-lists-for-two-disposable-users",
+    "existing-app-write-path-seeds-owned-items-with-real-user-tokens",
+    "legacy-and-spring-queries-match-for-both-users-with-catalog-compatibility",
+    "query-user-override-and-tampered-real-token-are-rejected",
+    "real-account-change-discards-delayed-previous-user-response",
+    "real-logout-discards-delayed-response-and-clears-user-data",
+    "injected-http-500-keeps-account-isolation-and-retry-recovers-without-fallback",
+    "real-connection-failure-ends-loading-and-retry-restores-the-current-user"
+  ],
+  "limitations": [
+    "Native UI, device rendering and store distribution are not tested.",
+    "Real HTTP responses are delayed for stale-response cases; HTTP 500 is injected by a local test server.",
+    "Only disposable verification accounts are seeded; existing-user preservation is checked separately."
+  ],
+  "dataPreservation": {
+    "testAccountsRemoved": 2,
+    "existingApplicationDataUnchanged": true,
+    "comparedTables": ["items", "profiles", "outfits"],
+    "comparison": "row counts and ordered full-row digest before account creation versus after cleanup"
+  },
+  "baselineSha": "230cdba5d0483dcb03a60ed89ac7c5d40f5fb82c",
+  "projectStateAfterRestore": "ACTIVE_HEALTHY",
+  "database": {
+    "role": "clothic_backend_dev",
+    "poolerMode": "session",
+    "poolerPort": 5432,
+    "bypassRls": true,
+    "selectItems": true,
+    "insertItems": false,
+    "sslMode": "verify-full",
+    "rootCertificateSha256": "807025ad50d4ed219d2c9c7d299c004f824eb00cf7f65afef607d07b72e6cafa",
+    "originalRolesOrPoliciesChanged": false
+  },
+  "localGates": {
+    "frontendCore": 42,
+    "sourceContract": "8/8",
+    "harness": 6,
+    "backendTests": 39
+  },
+  "runtime": {
+    "node": "v25.6.0",
+    "java": "21.0.13",
+    "springBoot": "4.1.2"
+  },
+  "sourceSha256": {
+    "frontend/stores/itemStore.ts": "97123612ae3d58ba006ab6ec90bb0702a046381c5e00a1869cdbb6aaddeddf31",
+    "frontend/stores/authStore.ts": "e30a6f10162f8226668177ed5121f154e6102b528b28e8441089ee9c2719c1e2",
+    "frontend/lib/itemsApi.ts": "7a943c98599d6fab5e18149c4bd11686803f49469815f2ae498a2bc6c4359fa5",
+    "frontend/scripts/verify-live-items.mjs": "fbe00a5d49915fe7f626924d74370f499ed56a8bd21adc3dc08512c17c3399c8",
+    "backend/src/main/java/com/clothic/backend/auth/SecurityConfig.java": "2e56841460fb494e872849b2a38ff2df01a434342c7f7f0598a15d426e431f76",
+    "backend/src/main/java/com/clothic/backend/auth/WebCorsProperties.java": "e17a2f6ccc12f15aa5e57e55ed36015798217d115ef88996667da02e2ca7252c",
+    "backend/src/main/resources/application.properties": "3cca718d52821c52a809c230053333d823628cd736d63f6ba418da9635491085"
+  }
+}

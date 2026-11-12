@@ -1,5 +1,16 @@
 # LOG
 
+## 2026-11-12 — F-05 실제 Supabase 연결·조회 비교 완료 (#205 후속)
+
+- 기준 `230cdba`, 기존 `feat/205-app-items-api`의 원격 ref가 같은 커밋임을 확인한 뒤 격리된 작업 트리에서 진행. 원본 Java 업그레이드 브랜치는 변경하지 않았다.
+- 사용자 계속 진행 요청에 따라 기존 Clothic 프로젝트만 공식 관리 API로 재개했다. `INACTIVE` → `COMING_UP` → `ACTIVE_HEALTHY`, 공개 서명 키 주소의 HTTP 200과 사용 중인 ES256 키를 확인했다. 서명 키를 교체하거나 기존 비밀번호를 재설정하지 않았다.
+- 없던 개발용 역할 `clothic_backend_dev`를 만들고 items/profiles 조회만 허용했다. 실제 JDBC 연결에서 현재 역할·RLS 우회·items SELECT 허용·INSERT 불허를 확인했다. 비밀번호는 무시된 `.env.local`(0600)에만 저장했다. 기존 역할과 RLS 정책은 변경하지 않았다.
+- 첫 DB 연결의 Java 신뢰 경로 오류를 재현한 뒤, 공식 대시보드 소스에 지정된 루트 인증서를 사용해 `sslmode=verify-full`·`sslrootcert`로 연결을 확인했다. 인증서 검증을 끄지 않았다. 공식 인증서 SHA-256과 검증 범위는 `.autoresearch/f05-live-verification.json`에 기록했다.
+- 브라우저 사전 요청이 인증 단계에서 401로 끝나는 문제를 재현해 명시적 출처 설정을 추가했다. `CLOTHIC_WEB_ALLOWED_ORIGINS`의 정확한 HTTP(S) 출처만 허용하며 미설정·다른 출처·지원하지 않는 메서드는 거부한다. 토큰 없는 실제 요청은 계속 401이다. 로컬 환경 실행 스크립트와 비밀값 없는 예제를 추가했다.
+- 실제 store·Supabase 로그인/DB·Spring Boot 연결 검사 10개 통과: 두 사용자의 ES256 실토큰·빈 목록, 기존 쓰기 경로로 만든 소유 옷의 기존/새 조회 일치, 카탈로그 호환, 다른 사용자 지정·변조 토큰 거부, 계정 전환/로그아웃 뒤 늦은 응답 차단, 오류·재시도·자동 우회 없음, 브라우저 사전 요청 허용/거부. 응답 지연과 HTTP 500은 명시적으로 주입했다. 네이티브 UI·실기기 검증은 포함하지 않는다.
+- 임시 검증 계정 두 개는 표식을 다시 확인하고 제거했다. 실제 profiles FK가 Auth 사용자 삭제를 제한하므로 해당 임시 계정의 items/profiles만 먼저 정리했다. 검증 전/정리 후 기존 items·profiles·outfits의 건수와 정렬된 전체 행 지문이 모두 일치했다. 로컬 임시 계정 비밀 파일도 제거했다.
+- 검증: `npm --prefix frontend run check` 통과(핵심 42개·흐름 소스 계약 8/8·하네스 6개, 기존 아바타 경고 4개), `cd backend && ./mvnw --batch-mode verify` 39개 통과(출처 관련 7개 추가), 로컬 실행 스크립트 문법·실기동 health/사전 요청 HTTP 200·`git diff --check` 통과. F-05 완료. 운영 서버 배포·실기기 전체 회귀는 R-02/R-04에 남긴다.
+
 ## 2026-11-11 — F-05 오류 복구·계정 전환 회귀 검증 (#205 후속)
 
 - 브랜치: `feat/205-app-items-api`, 기준 `1ffd727954f17748eab080c6d4aa2636439abae8`. 기존 원격 브랜치를 같은 커밋으로 맞추고 ref 확인 후 수정. 동시에 진행 중인 Java 업그레이드와 분리하기 위해 `/private/tmp/clothic-f05-verification` 작업 트리를 사용했다.

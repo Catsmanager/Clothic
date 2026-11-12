@@ -1,21 +1,19 @@
 # User Action Items
 
-기준일: 2026-07-27
+기존 목록 작성: 2026-07-27. 최신 확인일은 각 항목에 표시한다.
 
 Codex가 코드만으로 완료할 수 없거나 사용자 계정·콘솔·디자인 승인이 필요한 작업만 정리한다.
 
 ## 바로 할 일
 
-- [ ] F-05 실제 개발 환경 연결 검증 준비 (2026-11-11 확인)
-  - 확인한 `frontend/.env.local`에는 공개 Supabase 설정만 있으며 서버용 `CLOTHIC_AUTH_*`·`CLOTHIC_DB_*`와 검증용 계정 세션은 확인되지 않았다. 비밀번호·토큰은 채팅이나 저장소에 넣지 않고 로컬의 무시된 설정 파일 또는 실행 환경으로 전달
-  - 프로젝트 공개 서명 키 집합(JSON Web Key Set, JWKS) 주소가 이 실행 환경에서 DNS 해석에 실패했다. 이후 인증된 `supabase projects list --output json`에서 앱 설정과 같은 Clothic 프로젝트의 관리 상태 `INACTIVE`를 확인했다. 중지 이유·데이터 상태는 확인되지 않음
-  - 기존 앱도 다시 연결될 수 있는 운영 상태 변경이므로 프로젝트 재개 여부를 사용자에게 확인 중. 재개 후 실제 사용자 토큰 검증부터 진행하며, 서명 방식은 별도로 확인
-  - 서버 접속 역할·권한 확인 후 기존 Supabase 직접 조회와 새 서버 조회를 같은 사용자로 비교하고, 두 검증용 계정의 전환·로그아웃·오류·재시도를 확인해야 F-05 완료 처리 가능
+- [x] F-05 실제 개발 환경 연결 검증 준비 (2026-11-12 확인)
+  - 계속 진행 요청에 따라 Clothic 프로젝트만 재개해 `ACTIVE_HEALTHY`와 공개 서명 키 집합(JSON Web Key Set, JWKS)의 정상 응답을 확인했다. 기존 서명 키·비밀번호·RLS 정책은 교체하지 않음
+  - 실제 ES256 사용자 토큰·조회 전용 개발 역할·공식 CA를 사용하는 검증된 암호화 연결로 앱 store 실연동 검사 10개 통과. 브라우저 개발 출처는 `CLOTHIC_WEB_ALLOWED_ORIGINS`로 명시
+  - 임시 계정 2개와 해당 검사 데이터 정리 후 기존 items/profiles/outfits 건수·전체 행 지문 일치 확인. 네이티브 화면과 운영 서버 배포는 별도. 근거: [실행 기록](../../LOG.md), [실검증 결과](../../.autoresearch/f05-live-verification.json)
 
-- [ ] Supabase JWT 서명 방식 확인 후 서버 환경변수 결정 (F-02 후속)
-  - 대시보드 Project Settings → JWT Keys에서 현재 키가 비대칭(ES256/RS256)인지 레거시 대칭(HS256)인지 확인
-  - 비대칭이면 `CLOTHIC_AUTH_JWK_SET_URI`, 대칭이면 `CLOTHIC_AUTH_HMAC_SECRET`을 서버 실행 환경에 설정 (원문은 저장소에 넣지 않음)
-  - 앱에서 로그인한 실제 접근 토큰으로 `GET /api/me`가 본인 ID를 돌려주는지 확인. 절차는 [backend/README.md](../../backend/README.md)
+- [x] Supabase JWT 서명 방식 확인 후 서버 환경변수 결정 (F-02 후속, 2026-11-12)
+  - 사용 중인 ES256 키와 공개 JWKS 주소 확인. `CLOTHIC_AUTH_JWK_SET_URI`를 개발 실행 환경에 설정했으며 실제 두 사용자의 `GET /api/me`, `GET /api/items` 검증 통과
+  - 비밀값은 무시된 `.env.local`에만 저장하며 실행 절차는 [backend/README.md](../../backend/README.md) 참조
 
 - [ ] Kakao OAuth KOE205 해결
   - 카카오 개발자 콘솔에서 `account_email` 동의항목을 `선택 동의`로 활성화
@@ -24,12 +22,11 @@ Codex가 코드만으로 완료할 수 없거나 사용자 계정·콘솔·디�
   - `outfits.is_favorite boolean not null default false`
   - `outfits.item_colors jsonb`
   - repository의 fresh migration 순서(`profiles` 생성 전 alter)를 별도 이슈로 정리. 서버 테스트(F-03)는 이 문제를 피하기 위해 `backend/src/test/resources/db/00-auth-stub.sql`에서 `profiles`를 미리 만든다
-- [ ] 서버용 Supabase DB 접속 역할 결정 (F-03 후속)
-  - 일반 JDBC 연결에는 `auth.uid()`가 없어 RLS 비우회 역할은 0행을 돌려준다(테스트로 확인). 백엔드 전용 역할에 `bypassrls` 또는 동등 권한을 줄지, 어떤 네트워크 경로(직접/풀러)로 붙일지 결정
-  - 결정한 역할·비밀번호는 `CLOTHIC_DB_*` 환경변수로만 전달
-- [ ] GitHub CLI/App 인증 복구
-  - 현재 로컬 `gh` 토큰이 만료되어 이슈·PR 자동 생성이 불가능
-  - `gh auth login -h github.com` 후 repository 접근 확인
+- [x] 서버용 Supabase DB 접속 역할 결정 (F-03 후속, 2026-11-12)
+  - 개발용 `clothic_backend_dev`: items/profiles 조회만 허용하고 RLS를 우회하며 서버의 인증 사용자 조건으로 격리. 실제 연결에서 현재 역할·조회 허용·아이템 추가 불허와 두 사용자 격리를 확인
+  - shared session pooler(5432), `sslmode=verify-full`과 공식 루트 인증서 사용. 설정과 비밀번호는 무시된 `CLOTHIC_DB_*` 로컬 환경으로만 전달. 이후 쓰기 기능은 해당 기능에서 필요한 권한을 별도 확인
+- [x] GitHub CLI 인증 확인 (2026-11-12)
+  - `gh auth status` 정상. 연결 도구의 PR 생성 권한과 명령줄 인증은 별개이며 PR 작업은 사용 가능한 명령줄 경로로 진행
 
 ## 아바타 에셋
 
