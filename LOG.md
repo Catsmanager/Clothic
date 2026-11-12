@@ -1,5 +1,16 @@
 # LOG
 
+## 2026-11-12 — F-10 본인 코디 기분·메모 수정 전환 완료 (#220)
+
+- 기준 main `2cf50a0`과 `feat/220-update-outfit-diary` 원격 ref 일치 확인 후 편집했다. 현재 수정 경로는 홈 index.tsx의 saveMood/saveMemo → updateDiary → 세션 토큰 PATCH /api/outfits/{id} → 본인 행의 제공된 열만 수정 → 전체 응답의 기분/메모 확인 → 편집 종료/실패 재시도다. 날짜·착장 전체 편집 UI를 새로 만들지 않고 기존 동작을 전환했다. 사용자 원본 Java 업그레이드 브랜치는 보존했다.
+- 서버는 기분·메모만 받고 null(지우기)/미제공(유지)을 구분한다. 현재 화면과 같은 기분 6종·메모 100 UTF-16 단위 제한을 적용하며 제공하지 않은 과거 기분/긴 메모는 보존한다. SQL은 사용자와 코디 ID를 함께 조건으로 제공한 열만 바꾸고 같은 트랜잭션에서 재조회한다. 다른 필드 불변, 타인/없는 기록 404, 잘못된 필드/ID/사용자 지정 400, 무효 토큰 401, DB 실패 500·접속 정보 미노출을 확인했다.
+- 리뷰에서 기존 순차 큐가 앞선 성공 응답을 버린 뒤 최신 부분 수정이 실패하면 화면과 DB 값이 달라지는 흐름을 확인했다. 응답별 확인 값을 유지하고 최신 요청 종료 시 성공한 기분/메모를 적용한다. 신규 전체 응답으로 즐겨찾기 등 다른 필드를 덮지 않는다. 재조회 후에는 확인 값도 새로 맞추며, 늦은 상세·삭제 실패 복원·계정 전환과 대기 요청 차단을 함께 검사했다. SDK/직접 쓰기 예외도 결과로 반환해 홈의 저장 중 상태가 끝나게 했다.
+- 고정 store 검사 25/32 → 32/32, 같은 evaluator/fixture/runtime/environment hash와 모든 gate 통과·adopted. 새 8개 중 늦은 목록 보호 1개는 기존 코드도 통과했고 나머지 7개가 개선됐다. 추가 최신성 검사 3개는 재조회 후 수정 실패·빈 store의 늦은 상세·재조회 후 삭제 실패 복원을 확인했다. 근거: `.autoresearch/f10-evaluator.json`, `.autoresearch/f10-evaluation.jsonl`.
+- 앱 `npm --prefix frontend run check` 통과(핵심 96개·흐름 8/8·하네스 6개, 기존 아바타 경고 4개). 서버 `./mvnw --batch-mode verify` 77개 통과(부분 수정 6개·DB 실패 1개 추가). 첫 서버 검사에서 테스트 클래스 간 아이템 UUID가 겹친 fixture 오류 6개를 확인해 ID를 분리한 뒤 전체 검사를 통과했다.
+- 실제 개발 역할에 outfits mood/memo 열 UPDATE만 추가했다. table UPDATE=false, mood/memo=true, favorite/owner/date UPDATE와 DELETE=false를 조회로 확인했으며 스키마·RLS 정책은 변경하지 않았다. 실제 ES256 토큰·DB·HTTP·authStore/outfitStore 검사 24개 통과: 두 계정 부분 수정/지우기·다른 필드 보존·기존/새 조회 일치, 거부/사전 요청, 순차 부분 수정, 실제 첫 성공 후 주입한 후속 500의 확인 값 복구, 계정 전환 뒤 늦은 수정 차단과 원래 사용자 재조회, 기존 저장/목록/상세 회귀를 포함한다.
+- 응답 지연·HTTP 500은 명시적으로 주입했고 연결 실패는 닫은 해당 서버 핸들과 실제 fetch 거부로 확인했다. 실기기 화면·운영 배포는 포함하지 않는다. 임시 계정 두 개와 해당 데이터만 정리한 뒤 기존 items/profiles/outfits 건수·전체 행 지문 일치를 확인하고 비밀 파일을 제거했다. 근거: `.autoresearch/f10-live-verification.json`.
+- 변경 요청: [PR #221](https://github.com/Catsmanager/Clothic/pull/221), 이슈 #220. GitHub 자동 검증·main 통합 상태는 해당 PR 참조.
+
 ## 2026-11-12 — F-09 코디 서버 저장·재조회 전환 완료 (#218)
 
 - 기준 main `fde7d80`과 `feat/218-save-outfits` 원격 ref 일치 확인 후 편집했다. 경로: 만들기 → SaveOutfitSheet/useSaveOutfitForm의 요청 UUID → addOutfit → 토큰 POST /api/outfits → 본인 행 저장 → store 반영·홈 이동 → 목록/상세 재조회. 기존 화면의 연속 클릭 방지, 실패 시 입력 유지와 성공 시 이동을 보존했다. 사용자 원본 Java 업그레이드 브랜치는 변경하지 않았다.

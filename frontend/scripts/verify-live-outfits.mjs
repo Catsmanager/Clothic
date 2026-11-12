@@ -19,6 +19,7 @@ const config = JSON.parse(readFileSync(options.get('--credentials'), 'utf8'))
 const fixtureCounts = [3, 1]
 const includeDetail = options.get('--include-detail') === 'true'
 const includeSave = options.get('--include-save') === 'true'
+const includeDiary = options.get('--include-diary') === 'true'
 assert.match(config.runId, /^f05-[a-f0-9]{12}$/)
 assert.equal(config.users.length, 2)
 assert.notEqual(config.users[0].id, config.users[1].id)
@@ -350,6 +351,147 @@ async function main() {
     assert.ok(expected[0].some((row) => row.id === delayedInput.requestId))
     pass('account-switch-discards-delayed-save-result-without-claiming-server-rollback')
   }
+  if (includeDiary) {
+    const patchHttp = async (id, body, index = 0, accessToken = sessions[index].access_token) =>
+      originalFetch(`${baseUrl}/api/outfits/${id}`, {
+        method: 'PATCH',
+        headers: {
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+    for (const [index, scoped] of stores.entries()) {
+      const id = expected[index][0].id
+      const before = expected[index][0]
+      const directBefore = scoped.directCalls()
+      assert.equal(
+        (
+          await scoped.useOutfitStore
+            .getState()
+            .updateDiary(id, { mood: 'excited', memo: '실제 수정 검증' })
+        ).error,
+        null
+      )
+      assert.equal(
+        (await scoped.useOutfitStore.getState().updateDiary(id, { memo: null })).error,
+        null
+      )
+      assert.equal(
+        (await scoped.useOutfitStore.getState().updateDiary(id, { mood: null })).error,
+        null
+      )
+      assert.equal(scoped.directCalls(), directBefore)
+      const changed = canonical(scoped.useOutfitStore.getState().outfits).find(
+        (row) => row.id === id
+      )
+      assert.deepEqual(changed, { ...before, mood: null, memo: null })
+      const raw = await originalFetch(`${baseUrl}/api/outfits/${id}`, {
+        headers: { Authorization: `Bearer ${sessions[index].access_token}` },
+      })
+      assert.equal(raw.status, 200)
+      assert.deepEqual(canonical([await raw.json()])[0], changed)
+      expected[index] = canonical(await fetchOutfits(scoped, fixtureCounts[index]))
+    }
+    pass('real-partial-diary-updates-and-null-clears-preserve-all-other-outfit-fields')
+    for (const [index, scoped] of stores.entries()) {
+      delete process.env.EXPO_PUBLIC_CLOTHIC_API_URL
+      assert.deepEqual(canonical(await fetchOutfits(scoped, fixtureCounts[index])), expected[index])
+    }
+    process.env.EXPO_PUBLIC_CLOTHIC_API_URL = baseUrl
+    pass('legacy-and-server-queries-agree-after-diary-updates-for-both-users')
+    const id = expected[0][0].id
+    for (const target of [expected[1][0].id, 'ffffffff-ffff-4fff-8fff-ffffffffffff']) {
+      const result = await patchHttp(target, { mood: 'happy' })
+      assert.equal(result.status, 404)
+      assert.equal((await result.text()).includes(config.users[1].id), false)
+    }
+    for (const body of [
+      {},
+      { mood: 'unknown' },
+      { memo: 'x'.repeat(101) },
+      { memo: 'forged', userId: config.users[1].id },
+      { isFavorite: false },
+      { date: '2026-01-01' },
+    ])
+      assert.equal((await patchHttp(id, body)).status, 400)
+    assert.equal((await patchHttp('not-a-uuid', { mood: 'happy' })).status, 400)
+    assert.equal((await patchHttp(id, { mood: 'happy' }, 0, null)).status, 401)
+    const parts = sessions[0].access_token.split('.')
+    const signature = Buffer.from(parts[2], 'base64url')
+    signature[0] ^= 1
+    parts[2] = signature.toString('base64url')
+    assert.equal((await patchHttp(id, { mood: 'happy' }, 0, parts.join('.'))).status, 401)
+    for (const key of ['userId', 'user_id'])
+      assert.equal(
+        (await patchHttp(`${id}?${key}=${config.users[1].id}`, { mood: 'happy' })).status,
+        400
+      )
+    const preflight = await originalFetch(`${baseUrl}/api/outfits/${id}`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: 'http://localhost:8081',
+        'Access-Control-Request-Method': 'PATCH',
+        'Access-Control-Request-Headers': 'authorization,content-type',
+      },
+    })
+    assert.equal(preflight.status, 200)
+    pass(
+      'real-diary-rejects-other-users-invalid-fields-auth-and-query-overrides-with-valid-patch-preflight'
+    )
+    let second
+    await holdNextResponse(
+      () => stores[0].useOutfitStore.getState().updateDiary(id, { mood: 'happy' }),
+      async () => {
+        second = stores[0].useOutfitStore.getState().updateDiary(id, { memo: '연속 부분 수정' })
+      },
+      `/api/outfits/${id}`
+    )
+    assert.equal((await second).error, null)
+    expected[0] = canonical(await fetchOutfits(stores[0], fixtureCounts[0]))
+    assert.equal(expected[0][0].mood, 'happy')
+    assert.equal(expected[0][0].memo, '연속 부분 수정')
+    pass('real-queued-partial-diary-updates-preserve-both-successful-fields')
+    const failureOrigin = await startErrorServer()
+    const failureServer = servers[servers.length - 1]
+    try {
+      await holdNextResponse(
+        () => stores[0].useOutfitStore.getState().updateDiary(id, { mood: 'cozy' }),
+        async () => {
+          process.env.EXPO_PUBLIC_CLOTHIC_API_URL = failureOrigin
+          second = stores[0].useOutfitStore.getState().updateDiary(id, { memo: '실패할 메모' })
+        },
+        `/api/outfits/${id}`
+      )
+      assert.ok((await second).error)
+      const confirmed = canonical(stores[0].useOutfitStore.getState().outfits).find(
+        (row) => row.id === id
+      )
+      assert.equal(confirmed.mood, 'cozy')
+      assert.equal(confirmed.memo, '연속 부분 수정')
+      const raw = await originalFetch(`${baseUrl}/api/outfits/${id}`, {
+        headers: { Authorization: `Bearer ${sessions[0].access_token}` },
+      })
+      assert.deepEqual(canonical([await raw.json()])[0], confirmed)
+    } finally {
+      process.env.EXPO_PUBLIC_CLOTHIC_API_URL = baseUrl
+      if (failureServer.listening) await new Promise((resolve) => failureServer.close(resolve))
+    }
+    pass('real-first-diary-success-followed-by-injected-failure-restores-confirmed-server-fields')
+    await holdNextResponse(
+      () => stores[0].useOutfitStore.getState().updateDiary(id, { memo: '계정 변경 중 수정' }),
+      async () => {
+        await signIn(clients[0], config.users[1])
+        assert.deepEqual(canonical(await fetchOutfits(stores[0], 1)), expected[1])
+      },
+      `/api/outfits/${id}`
+    )
+    assert.deepEqual(canonical(stores[0].useOutfitStore.getState().outfits), expected[1])
+    await signIn(clients[0], config.users[0])
+    expected[0] = canonical(await fetchOutfits(stores[0], fixtureCounts[0]))
+    assert.equal(expected[0][0].memo, '계정 변경 중 수정')
+    pass('real-account-switch-discards-delayed-diary-response-and-original-owner-can-reread')
+  }
   if (includeDetail) {
     for (const [index, scoped] of stores.entries()) {
       scoped.useOutfitStore.getState().reset()
@@ -466,6 +608,7 @@ async function main() {
   await fetchOutfits(stores[0], fixtureCounts[0])
   const directBefore = stores[0].directCalls()
   const errorOrigin = await startErrorServer()
+  const errorServer = servers[servers.length - 1]
   process.env.EXPO_PUBLIC_CLOTHIC_API_URL = errorOrigin
   await stores[0].useOutfitStore.getState().fetchOutfits()
   assert.ok(stores[0].useOutfitStore.getState().error)
@@ -492,7 +635,8 @@ async function main() {
     await fetchOutfits(stores[0], fixtureCounts[0])
     pass('injected-detail-http-500-is-an-error-without-fallback-and-retry-recovers')
   }
-  await new Promise((resolve) => servers[0].close(resolve))
+  await new Promise((resolve) => errorServer.close(resolve))
+  await assert.rejects(originalFetch(`${errorOrigin}/api/outfits`))
   process.env.EXPO_PUBLIC_CLOTHIC_API_URL = errorOrigin
   await stores[0].useOutfitStore.getState().fetchOutfits()
   assert.ok(stores[0].useOutfitStore.getState().error)
@@ -509,6 +653,7 @@ async function main() {
     fixtureOutfits: fixtureCounts,
     detailIncluded: includeDetail,
     saveIncluded: includeSave,
+    diaryIncluded: includeDiary,
     passed,
     limitations: [
       'Native UI, device rendering and production deployment are not tested.',

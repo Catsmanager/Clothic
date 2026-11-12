@@ -704,3 +704,231 @@ test('서버 저장 연결이 실패해도 이미 조회한 코디는 보존한�
   assert.ok((await fixture.store.getState().addOutfit(saveInput())).error)
   assert.deepEqual(fixture.store.getState().outfits, [outfit(a)])
 })
+
+test(
+  '기분·메모 수정은 본인 상세 경로로 PATCH하고 다른 필드는 보존한다',
+  { timeout: 1000 },
+  async (t) => {
+    const value = outfit(a, 'detail')
+    let calls = 0
+    const fixture = setup(t, {
+      fetchImpl: async (url, init) => {
+        calls++
+        assert.equal(url, 'http://server.test/api/outfits/detail')
+        assert.equal(init.method, 'PATCH')
+        assert.equal(init.headers.Authorization, `Bearer token-${a}`)
+        assert.deepEqual(JSON.parse(init.body), { mood: 'happy', memo: null })
+        return response({ ...value, mood: 'happy', memo: null, isFavorite: true })
+      },
+      mutate: async () => assert.fail('서버 설정 시 직접 수정 우회 없음'),
+    })
+    fixture.store.setState({ outfits: [value] })
+    assert.equal(
+      (await fixture.store.getState().updateDiary('detail', { mood: 'happy', memo: null })).error,
+      null
+    )
+    assert.deepEqual(fixture.store.getState().outfits, [{ ...value, mood: 'happy', memo: null }])
+    assert.equal(calls, 1)
+  }
+)
+
+test(
+  '수정 실패·연결 오류는 기존 상태를 유지하고 재시도할 수 있다',
+  { timeout: 1000 },
+  async (t) => {
+    const value = outfit(a, 'detail')
+    let next = response({}, 500)
+    const fixture = setup(t, {
+      fetchImpl: async () => {
+        if (next instanceof Error) throw next
+        return next
+      },
+      mutate: async () => assert.fail('직접 수정 없음'),
+    })
+    fixture.store.setState({ outfits: [value] })
+    for (next of [response({}, 500), new Error('offline'), response({}, 404)]) {
+      assert.ok((await fixture.store.getState().updateDiary('detail', { memo: '수정' })).error)
+      assert.deepEqual(fixture.store.getState().outfits, [value])
+    }
+    next = response({ ...value, memo: '수정' })
+    assert.equal(
+      (await fixture.store.getState().updateDiary('detail', { memo: '수정' })).error,
+      null
+    )
+    assert.equal(fixture.store.getState().outfits[0].memo, '수정')
+  }
+)
+
+test(
+  '연속 부분 수정은 순서대로 전송하고 앞선 성공 필드도 유지한다',
+  { timeout: 1000 },
+  async (t) => {
+    const first = deferred()
+    const started = deferred()
+    const value = outfit(a, 'detail')
+    let calls = 0
+    const fixture = setup(t, {
+      fetchImpl: async (_url, init) => {
+        calls++
+        if (calls === 1) {
+          assert.deepEqual(JSON.parse(init.body), { mood: 'happy' })
+          started.resolve()
+          return first.promise
+        }
+        assert.deepEqual(JSON.parse(init.body), { memo: '다음 수정' })
+        return response({ ...value, mood: 'happy', memo: '다음 수정' })
+      },
+    })
+    fixture.store.setState({ outfits: [value] })
+    const p1 = fixture.store.getState().updateDiary('detail', { mood: 'happy' })
+    await Promise.race([
+      started.promise,
+      p1.then(() => assert.fail('수정 서버 요청이 시작되지 않았다')),
+    ])
+    const p2 = fixture.store.getState().updateDiary('detail', { memo: '다음 수정' })
+    assert.equal(calls, 1)
+    first.resolve(response({ ...value, mood: 'happy' }))
+    await Promise.all([p1, p2])
+    assert.deepEqual(fixture.store.getState().outfits, [
+      { ...value, mood: 'happy', memo: '다음 수정' },
+    ])
+  }
+)
+
+test(
+  '앞선 부분 수정 성공 뒤 최신 요청이 실패하면 확인된 서버 값으로 복구한다',
+  { timeout: 1000 },
+  async (t) => {
+    const first = deferred()
+    const started = deferred()
+    const value = outfit(a, 'detail')
+    let calls = 0
+    const fixture = setup(t, {
+      fetchImpl: async () => {
+        if (calls++ === 0) {
+          started.resolve()
+          return first.promise
+        }
+        return response({}, 500)
+      },
+    })
+    fixture.store.setState({ outfits: [value] })
+    const p1 = fixture.store.getState().updateDiary('detail', { mood: 'happy' })
+    await Promise.race([
+      started.promise,
+      p1.then(() => assert.fail('수정 서버 요청이 시작되지 않았다')),
+    ])
+    const p2 = fixture.store.getState().updateDiary('detail', { memo: '실패할 수정' })
+    first.resolve(response({ ...value, mood: 'happy' }))
+    await p1
+    assert.ok((await p2).error)
+    assert.deepEqual(fixture.store.getState().outfits, [{ ...value, mood: 'happy' }])
+  }
+)
+
+test(
+  '계정 변경은 늦은 수정 응답과 대기 중인 다음 수정을 차단한다',
+  { timeout: 1000 },
+  async (t) => {
+    const first = deferred()
+    const started = deferred()
+    const value = outfit(a, 'detail')
+    let calls = 0
+    const fixture = setup(t, {
+      fetchImpl: async () => {
+        calls++
+        started.resolve()
+        return first.promise
+      },
+    })
+    await fixture.auth.getState().initialize()
+    fixture.store.setState({ outfits: [value] })
+    const p1 = fixture.store.getState().updateDiary('detail', { mood: 'happy' })
+    await Promise.race([
+      started.promise,
+      p1.then(() => assert.fail('수정 서버 요청이 시작되지 않았다')),
+    ])
+    const p2 = fixture.store.getState().updateDiary('detail', { memo: '대기' })
+    fixture.changeSession(session(b))
+    first.resolve(response({ ...value, mood: 'happy' }))
+    await Promise.all([p1, p2])
+    assert.equal(calls, 1)
+    assert.deepEqual(fixture.store.getState().outfits, [])
+  }
+)
+
+test('수정 완료 뒤 늦은 목록은 수정 값을 덮지 않는다', { timeout: 1000 }, async (t) => {
+  const held = deferred()
+  const started = deferred()
+  const value = outfit(a, 'detail')
+  const fixture = setup(t, {
+    fetchImpl: async (_url, init) => {
+      if (init.method === 'GET') {
+        started.resolve()
+        return held.promise
+      }
+      return response({ ...value, mood: 'happy' })
+    },
+  })
+  fixture.store.setState({ outfits: [value] })
+  const list = fixture.store.getState().fetchOutfits()
+  await Promise.race([started.promise, list.then(() => assert.fail('목록 요청이 시작되지 않았다'))])
+  assert.equal(
+    (await fixture.store.getState().updateDiary('detail', { mood: 'happy' })).error,
+    null
+  )
+  held.resolve(response([value]))
+  await list
+  assert.equal(fixture.store.getState().outfits[0].mood, 'happy')
+  assert.equal(fixture.store.getState().loading, false)
+})
+
+test('수정 중 삭제가 실패하면 확인된 기분·메모를 반영해 복원한다', { timeout: 1000 }, async (t) => {
+  const patch = deferred()
+  const started = deferred()
+  const deletion = deferred()
+  const value = outfit(a, 'detail')
+  const fixture = setup(t, {
+    fetchImpl: async () => {
+      started.resolve()
+      return patch.promise
+    },
+    mutate: async (kind) => (kind === 'delete' ? deletion.promise : { error: null }),
+  })
+  fixture.store.setState({ outfits: [value] })
+  const pending = fixture.store.getState().updateDiary('detail', { mood: 'happy' })
+  await Promise.race([
+    started.promise,
+    pending.then(() => assert.fail('수정 서버 요청이 시작되지 않았다')),
+  ])
+  const removing = fixture.store.getState().removeOutfit('detail')
+  patch.resolve(response({ ...value, mood: 'happy' }))
+  await pending
+  assert.deepEqual(fixture.store.getState().outfits, [])
+  deletion.resolve({ error: { message: 'delete failed' } })
+  await removing
+  assert.deepEqual(fixture.store.getState().outfits, [{ ...value, mood: 'happy' }])
+})
+
+test(
+  '기존 직접 수정의 예외도 반환하고 세션 없는 서버 수정은 전송하지 않는다',
+  { timeout: 1000 },
+  async (t) => {
+    let calls = 0
+    const fixture = setup(t, {
+      getSession: async () => ({ data: { session: null } }),
+      fetchImpl: async () => {
+        calls++
+        return response(outfit(a, 'detail'))
+      },
+      mutate: async () => {
+        throw new Error('legacy unavailable')
+      },
+    })
+    delete process.env.EXPO_PUBLIC_CLOTHIC_API_URL
+    assert.ok((await fixture.store.getState().updateDiary('detail', { memo: null })).error)
+    process.env.EXPO_PUBLIC_CLOTHIC_API_URL = 'http://server.test'
+    assert.ok((await fixture.store.getState().updateDiary('detail', { memo: null })).error)
+    assert.equal(calls, 0)
+  }
+)

@@ -1,4 +1,4 @@
-import type { Mood, NewOutfit, Outfit, Weather } from '../stores/outfitStore'
+import type { DiaryPatch, Mood, NewOutfit, Outfit, Weather } from '../stores/outfitStore'
 
 export const OUTFITS_API_TIMEOUT_MS = 10_000
 
@@ -74,16 +74,25 @@ async function requestOutfitJson({
   body,
 }: OutfitsApiOptions & {
   outfitId?: string
-  method?: 'GET' | 'POST'
-  body?: NewOutfit
+  method?: 'GET' | 'POST' | 'PATCH'
+  body?: NewOutfit | DiaryPatch
 }): Promise<JsonResult> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
-  const label = method === 'POST' ? '코디 저장' : outfitId === undefined ? '코디 목록' : '코디'
+  const label =
+    method === 'POST'
+      ? '코디 저장'
+      : method === 'PATCH'
+        ? '코디 수정'
+        : outfitId === undefined
+          ? '코디 목록'
+          : '코디'
   const failureText =
     method === 'POST'
       ? '코디를 저장하지 못했어요.'
-      : `${outfitId === undefined ? '코디 목록을' : '코디를'} 불러오지 못했어요.`
+      : method === 'PATCH'
+        ? '코디를 수정하지 못했어요.'
+        : `${outfitId === undefined ? '코디 목록을' : '코디를'} 불러오지 못했어요.`
   try {
     const path =
       outfitId === undefined ? '/api/outfits' : `/api/outfits/${encodeURIComponent(outfitId)}`
@@ -92,7 +101,7 @@ async function requestOutfitJson({
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: 'application/json',
-        ...(method === 'POST' ? { 'Content-Type': 'application/json' } : {}),
+        ...(method !== 'GET' ? { 'Content-Type': 'application/json' } : {}),
       },
       ...(body ? { body: JSON.stringify(body) } : {}),
       signal: controller.signal,
@@ -104,7 +113,7 @@ async function requestOutfitJson({
         notFound: false,
       }
     }
-    if (response.status === 404 && outfitId !== undefined) {
+    if (response.status === 404 && outfitId !== undefined && method === 'GET') {
       return { payload: null, error: null, notFound: true }
     }
     if (method === 'POST' && response.status === 409) {
@@ -180,6 +189,21 @@ export async function saveOwnedOutfitToApi(
   const outfit = parseOutfitsResponse([result.payload])?.[0]
   if (!outfit || outfit.id.toLowerCase() !== requestId.toLowerCase()) {
     return { outfit: null, error: '저장 결과 형식이 올바르지 않아요.' }
+  }
+  return { outfit, error: null }
+}
+
+export async function updateOwnedOutfitDiaryFromApi(
+  options: OutfitsApiOptions & { outfitId: string; patch: DiaryPatch }
+): Promise<{ outfit: Outfit | null; error: string | null }> {
+  const body: DiaryPatch = {}
+  if (options.patch.mood !== undefined) body.mood = options.patch.mood
+  if (options.patch.memo !== undefined) body.memo = options.patch.memo
+  const result = await requestOutfitJson({ ...options, method: 'PATCH', body })
+  if (result.error !== null) return { outfit: null, error: result.error }
+  const outfit = parseOutfitsResponse([result.payload])?.[0]
+  if (!outfit || outfit.id.toLowerCase() !== options.outfitId.toLowerCase()) {
+    return { outfit: null, error: '수정 결과 형식이 올바르지 않아요.' }
   }
   return { outfit, error: null }
 }
