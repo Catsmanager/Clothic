@@ -77,13 +77,14 @@
     "Keep one request UUID through retries without adding a per-day uniqueness constraint.",
     "Preserve local saves across delayed lists and do not overwrite current mutations or revive locally deleted rows.",
     "A stale save response is discarded without claiming the committed server transaction was cancelled.",
-    "Real response delays and local HTTP 500 injection are explicit; native screen behavior is not tested."
+    "Real response delays and local HTTP 500 injection are explicit; native screen behavior is not tested.",
+    "Final formatting-only change to the live verification script; runtime assertions and behavior are unchanged."
   ],
   "sourceSha256": {
     "frontend/hooks/useSaveOutfitForm.ts": "4680c8c55d8bb8977251443ae44a95c791e646b555b902a348c3bb9ce26790f1",
     "frontend/lib/outfitsApi.ts": "af2897d0e6b2ec5d139ce587b33e8cf43baa8b4b1853a4826600c4a29f4c16ba",
     "frontend/stores/outfitStore.ts": "ac3786f66d275c503e177930930daad35548acf31bf976c3d7432e064303c69a",
-    "frontend/scripts/verify-live-outfits.mjs": "4c7073a9baa27a368f4697d00ac9fca101d86c85f78ef688a9abbf5a9d260b93",
+    "frontend/scripts/verify-live-outfits.mjs": "9e1b80e7bfdd415def8b4c008f23384c3e223b20b00c620a420257daa1db073d",
     "frontend/tests/outfitStore.test.mjs": "ea6f3f853c7bfc6fee9c1211c334973325260950f6ce675f8ce016852e185f36",
     "frontend/tests/outfitsApi.test.mjs": "7d7858fa65b6b4cd1e1f87c56a34abaa3c7f12a7014b8e1623b64caa64d8633c",
     "backend/src/main/java/com/clothic/backend/item/ItemRepository.java": "7580ed38249dd85a5bef42e6e4ec86d32155a17846832ee0cf6b692c715e3f1e",

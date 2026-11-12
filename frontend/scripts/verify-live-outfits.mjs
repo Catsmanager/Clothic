@@ -238,15 +238,13 @@ async function main() {
   }
   assert.equal(
     (
-      await stores[1].useOutfitStore
-        .getState()
-        .addOutfit({
-          ...seed,
-          requestId: randomUUID(),
-          itemIds: ['top_002'],
-          itemColors: {},
-          memo: 'B only',
-        })
+      await stores[1].useOutfitStore.getState().addOutfit({
+        ...seed,
+        requestId: randomUUID(),
+        itemIds: ['top_002'],
+        itemColors: {},
+        memo: 'B only',
+      })
     ).error,
     null
   )
