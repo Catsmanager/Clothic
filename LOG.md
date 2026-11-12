@@ -1,5 +1,16 @@
 # LOG
 
+## 2026-11-12 — F-07 코디 목록 서버·앱 전환 완료 (#214)
+
+- 기준 main `19e32a1`과 `feat/214-outfit-list` 원격 ref가 일치함을 편집 전에 확인했다. 사용자 원본 Java 업그레이드 브랜치는 변경하지 않았다. 경로: 홈/캘린더/저장한 코디/분석 화면 → 기존 fetchOutfits → 세션 토큰 GET /api/outfits → 인증 사용자 조건의 outfits 조회 → 현재 store 반영 → 오류 재시도/재방문.
+- 기존 날짜·생성일 내림차순을 유지하고 완전히 같은 시각에는 ID 순서를 고정했다. Outfit 전체 필드, nullable 기분·날씨·메모, 색상 JSON, 과거 정적 ID/소유 UUID/미해석 ID를 보존한다. 사용자 지정 쿼리 400, 누락·변조·비UUID 주체 401, DB 실패 500 및 접속 정보 미노출을 검사했다. 스키마와 기존 RLS 정책은 변경하지 않고 개발 역할에 outfits SELECT만 추가했다.
+- 앱은 서버 주소가 있을 때만 새 경로를 사용한다. 실패 시 자동 직접 조회를 하지 않으며 세션·요청 예외도 로딩을 종료한다. 리뷰에서 로컬 저장, 즐겨찾기 대기, 삭제 대기와 목록 재조회가 충돌하지 않는지 확인했고 실제 store 테스트를 추가했다. 기존 mutation 서버 전환은 후속 F 항목으로 유지한다.
+- `npm --prefix frontend run check` 통과: 핵심 62개·소스 흐름 8/8·하네스 6개, 기존 아바타 경고 4개. `cd backend && ./mvnw --batch-mode verify` 55개 통과(코디 API 6개·실패 응답 1개 추가). 처음 앱 검사에서 신규 테스트 포맷 경고를 발견해 정리한 뒤 전체 검사를 통과했다.
+- 실제 Supabase ES256 토큰/DB/서버와 실제 authStore/outfitStore 검사 9개 통과: 두 계정 빈 목록, 기존 앱 저장으로 만든 A 3개/B 1개 코디의 모든 필드·날짜/생성일 정렬 일치, 다른 사용자 격리, 사용자 지정/변조 거부, 계정 변경·로그아웃 뒤 지연 응답 차단, 서버 오류·연결 단절·재시도와 자동 우회 없음. 응답 지연과 HTTP 500은 검증 주입이며 실기기 화면은 검사하지 않았다.
+- 표식을 재확인한 임시 계정 두 개와 해당 outfits/items/profiles만 정리했다. 검증 전/정리 후 기존 items/profiles/outfits 건수와 정렬된 전체 행 지문이 일치했고 비밀 파일을 제거했다. 근거: `.autoresearch/f07-live-verification.json`.
+- 고정 wardrobe 평가기는 8 → 8, 모든 회귀 gate 통과이나 개선폭 0으로 evaluator 판정은 rejected다. `.autoresearch/f07-evaluation.jsonl`에 그대로 기록했다. 이 점수를 코디 API 기능이나 리텐션 개선으로 해석하지 않는다. F-07 완료 근거는 별도 명세의 서버·store·실환경 검증이며 운영 배포는 R-02/R-04에 남긴다.
+- 이슈 #214, PR 생성 전. GitHub 자동 검증·main 통합은 후속 확인한다.
+
 ## 2026-11-12 — F-06 기본 옷의 서버 등록·앱 추가 전환 완료 (#212)
 
 - F-05 병합 `6bdf02c`를 기준으로 `feat/212-add-catalog-items`를 만들고 같은 원격 ref 확인 후 변경했다. 실제 사용자 경로는 기존 item-select의 추가 버튼 → itemStore.addCatalogItem → 설정 시 POST /api/items → JWT 사용자 조건으로 items 등록 → 현재 계정 store 반영이다.

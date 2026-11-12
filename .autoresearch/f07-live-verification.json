@@ -1,0 +1,73 @@
+{
+  "recordedAt": "2026-11-12T04:35:30.488Z",
+  "projectRef": "pjjkkwphdkqwqjhlayqe",
+  "backendOrigin": "http://127.0.0.1:18080",
+  "authAlgorithm": "ES256",
+  "testUsers": 2,
+  "fixtureOutfits": [3, 1],
+  "passed": [
+    "health-unauthenticated-rejection-and-browser-preflight",
+    "real-es256-tokens-and-empty-lists-for-two-disposable-users",
+    "existing-app-save-path-seeds-static-owned-and-legacy-ids-with-colors",
+    "legacy-and-server-lists-match-in-date-time-order-with-all-fields",
+    "user-overrides-and-tampered-real-token-are-rejected",
+    "real-account-switch-discards-delayed-previous-user-list",
+    "real-logout-clears-data-and-discards-delayed-list",
+    "injected-http-500-retains-data-without-fallback-and-retry-recovers",
+    "real-connection-failure-ends-loading-and-retry-recovers"
+  ],
+  "limitations": [
+    "Native UI, device rendering and production deployment are not tested.",
+    "Real HTTP responses are deliberately delayed; HTTP 500 is injected by a local test server.",
+    "Only verified disposable accounts are seeded; existing data preservation is checked after cleanup."
+  ],
+  "dataPreservation": {
+    "testAccountsRemoved": 2,
+    "existingApplicationDataUnchanged": true,
+    "comparedTables": ["items", "profiles", "outfits"],
+    "comparison": "row counts and ordered full-row digest before account creation versus after cleanup"
+  },
+  "baselineSha": "19e32a1298862e32595f26648d519bc95cfad8b4",
+  "branch": "feat/214-outfit-list",
+  "issue": 214,
+  "database": {
+    "role": "clothic_backend_dev",
+    "selectOutfits": true,
+    "insertOutfits": false,
+    "updateOutfits": false,
+    "deleteOutfits": false,
+    "existingPoliciesChanged": false,
+    "sslMode": "verify-full"
+  },
+  "localGates": {
+    "frontendCore": 62,
+    "sourceContract": "8/8",
+    "harness": 6,
+    "backendTests": 55
+  },
+  "proxyComparison": {
+    "baseline": 8,
+    "candidate": 8,
+    "delta": 0,
+    "decision": "rejected-no-proxy-improvement",
+    "scope": "Frozen wardrobe evaluator is a regression guard, not a measure of outfit API functionality or retention. F-07 completion uses the separate API, store and live integration checks."
+  },
+  "review": [
+    "Keep date and creation-time descending order with deterministic id tie-break only for exact ties.",
+    "Preserve static, owned and unresolved legacy item IDs, colors and nullable diary fields.",
+    "Do not silently fall back to Supabase on configured server errors.",
+    "Keep local saves and in-flight favorite/deletion protections when applying lists.",
+    "Catch session restoration and direct-query exceptions so loading ends."
+  ],
+  "sourceSha256": {
+    "frontend/lib/outfitsApi.ts": "4636d2dd770c4fa17efe284db8daa4a57dd56bbf10ae79deea8e9e963453f925",
+    "frontend/stores/outfitStore.ts": "b6036c40a344704b8b03ec13f8fc8350baadeca9f1ada8ba2aa4c4523f1b2789",
+    "frontend/scripts/verify-live-outfits.mjs": "c033898665a9587da636b5bcd87f8419d63f2975ba8c77753bf99b54e0f550d7",
+    "frontend/tests/outfitStore.test.mjs": "6dbc36dc7f68602028f436a4cbe41aac10d65dadffe128cdaa0deed178f0363c",
+    "frontend/tests/outfitsApi.test.mjs": "cfbd415dcb8c0b7621aaa89ee20dd7deee0b280321f3b37f379897de5ba9a143",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitController.java": "837569e9b37f9ef7bad39511dd29704252ba93ae548a57a4ee6d3afcbe118cca",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitQueryService.java": "54f1c59e21c89e95c6f5bb1848b7ca81330f7e9e000659c30584b09d85cc8834",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitResponse.java": "960abfbab9385d364b5a69d4997ccf4fb9ad3872f7fc2ade60796049e9443b1c",
+    "backend/src/main/java/com/clothic/backend/outfit/OutfitRepository.java": "fd57529a1f4b599e90055bb66b364359827f1325b9f5da217cb18d59ce5c568e"
+  }
+}
