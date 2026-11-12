@@ -8,7 +8,7 @@
 - 고정 실제 store 검사: 기존 9/16 → 구현 16/16, 새 상세 검사 7개 전부 baseline 실패/candidate 성공. evaluator/fixture/runtime/environment hash 일치와 모든 gate 통과, adopted 기록. 이후 문구·UUID 경로 보완은 최종 전체 검사와 실환경 검증으로 확인했다. 근거: `.autoresearch/f08-evaluator.json`, `.autoresearch/f08-evaluation.jsonl`. 리텐션·화면 점수로 해석하지 않는다.
 - `npm --prefix frontend run check` 통과(핵심 71개·흐름 8/8·하네스 6개, 기존 아바타 경고 4개). 서버 `./mvnw --batch-mode verify` 61개 통과(상세 5개·DB 실패 1개 추가). 실제 ES256 토큰·DB·HTTP·authStore/outfitStore 연동 14개 통과: 두 계정 상세 복원과 목록 필드 일치, 타인/없는 기록·잘못된 ID/사용자 지정 거부, 상세·목록 지연 중 계정 전환/로그아웃, 오류·재시도·자동 우회 없음. 응답 지연과 HTTP 500은 검증 주입이며 네이티브 화면·실기기는 확인하지 않았다.
 - 표식을 다시 확인한 임시 계정 두 개와 그 계정 데이터만 정리했다. 검증 전/정리 후 기존 items/profiles/outfits 건수·정렬된 전체 행 지문이 일치했고 비밀 파일을 제거했다. 근거: `.autoresearch/f08-live-verification.json`. 운영 배포는 R-02/R-04에 남긴다.
-- 이슈 #216, PR 생성 전. GitHub 자동 검증·main 통합은 후속 확인한다.
+- 변경 요청: [PR #217](https://github.com/Catsmanager/Clothic/pull/217), 이슈 #216. GitHub 자동 검증·main 통합 상태는 해당 PR 참조.
 
 ## 2026-11-12 — F-07 코디 목록 서버·앱 전환 완료 (#214)
 
