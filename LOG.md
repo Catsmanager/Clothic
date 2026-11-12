@@ -9,7 +9,7 @@
 - 앱 `npm --prefix frontend run check` 통과(핵심 96개·흐름 8/8·하네스 6개, 기존 아바타 경고 4개). 서버 `./mvnw --batch-mode verify` 77개 통과(부분 수정 6개·DB 실패 1개 추가). 첫 서버 검사에서 테스트 클래스 간 아이템 UUID가 겹친 fixture 오류 6개를 확인해 ID를 분리한 뒤 전체 검사를 통과했다.
 - 실제 개발 역할에 outfits mood/memo 열 UPDATE만 추가했다. table UPDATE=false, mood/memo=true, favorite/owner/date UPDATE와 DELETE=false를 조회로 확인했으며 스키마·RLS 정책은 변경하지 않았다. 실제 ES256 토큰·DB·HTTP·authStore/outfitStore 검사 24개 통과: 두 계정 부분 수정/지우기·다른 필드 보존·기존/새 조회 일치, 거부/사전 요청, 순차 부분 수정, 실제 첫 성공 후 주입한 후속 500의 확인 값 복구, 계정 전환 뒤 늦은 수정 차단과 원래 사용자 재조회, 기존 저장/목록/상세 회귀를 포함한다.
 - 응답 지연·HTTP 500은 명시적으로 주입했고 연결 실패는 닫은 해당 서버 핸들과 실제 fetch 거부로 확인했다. 실기기 화면·운영 배포는 포함하지 않는다. 임시 계정 두 개와 해당 데이터만 정리한 뒤 기존 items/profiles/outfits 건수·전체 행 지문 일치를 확인하고 비밀 파일을 제거했다. 근거: `.autoresearch/f10-live-verification.json`.
-- 이슈 #220, PR 생성 전. GitHub 자동 검증·main 통합은 후속 확인한다.
+- 변경 요청: [PR #221](https://github.com/Catsmanager/Clothic/pull/221), 이슈 #220. GitHub 자동 검증·main 통합 상태는 해당 PR 참조.
 
 ## 2026-11-12 — F-09 코디 서버 저장·재조회 전환 완료 (#218)
 
