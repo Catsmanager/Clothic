@@ -1,6 +1,6 @@
 # Clothic backend
 
-현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 조회·등록 API(F-04/F-06), 본인 프로필 조회·변경 API(F-13)다. F-05는 실제 Supabase 토큰·개발 DB와 연결한 앱 store 실행 검증까지 완료했다. 실기기 화면·운영 서버 배포는 별도다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
+현재 범위는 서버 기동·상태 확인(F-01), Supabase 사용자 토큰 검증(F-02), 본인 아이템 조회 저장소(F-03), 내 옷 조회·등록 API(F-04/F-06), 코디 목록 API(F-07), 본인 프로필 조회·변경 API(F-13)다. F-05는 실제 Supabase 토큰·개발 DB와 연결한 앱 store 실행 검증까지 완료했다. 실기기 화면·운영 서버 배포는 별도다. 실행 목록은 먼저 루트 [plan.md](../plan.md)를 확인한다.
 
 ## 실행
 
@@ -29,7 +29,7 @@ curl http://127.0.0.1:18080/api/health
 
 Supabase shared session pooler를 사용하는 경우 Connect 화면이나 관리 API로 확인한 호스트·5432 포트와 `<역할>.<project-ref>` 사용자명을 사용한다. `sslmode=verify-full`과 공식 루트 인증서의 절대 경로를 `sslrootcert`에 함께 지정한다. 인증서는 `.local/`에 두며 `.env.local`과 함께 Git에서 제외한다. [공식 연결 문서](https://supabase.com/docs/guides/database/connecting-to-postgres)는 연결 방식·인증서 설정의 근거이며 실제 프로젝트 연결 성공은 아래 검증 기록으로 별도 확인했다.
 
-2026-11-12 확인한 `clothic_backend_dev` 역할은 관리자·역할 생성 권한 없이 `public.items`의 SELECT/INSERT와 `public.profiles`의 SELECT를 허용한다. F-06에서 items INSERT만 추가했고 items UPDATE/DELETE는 허용하지 않았다. 행 수준 보안(Row Level Security, RLS)을 우회하므로 서버의 인증 사용자 조건이 데이터 격리를 담당한다. 프로필 변경 등 다른 쓰기 전환은 해당 기능에서 별도 권한 확인이 필요하다.
+2026-11-12 확인한 `clothic_backend_dev` 역할은 관리자·역할 생성 권한 없이 `public.items`의 SELECT/INSERT와 `public.profiles`와 `public.outfits`의 SELECT를 허용한다. F-07에서 outfits SELECT만 추가했고 해당 테이블의 쓰기는 허용하지 않았다. F-06에서 items INSERT만 추가했고 items UPDATE/DELETE는 허용하지 않았다. 행 수준 보안(Row Level Security, RLS)을 우회하므로 서버의 인증 사용자 조건이 데이터 격리를 담당한다. 프로필 변경 등 다른 쓰기 전환은 해당 기능에서 별도 권한 확인이 필요하다.
 
 브라우저에서 호출하려면 `CLOTHIC_WEB_ALLOWED_ORIGINS`에 정확한 개발 출처를 쉼표로 구분해 넣는다(예: `http://localhost:8081,http://127.0.0.1:8081`). 출처 설정이 비어 있으면 교차 출처 요청을 거부하며, 허용한 브라우저에서도 실제 API 요청의 토큰 검증은 유지한다. 와일드카드·경로·사용자 정보가 포함된 값은 기동 시 거부한다. [Spring Security 문서](https://docs.spring.io/spring-security/reference/servlet/integrations/cors.html)는 사전 요청을 인증보다 먼저 처리하는 구성의 근거이며 허용·거부 동작은 통합 테스트와 실제 HTTP 요청으로 확인했다.
 
@@ -82,7 +82,7 @@ curl -i -H "Authorization: Bearer <앱에서 얻은 접근 토큰>" http://local
 
 1. `src/test/resources/db/00-auth-stub.sql`: Supabase가 제공하는 `auth.users`·`auth.uid()`와 테스트 역할의 최소 대체물. 운영 이력상 migration 이전부터 있던 `profiles`도 미리 만든다(저장소 migration은 빈 DB에서 순서대로 적용되지 않는다).
 2. 루트 `supabase/migrations/*.sql`을 파일명 순서로 그대로 적용한다. 그래서 RLS 정책·인덱스·`catalog_item_id`가 실제와 같다.
-3. `99-grants.sql`: 백엔드 역할에 읽기 권한만 준다.
+3. `99-grants.sql`: 백엔드 역할에 기능별 권한(items 조회·등록, outfits 조회, profiles 조회·변경)을 준다. 이 권한은 격리된 테스트 전용이며 실제 개발 역할과 구분한다.
 
 `ItemQueryServiceTest`는 `ddl-auto=validate`로 엔티티 매핑이 실제 스키마와 일치하는지 확인하고, A·B 계정 격리, 빈 결과, `catalog_item_id`·`text[]`·`timestamptz` 매핑, 정렬, RLS 동작(JWT 문맥 없음 → 0행, `request.jwt.claim.sub` 설정 → 본인 행)을 검증한다.
 
@@ -114,6 +114,25 @@ Content-Type: application/json
 
 등록 메타데이터는 `src/main/resources/catalog-items.json`에서 읽는다. 앱 카탈로그를 바꿨을 때 `frontend/`에서 `node --import tsx scripts/export-server-catalog.mjs --write`로 갱신한다. 앱 핵심 검사에서 원본 카탈로그와 메타데이터가 같은지 확인하므로 서로 다른 상태로 통합할 수 없다. 기본 옷 개수와 실제 실연동 결과는 [.autoresearch/f06-live-verification.json](../.autoresearch/f06-live-verification.json)에 기록했다.
 
+## 코디 목록 API (F-07)
+
+```http
+GET /api/outfits
+Authorization: Bearer <Supabase 사용자 접근 토큰>
+```
+
+`OutfitController` → `OutfitQueryService` → `OutfitRepository`가 검증된 토큰 사용자 조건으로 `public.outfits`를 조회한다. 기존 조회와 같은 `date DESC, created_at DESC`이며 둘 다 같을 때만 `id ASC`로 순서를 고정한다. 응답은 앱 `Outfit[]`의 `id`, `userId`, `date`, `mood`, `weather`, `memo`, `itemIds`, `itemColors`, `isFavorite`, `createdAt`이며 없으면 `[]`다. 과거 카탈로그 ID·소유 UUID·이미 없어진 과거 ID와 색상은 제거하거나 변환하지 않는다. 날짜는 달력 날짜로, 생성시각은 시간대와 마이크로초를 유지해 반환한다.
+
+토큰 누락·변조·비UUID 주체는 `401`, 사용자 지정 쿼리(`userId`/`user_id`)는 `400`, 조회 실패는 접속 정보 없는 `500`이다. 개발 역할은 outfits 조회만 허용한다. 서버 주소를 설정한 앱은 `fetchOutfits`에서 세션 토큰과 이 경로를 사용하며 실패 시 직접 조회로 자동 우회하지 않는다. 주소가 비어 있으면 기존 Supabase 경로를 유지한다. 목록을 반영할 때 기존 저장·즐겨찾기·삭제 보호와 늦은 응답 차단을 유지한다.
+
+앱 검사 62개·서버 검사 55개와 실제 임시 계정 두 개의 연동 검사 9개를 통과했다. 날짜/생성일 정렬·전체 필드의 기존/새 조회 일치, 사용자 격리·계정 전환·로그아웃·오류/재시도를 확인했다. 임시 데이터 정리 후 기존 items/profiles/outfits 전체 행 지문이 일치했다. 실행 방법은 `frontend/`에서 다음과 같다. 비밀 파일에는 이 실행에서 생성한 두 임시 계정만 들어가야 하며, 검증 후 계정 정리와 데이터 보존 대조는 별도로 수행한다.
+
+```bash
+node --import tsx scripts/verify-live-outfits.mjs --credentials <private-test-credentials.json> --api-url http://127.0.0.1:18080 --allow-test-writes true --report <report.json>
+```
+
+이 스크립트는 표식·예약 이메일·로그인 주체를 확인한 임시 계정에만 데이터를 추가한다. 응답 지연과 HTTP 500은 검증용 주입이다. 네이티브 화면·실기기·운영 배포는 포함하지 않는다. 근거: [.autoresearch/f07-live-verification.json](../.autoresearch/f07-live-verification.json).
+
 ## 본인 프로필 조회·변경 API (F-13)
 
 ```http
@@ -134,7 +153,7 @@ Authorization: Bearer <Supabase 사용자 접근 토큰>
 3. `HealthResponse` record가 JSON 응답으로 직렬화된다.
 4. 보호 경로는 [SecurityConfig.java](src/main/java/com/clothic/backend/auth/SecurityConfig.java)의 필터가 먼저 받아 [SupabaseJwtDecoderFactory.java](src/main/java/com/clothic/backend/auth/SupabaseJwtDecoderFactory.java)가 만든 디코더로 토큰을 검증하고, 통과한 요청만 [MeController.java](src/main/java/com/clothic/backend/auth/MeController.java)에 도달한다.
 
-현재 상태 확인만으로는 서비스·저장소 계층이 필요하지 않아 만들지 않았다. 다음 기능에서 인증과 데이터 접근이 필요해질 때 추가한다.
+아이템·코디·프로필 기능은 각각 서비스·저장소 계층에서 인증 사용자 조건을 적용한다.
 
 ## 버전과 범위
 

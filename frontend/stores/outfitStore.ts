@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
+import { fetchOwnedOutfitsFromApi, getOutfitsApiBaseUrl } from '../lib/outfitsApi'
 
 // DB(snake_case) Row를 앱(camelCase) 모델로 매핑한다. (DATA_MODEL.md 기준)
 type OutfitRow = Database['public']['Tables']['outfits']['Row']
@@ -129,25 +130,52 @@ export const useOutfitStore = create<OutfitState>((set, get) => ({
     set({ outfits: [], loading: false, loaded: false, error: null })
   },
 
-  // 로그인 사용자의 코디를 최신순으로 불러온다. (RLS가 본인 데이터만 반환)
+  // 서버 주소 설정 시 토큰 사용자로 조회한다. 미설정 시 기존 RLS 조회를 유지한다.
   fetchOutfits: async () => {
     const generation = storeGeneration
     const requestSequence = (fetchSequence += 1)
     set({ loading: true, error: null })
-    const { data, error } = await supabase
-      .from('outfits')
-      .select('*')
-      .order('date', { ascending: false })
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      if (generation !== storeGeneration || requestSequence !== fetchSequence) return
-      set({ loading: false, error: error.message })
+    const isStale = () => generation !== storeGeneration || requestSequence !== fetchSequence
+    let fetched: Outfit[]
+    try {
+      const baseUrl = getOutfitsApiBaseUrl()
+      if (baseUrl) {
+        const { data, error } = await supabase.auth.getSession()
+        if (isStale()) return
+        if (error || !data.session?.access_token) {
+          set({ loading: false, error: '로그인이 필요해요.' })
+          return
+        }
+        const result = await fetchOwnedOutfitsFromApi({
+          baseUrl,
+          accessToken: data.session.access_token,
+        })
+        if (isStale()) return
+        if (result.error !== null) {
+          set({ loading: false, error: result.error })
+          return
+        }
+        fetched = result.outfits
+      } else {
+        const { data, error } = await supabase
+          .from('outfits')
+          .select('*')
+          .order('date', { ascending: false })
+          .order('created_at', { ascending: false })
+        if (isStale()) return
+        if (error) {
+          set({ loading: false, error: error.message })
+          return
+        }
+        fetched = (data ?? []).map(mapRow)
+      }
+    } catch {
+      if (isStale()) return
+      set({ loading: false, error: '코디 목록을 불러오지 못했어요. 다시 시도해주세요.' })
       return
     }
-    if (generation !== storeGeneration || requestSequence !== fetchSequence) return
-    const fetchedOutfits = (data ?? [])
-      .map(mapRow)
+    if (isStale()) return
+    const fetchedOutfits = fetched
       .filter((outfit) => !blockedOutfitIds.has(outfit.id))
       .map((outfit) => {
         locallyAddedOutfits.delete(outfit.id)
