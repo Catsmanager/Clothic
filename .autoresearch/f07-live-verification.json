@@ -69,5 +69,12 @@
     "backend/src/main/java/com/clothic/backend/outfit/OutfitQueryService.java": "54f1c59e21c89e95c6f5bb1848b7ca81330f7e9e000659c30584b09d85cc8834",
     "backend/src/main/java/com/clothic/backend/outfit/OutfitResponse.java": "960abfbab9385d364b5a69d4997ccf4fb9ad3872f7fc2ade60796049e9443b1c",
     "backend/src/main/java/com/clothic/backend/outfit/OutfitRepository.java": "fd57529a1f4b599e90055bb66b364359827f1325b9f5da217cb18d59ce5c568e"
+  },
+  "pullRequest": "https://github.com/Catsmanager/Clothic/pull/215",
+  "existingOutfitShapeAudit": {
+    "invalidItemIds": 0,
+    "invalidColorObjects": 0,
+    "invalidColorValues": 0,
+    "scope": "Read-only aggregate over all existing outfits after fixture cleanup; no row values exposed."
   }
 }

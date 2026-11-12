@@ -9,7 +9,7 @@
 - 실제 Supabase ES256 토큰/DB/서버와 실제 authStore/outfitStore 검사 9개 통과: 두 계정 빈 목록, 기존 앱 저장으로 만든 A 3개/B 1개 코디의 모든 필드·날짜/생성일 정렬 일치, 다른 사용자 격리, 사용자 지정/변조 거부, 계정 변경·로그아웃 뒤 지연 응답 차단, 서버 오류·연결 단절·재시도와 자동 우회 없음. 응답 지연과 HTTP 500은 검증 주입이며 실기기 화면은 검사하지 않았다.
 - 표식을 재확인한 임시 계정 두 개와 해당 outfits/items/profiles만 정리했다. 검증 전/정리 후 기존 items/profiles/outfits 건수와 정렬된 전체 행 지문이 일치했고 비밀 파일을 제거했다. 근거: `.autoresearch/f07-live-verification.json`.
 - 고정 wardrobe 평가기는 8 → 8, 모든 회귀 gate 통과이나 개선폭 0으로 evaluator 판정은 rejected다. `.autoresearch/f07-evaluation.jsonl`에 그대로 기록했다. 이 점수를 코디 API 기능이나 리텐션 개선으로 해석하지 않는다. F-07 완료 근거는 별도 명세의 서버·store·실환경 검증이며 운영 배포는 R-02/R-04에 남긴다.
-- 이슈 #214, PR 생성 전. GitHub 자동 검증·main 통합은 후속 확인한다.
+- 변경 요청: [PR #215](https://github.com/Catsmanager/Clothic/pull/215), 이슈 #214. GitHub 자동 검증·main 통합 상태는 해당 PR 참조.
 
 ## 2026-11-12 — F-06 기본 옷의 서버 등록·앱 추가 전환 완료 (#212)
 
