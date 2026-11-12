@@ -23,7 +23,7 @@ Codex가 코드만으로 완료할 수 없거나 사용자 계정·콘솔·디�
   - `outfits.item_colors jsonb`
   - repository의 fresh migration 순서(`profiles` 생성 전 alter)를 별도 이슈로 정리. 서버 테스트(F-03)는 이 문제를 피하기 위해 `backend/src/test/resources/db/00-auth-stub.sql`에서 `profiles`를 미리 만든다
 - [x] 서버용 Supabase DB 접속 역할 결정 (F-03 후속, 2026-11-12)
-  - 개발용 `clothic_backend_dev`: items/profiles 조회만 허용하고 RLS를 우회하며 서버의 인증 사용자 조건으로 격리. 실제 연결에서 현재 역할·조회 허용·아이템 추가 불허와 두 사용자 격리를 확인
+  - 개발용 `clothic_backend_dev`: F-05에서 items/profiles 조회를 확인했고, F-06에서 items INSERT만 추가. items SELECT/INSERT 허용·UPDATE/DELETE 불허를 확인했으며 서버의 인증 사용자 조건으로 격리. 기존 RLS 정책은 변경하지 않음
   - shared session pooler(5432), `sslmode=verify-full`과 공식 루트 인증서 사용. 설정과 비밀번호는 무시된 `CLOTHIC_DB_*` 로컬 환경으로만 전달. 이후 쓰기 기능은 해당 기능에서 필요한 권한을 별도 확인
 - [x] GitHub CLI 인증 확인 (2026-11-12)
   - `gh auth status` 정상. 연결 도구의 PR 생성 권한과 명령줄 인증은 별개이며 PR 작업은 사용 가능한 명령줄 경로로 진행

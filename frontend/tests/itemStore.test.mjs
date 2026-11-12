@@ -236,3 +236,77 @@ test('세션 복원에서 예외가 발생해도 로딩을 끝내고 재시도�
   assert.deepEqual(fixture.store.getState().items, [item(userA)])
   assert.equal(fixture.store.getState().error, null)
 })
+
+test('서버 추가 경로의 성공 결과는 한 번 반영하고 기존 직접 쓰기로 우회하지 않는다', async (t) => {
+  let requests = 0
+  const fixture = setup(t, {
+    fetchImpl: async (_url, init) => {
+      requests += 1
+      assert.equal(init.method, 'POST')
+      assert.deepEqual(JSON.parse(init.body), { catalogItemId: 'top_001' })
+      return response(item(userA), 201)
+    },
+  })
+  const result = await fixture.store.getState().addCatalogItem({ id: 'top_001' })
+  assert.equal(result.error, null)
+  await fixture.store.getState().addCatalogItem({ id: 'top_001' })
+  assert.equal(requests, 1)
+  assert.deepEqual(fixture.store.getState().items, [item(userA)])
+  assert.equal(fixture.directReads(), 0)
+})
+
+test('계정이 바뀐 뒤 도착한 추가 결과는 새 계정에 반영하지 않는다', async (t) => {
+  const started = deferred()
+  const oldResponse = deferred()
+  const fixture = setup(t, {
+    fetchImpl: async () => {
+      started.resolve()
+      return oldResponse.promise
+    },
+  })
+  await fixture.auth.getState().initialize()
+  const pending = fixture.store.getState().addCatalogItem({ id: 'top_001' })
+  await started.promise
+  fixture.changeSession(session(userB))
+  oldResponse.resolve(response(item(userA), 201))
+  const result = await pending
+  assert.equal(result.item, null)
+  assert.match(result.error, /반영하지/)
+  assert.deepEqual(fixture.store.getState().items, [])
+})
+
+test('추가 실패 뒤 재시도는 복구되고 실패 시 기존 쓰기로 자동 우회하지 않는다', async (t) => {
+  let fail = true
+  const fixture = setup(t, {
+    fetchImpl: async () => (fail ? response({}, 500) : response(item(userA), 201)),
+  })
+  const failed = await fixture.store.getState().addCatalogItem({ id: 'top_001' })
+  assert.match(failed.error, /500/)
+  assert.deepEqual(fixture.store.getState().items, [])
+  assert.equal(fixture.directReads(), 0)
+  fail = false
+  const recovered = await fixture.store.getState().addCatalogItem({ id: 'top_001' })
+  assert.equal(recovered.error, null)
+  assert.deepEqual(fixture.store.getState().items, [item(userA)])
+})
+
+test('추가가 끝난 뒤 늦게 온 이전 목록은 새 소유 아이템을 지우지 않는다', async (t) => {
+  const started = deferred()
+  const oldList = deferred()
+  const fixture = setup(t, {
+    fetchImpl: async (_url, init) => {
+      if (init.method === 'GET') {
+        started.resolve()
+        return oldList.promise
+      }
+      return response(item(userA), 201)
+    },
+  })
+  const pending = fixture.store.getState().fetchItems()
+  await started.promise
+  await fixture.store.getState().addCatalogItem({ id: 'top_001' })
+  oldList.resolve(response([]))
+  await pending
+  assert.deepEqual(fixture.store.getState().items, [item(userA)])
+  assert.equal(fixture.store.getState().loading, false)
+})

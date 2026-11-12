@@ -45,13 +45,14 @@ class CorsIntegrationTest {
 
     @Test
     void configuredOriginCanPreflightWithoutToken() throws Exception {
-        HttpResponse<String> response = preflight(ORIGIN, "GET");
-
-        assertEquals(200, response.statusCode());
-        assertEquals(ORIGIN, response.headers().firstValue("Access-Control-Allow-Origin").orElseThrow());
-        assertTrue(response.headers().firstValue("Access-Control-Allow-Headers").orElseThrow()
-                .toLowerCase().contains("authorization"));
-        assertFalse(response.headers().firstValue("Access-Control-Allow-Credentials").isPresent());
+        for (String method : java.util.List.of("GET", "POST")) {
+            HttpResponse<String> response = preflight(ORIGIN, method);
+            assertEquals(200, response.statusCode());
+            assertEquals(ORIGIN, response.headers().firstValue("Access-Control-Allow-Origin").orElseThrow());
+            assertTrue(response.headers().firstValue("Access-Control-Allow-Headers").orElseThrow()
+                    .toLowerCase().contains("authorization"));
+            assertFalse(response.headers().firstValue("Access-Control-Allow-Credentials").isPresent());
+        }
     }
 
     @Test

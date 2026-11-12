@@ -1,0 +1,290 @@
+[
+  {
+    "id": "top_001",
+    "name": "일반 나시",
+    "category": "top",
+    "imagePath": "assets/avatar/top/top_001_black.png",
+    "color": "#24231F",
+    "styleTags": ["minimal", "chic"]
+  },
+  {
+    "id": "top_002",
+    "name": "브이넥 무지 티",
+    "category": "top",
+    "imagePath": "assets/avatar/top/top_002_white.png",
+    "color": "#F5F5F5",
+    "styleTags": ["casual", "minimal"]
+  },
+  {
+    "id": "top_003",
+    "name": "크롭 나시",
+    "category": "top",
+    "imagePath": "assets/avatar/top/top_003_black_crop.png",
+    "color": "#1E2520",
+    "styleTags": ["street", "chic"]
+  },
+  {
+    "id": "top_005",
+    "name": "맨투맨",
+    "category": "top",
+    "imagePath": "assets/avatar/top/top_005_white_sweatshirt.png",
+    "color": "#EFEDE7",
+    "styleTags": ["casual", "minimal"]
+  },
+  {
+    "id": "top_006",
+    "name": "셔츠",
+    "category": "top",
+    "imagePath": "assets/avatar/top/top_006_white_shirt.png",
+    "color": "#FAF8F0",
+    "styleTags": ["formal", "minimal"]
+  },
+  {
+    "id": "top_007",
+    "name": "기본 티셔츠",
+    "category": "top",
+    "imagePath": "assets/avatar/top/top_007_gray_basic_tshirt.png",
+    "color": "#C9C5C3",
+    "styleTags": ["casual", "minimal"]
+  },
+  {
+    "id": "top_008",
+    "name": "블라우스",
+    "category": "top",
+    "imagePath": "assets/avatar/top/top_008_black_blouse.png",
+    "color": "#242225",
+    "styleTags": ["feminine", "chic"]
+  },
+  {
+    "id": "top_009",
+    "name": "스트라이프 티셔츠",
+    "category": "top",
+    "imagePath": "assets/avatar/top/top_009_cream_navy_striped_tshirt.png",
+    "color": "#31476E",
+    "styleTags": ["casual", "preppy"]
+  },
+  {
+    "id": "outer_001",
+    "name": "가디건",
+    "category": "outer",
+    "imagePath": "assets/avatar/outer/outer_001_cream_cardigan.png",
+    "color": "#F4DDB9",
+    "styleTags": ["casual", "feminine"]
+  },
+  {
+    "id": "outer_002",
+    "name": "후드집업",
+    "category": "outer",
+    "imagePath": "assets/avatar/outer/outer_002_cream_hoodie_zipup.png",
+    "color": "#E8E0D5",
+    "styleTags": ["casual", "sporty"]
+  },
+  {
+    "id": "dress_001",
+    "name": "리본 원피스",
+    "category": "dress",
+    "imagePath": "assets/avatar/dress/dress_001_cream_onepiece.png",
+    "color": "#F7E8C8",
+    "styleTags": ["feminine", "vintage"]
+  },
+  {
+    "id": "dress_002",
+    "name": "롱원피스",
+    "category": "dress",
+    "imagePath": "assets/avatar/dress/dress_002_cream_long_onepiece.png",
+    "color": "#F5E9D7",
+    "styleTags": ["feminine", "vintage"]
+  },
+  {
+    "id": "bottom_009",
+    "name": "치마",
+    "category": "bottom",
+    "imagePath": "assets/avatar/bottom/bottom_009_blue.png",
+    "color": "#9CB8CC",
+    "styleTags": ["casual", "feminine"]
+  },
+  {
+    "id": "bottom_010",
+    "name": "와이드 팬츠",
+    "category": "bottom",
+    "imagePath": "assets/avatar/bottom/bottom_010_blue.png",
+    "color": "#6B8CAE",
+    "styleTags": ["casual", "street"]
+  },
+  {
+    "id": "bottom_011",
+    "name": "트레이닝 팬츠",
+    "category": "bottom",
+    "imagePath": "assets/avatar/bottom/bottom_011_gray.png",
+    "color": "#C8C6CA",
+    "styleTags": ["casual", "sporty"]
+  },
+  {
+    "id": "bottom_012",
+    "name": "롱스커트",
+    "category": "bottom",
+    "imagePath": "assets/avatar/bottom/bottom_012_cream_long_skirt.png",
+    "color": "#F3E1C3",
+    "styleTags": ["feminine", "vintage"]
+  },
+  {
+    "id": "bottom_013",
+    "name": "슬랙스",
+    "category": "bottom",
+    "imagePath": "assets/avatar/bottom/bottom_013_black_slacks.png",
+    "color": "#202020",
+    "styleTags": ["formal", "chic"]
+  },
+  {
+    "id": "bottom_014",
+    "name": "데님 쇼츠",
+    "category": "bottom",
+    "imagePath": "assets/avatar/bottom/bottom_014_blue_shorts.png",
+    "color": "#233B5C",
+    "styleTags": ["casual", "street"]
+  },
+  {
+    "id": "bottom_015",
+    "name": "H라인 스커트",
+    "category": "bottom",
+    "imagePath": "assets/avatar/bottom/bottom_015_black_h_line_skirt.png",
+    "color": "#242424",
+    "styleTags": ["minimal", "chic"]
+  },
+  {
+    "id": "bottom_016",
+    "name": "플리츠 스커트",
+    "category": "bottom",
+    "imagePath": "assets/avatar/bottom/bottom_016_gray_pleated_skirt.png",
+    "color": "#A3A3AA",
+    "styleTags": ["feminine", "preppy"]
+  },
+  {
+    "id": "shoes_001",
+    "name": "스니커즈",
+    "category": "shoes",
+    "imagePath": "assets/avatar/shoes/shoes_001_white.png",
+    "color": "#F0F0F0",
+    "styleTags": ["casual", "sporty"]
+  },
+  {
+    "id": "shoes_002",
+    "name": "부츠",
+    "category": "shoes",
+    "imagePath": "assets/avatar/shoes/shoes_002_black.png",
+    "color": "#1C1C1C",
+    "styleTags": ["street", "chic"]
+  },
+  {
+    "id": "shoes_007",
+    "name": "구두",
+    "category": "shoes",
+    "imagePath": "assets/avatar/shoes/shoes_007_black.png",
+    "color": "#111111",
+    "styleTags": ["formal", "chic"]
+  },
+  {
+    "id": "shoes_008",
+    "name": "로퍼",
+    "category": "shoes",
+    "imagePath": "assets/avatar/shoes/shoes_008_black_loafer.png",
+    "color": "#1F1F20",
+    "styleTags": ["formal", "preppy"]
+  },
+  {
+    "id": "hair_001",
+    "name": "단발머리",
+    "category": "hair",
+    "imagePath": "assets/avatar/hair/hair_001_brown.png",
+    "color": "#5A4036",
+    "styleTags": ["casual", "feminine"]
+  },
+  {
+    "id": "hair_002",
+    "name": "포니테일",
+    "category": "hair",
+    "imagePath": "assets/avatar/hair/hair_002_brown.png",
+    "color": "#70482F",
+    "styleTags": ["casual", "sporty"]
+  },
+  {
+    "id": "hair_003",
+    "name": "숏컷",
+    "category": "hair",
+    "imagePath": "assets/avatar/hair/hair_003_brown_short_cut.png",
+    "color": "#885C4A",
+    "styleTags": ["casual", "minimal"]
+  },
+  {
+    "id": "hair_004",
+    "name": "반묶음",
+    "category": "hair",
+    "imagePath": "assets/avatar/hair/hair_004_brown_half_up.png",
+    "color": "#A27666",
+    "styleTags": ["feminine", "casual"]
+  },
+  {
+    "id": "hair_005",
+    "name": "긴 생머리",
+    "category": "hair",
+    "imagePath": "assets/avatar/hair/hair_005_dark_brown_long_straight.png",
+    "color": "#4A3023",
+    "styleTags": ["feminine", "minimal"]
+  },
+  {
+    "id": "hair_006",
+    "name": "숏단발",
+    "category": "hair",
+    "imagePath": "assets/avatar/hair/hair_006_dark_brown_short_bob.png",
+    "color": "#584238",
+    "styleTags": ["casual", "minimal"]
+  },
+  {
+    "id": "accessory_001",
+    "name": "원형 안경",
+    "category": "accessory",
+    "imagePath": "assets/avatar/accessory/accessory_001_glasses.png",
+    "color": "#8C5B52",
+    "styleTags": ["minimal", "chic"]
+  },
+  {
+    "id": "accessory_002",
+    "name": "니삭스",
+    "category": "accessory",
+    "imagePath": "assets/avatar/accessory/accessory_002_knee_socks.png",
+    "color": "#F5F5F5",
+    "styleTags": ["feminine", "preppy"]
+  },
+  {
+    "id": "accessory_003",
+    "name": "펜던트 목걸이",
+    "category": "accessory",
+    "imagePath": "assets/avatar/accessory/accessory_003_necklace.png",
+    "color": "#1F5D99",
+    "styleTags": ["minimal", "chic"]
+  },
+  {
+    "id": "accessory_004",
+    "name": "메탈 시계",
+    "category": "accessory",
+    "imagePath": "assets/avatar/accessory/accessory_004_watch.png",
+    "color": "#4F5873",
+    "styleTags": ["minimal", "chic"]
+  },
+  {
+    "id": "accessory_006",
+    "name": "숄더 백",
+    "category": "accessory",
+    "imagePath": "assets/avatar/accessory/accessory_006_brown_shoulder_bag.png",
+    "color": "#9B5A3B",
+    "styleTags": ["casual", "chic"]
+  },
+  {
+    "id": "accessory_007",
+    "name": "선글라스",
+    "category": "accessory",
+    "imagePath": "assets/avatar/accessory/accessory_007_black_sunglasses.png",
+    "color": "#1F1F20",
+    "styleTags": ["minimal", "chic"]
+  }
+]
