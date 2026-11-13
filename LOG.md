@@ -1,5 +1,15 @@
 # LOG
 
+## 2026-11-13 — S-01 서버 소유 DB 스키마 (#231)
+
+- 기준 main `7432fde`와 `feat/231-owned-db-schema` 원격 ref의 동일 SHA를 편집 전에 확인했다. 이력 관리 도구는 사용자가 Flyway를 승인했다.
+- 구현: `spring-boot-starter-flyway`·`flyway-database-postgresql` 추가, `backend/src/main/resources/db/migration/V1__initial_schema.sql`(users·profiles·items·outfits·notifications, 인덱스, 계정 생성 시 프로필 트리거). `auth.users`·`auth.uid()`·RLS를 쓰지 않고 열 이름·형식은 전환 전과 같게 유지했다. `spring.flyway.enabled`는 `CLOTHIC_DB_MIGRATE`(기본 false)로만 켜지므로 Supabase 연결에는 아무것도 실행되지 않는다. 서버 실행 코드는 바꾸지 않았다.
+- 테스트: `TestDatabase`가 `clothic.test.schema` 속성으로 전환 전 스키마와 자체 스키마를 고르고, Maven이 같은 테스트를 두 번 실행한다. 테스트의 계정 준비를 `auth.users` 직접 삽입에서 공통 도우미로 바꿨다. `OwnedSchemaMigrationTest` 4개를 추가했다.
+- 검증(Java 25.0.2): `./mvnw --batch-mode clean verify` 통과. 전환 전 스키마 81/81, 자체 스키마 80 통과·1 건너뜀(RLS 확인은 대상 없음). 평가 유효성 확인으로 V1의 `image_path` 열 이름을 틀리게 바꾸면 자체 스키마 실행이 "missing column"으로 실패하고 전환 전 실행은 영향이 없음을 확인한 뒤 원본으로 복구했다.
+- 리뷰에서 확인한 점: `users`에 로그인용 열을 미리 넣지 않았다(S-02 범위). 프로필 생성은 기존 계약 유지를 위해 트리거로 두었고 S-02에서 가입 처리와 함께 다시 판단한다.
+- 변경 파일: `backend/pom.xml`, `backend/src/main/resources/application.properties`, `backend/src/main/resources/db/migration/V1__initial_schema.sql`, `backend/src/test/java/com/clothic/backend/item/TestDatabase.java`, 테스트 7개(계정 준비 방식), `backend/src/test/java/com/clothic/backend/schema/OwnedSchemaMigrationTest.java`, `backend/src/test/resources/db/owned/*.sql`, `backend/README.md`, `plan.md`, `LOG.md`.
+- 미확인: 실제 서버의 PostgreSQL에는 적용하지 않았다(S-07). 앱 코드는 변경하지 않아 앱 검사는 CI 결과로 확인한다.
+
 ## 2026-11-13 — Supabase 독립 결정 반영 (#229)
 
 - 사용자 결정: 로그인까지 포함해 Supabase를 쓰지 않고 직접 만든 서버에서 처리한다. 실제 가입자는 있으나 활성 사용자가 없다고 판단해 기존 계정·데이터를 옮기지 않고 새로 시작한다. API 주소에는 보유한 `jinhyunji.kr`을 사용한다. Supabase 정지 원인은 장기간 미사용 자동 정지라고 확인했다.

@@ -48,8 +48,7 @@ class OutfitsApiTest {
     @BeforeAll
     static void seed() {
         JdbcTemplate admin = new JdbcTemplate(TestDatabase.superuser());
-        admin.update("insert into auth.users (id, email) values (?, ?), (?, ?), (?, ?)",
-                A, "outfits-a@test.local", B, "outfits-b@test.local", EMPTY, "outfits-empty@test.local");
+        TestDatabase.insertUsers(A, B, EMPTY);
         String sql = """
                 insert into public.outfits (id,user_id,date,mood,weather,memo,item_ids,item_colors,is_favorite,created_at)
                 values (?::uuid,?,?::date,?,?,?,?::text[],?::jsonb,?,?)

@@ -68,6 +68,16 @@
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- 서버 소유 스키마의 변경 이력(S-01). 기본은 비활성이며 CLOTHIC_DB_MIGRATE=true일 때만 기동 시 적용한다. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-flyway</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -92,6 +102,26 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<!-- 같은 테스트를 서버 소유 스키마(Flyway)에서도 한 번 더 실행한다. 기본 실행은 전환 전 Supabase 스키마다. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>owned-schema-test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<systemPropertyVariables>
+								<clothic.test.schema>owned</clothic.test.schema>
+							</systemPropertyVariables>
+							<reportsDirectory>${project.build.directory}/surefire-reports-owned</reportsDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

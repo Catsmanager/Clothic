@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -55,9 +56,8 @@ class ItemQueryServiceTest {
     static void seed() {
         JdbcTemplate admin = new JdbcTemplate(TestDatabase.superuser());
         admin.update("delete from public.items");
-        admin.update("delete from auth.users");
-        admin.update("insert into auth.users (id, email) values (?, ?), (?, ?)",
-                USER_A, "a@test.local", USER_B, "b@test.local");
+        TestDatabase.deleteAllUsers();
+        TestDatabase.insertUsers(USER_A, USER_B);
         admin.update("""
                 insert into public.items (id, user_id, catalog_item_id, name, category, image_path, color, style_tags, created_at)
                 values (?, ?, ?, ?, ?, ?, ?, ?::text[], ?)
@@ -115,6 +115,8 @@ class ItemQueryServiceTest {
 
     @Test
     void rowLevelSecurityBlocksPlainConnectionsWithoutJwtContextForNonBypassRoles() throws Exception {
+        // RLS는 전환 전 Supabase 스키마에만 있다. 서버 소유 스키마에서는 확인할 대상이 없다.
+        assumeFalse(TestDatabase.ownedSchema());
         String url = TestDatabase.jdbcUrl(TestDatabase.PROBE_ROLE, TestDatabase.PROBE_PASSWORD);
         try (Connection probe = DriverManager.getConnection(url)) {
             assertEquals(0, countItems(probe), "auth.uid()가 없는 일반 연결은 RLS 정책으로 0행이어야 한다");

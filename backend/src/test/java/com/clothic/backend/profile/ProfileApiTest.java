@@ -54,10 +54,9 @@ class ProfileApiTest {
     @BeforeAll
     static void seed() {
         JdbcTemplate admin = new JdbcTemplate(TestDatabase.superuser());
-        admin.update("delete from auth.users where id in (?, ?, ?)", USER_A, USER_B, USER_WITHOUT_PROFILE);
-        // 운영과 같은 가입 트리거(on_auth_user_created)가 profiles 행을 만든다.
-        admin.update("insert into auth.users (id, email) values (?, ?), (?, ?)",
-                USER_A, "profile-a@test.local", USER_B, "profile-b@test.local");
+        TestDatabase.deleteUsers(USER_A, USER_B, USER_WITHOUT_PROFILE);
+        // 계정 행이 생기면 트리거가 profiles 행을 만든다(두 스키마 공통).
+        TestDatabase.insertUsers(USER_A, USER_B);
         assertEquals(Integer.valueOf(2), admin.queryForObject(
                 "select count(*) from public.profiles where id in (?, ?)", Integer.class, USER_A, USER_B));
     }

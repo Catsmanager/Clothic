@@ -63,9 +63,8 @@ class ItemsApiTest {
     static void seed() {
         JdbcTemplate admin = new JdbcTemplate(TestDatabase.superuser());
         admin.update("delete from public.items where user_id in (?, ?, ?)", USER_A, USER_B, USER_EMPTY);
-        admin.update("delete from auth.users where id in (?, ?, ?)", USER_A, USER_B, USER_EMPTY);
-        admin.update("insert into auth.users (id, email) values (?, ?), (?, ?), (?, ?)",
-                USER_A, "api-a@test.local", USER_B, "api-b@test.local", USER_EMPTY, "api-empty@test.local");
+        TestDatabase.deleteUsers(USER_A, USER_B, USER_EMPTY);
+        TestDatabase.insertUsers(USER_A, USER_B, USER_EMPTY);
         String insert = """
                 insert into public.items (id, user_id, catalog_item_id, name, category, image_path, color, style_tags, created_at)
                 values (?, ?, ?, ?, ?, ?, ?, ?::text[], ?)
