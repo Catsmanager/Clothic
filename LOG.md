@@ -1,5 +1,15 @@
 # LOG
 
+## 2026-11-13 — S-02 이메일 회원가입·로그인·토큰 발급 (#233)
+
+- 기준 main `d615108`과 `feat/233-email-auth` 원격 ref의 동일 SHA를 편집 전에 확인했다. 설계(이메일 인증 없이 즉시 로그인, 접근 15분·갱신 30일, HS256)는 사용자가 승인했다.
+- 구현: `POST /api/auth/signup·login·refresh·logout`. 비밀번호는 BCrypt 해시, 갱신 토큰은 SHA-256 해시만 저장한다. 갱신은 한 문장의 UPDATE로 폐기하고 새 토큰을 같은 트랜잭션에서 저장한다. 폐기된 지 10초가 지난 토큰의 재사용은 같은 로그인의 토큰 전체를 폐기한다. Flyway `V2`로 users에 email·password_hash, refresh_tokens 테이블을 추가했다.
+- 설정: `CLOTHIC_AUTH_SIGNING_SECRET`(32바이트 이상)이 있을 때만 자체 인증이 켜지고 서버가 발급한 토큰만 받는다. Supabase 검증 설정과 함께 두면 기동하지 않는다. 서명 키가 없는 기존 설정의 동작은 그대로다. 새 라이브러리는 추가하지 않았다(이미 포함된 Spring Security·Nimbus 사용).
+- 리뷰에서 수정한 문제: 토큰 없이 호출하는 공개 경로에서 400·409 응답이 401로 바뀌었다. 오류 응답을 만드는 내부 전달이 인증 필터에 막혔기 때문이며, 내부 오류 전달만 허용하도록 고쳤다. 외부에서 `/error`를 직접 호출하는 요청은 여전히 인증이 필요하다. 테스트 실행 로그에 테스트 비밀번호·서명 키가 남지 않는 것도 확인했다.
+- 검증(Java 25.0.2): `./mvnw --batch-mode clean verify` 통과. 전환 전 스키마 94개 중 84 통과·10 건너뜀(자체 인증 API 테스트는 계정 열이 있는 자체 스키마에서만 실행), 자체 스키마 94개 중 93 통과·1 건너뜀(RLS 확인). 추가한 테스트 13개: 전체 흐름, 틀린 비밀번호와 없는 이메일의 동일 응답, 대소문자·공백 중복, 동시 가입 4건 중 1건 성공, 입력 검사 10종, 다른 키·만료·다른 발급자·Supabase 형식 토큰 거부, 재사용 시 폐기와 즉시 재시도 유지, 갱신 토큰 만료, 두 사용자 격리, 원문 미저장, 미활성 시 경로 닫힘, 설정 충돌·짧은 키 거부.
+- 변경 파일: `backend/src/main/java/com/clothic/backend/auth/`의 신규 8개(AccessTokenIssuer, AccountStore, AuthController, AuthRequests, AuthService, LocalAuthProperties, RefreshTokenStore, TokenResponse)와 SecurityConfig·SupabaseJwtDecoderFactory, `application.properties`, `db/migration/V2__email_accounts_and_refresh_tokens.sql`, 테스트 `AuthApiTest`·`LocalAuthConfigurationTest`·`OwnedSchemaMigrationTest`, `src/test/resources/db/owned/99-grants.sql`, `backend/README.md`, `plan.md`, `LOG.md`.
+- 미확인·남은 것: 앱은 아직 연결하지 않았다(S-03). 실제 서버 DB에 적용하지 않았다(S-07). 이메일 소유 확인이 없어 남의 주소로 가입할 수 있다(S-04). 로그인 시도 횟수 제한이 없다(R-02 조건 ⑥으로 추가). 로그아웃 후에도 접근 토큰은 최대 15분 유효하다.
+
 ## 2026-11-13 — S-01 서버 소유 DB 스키마 (#231)
 
 - 기준 main `7432fde`와 `feat/231-owned-db-schema` 원격 ref의 동일 SHA를 편집 전에 확인했다. 이력 관리 도구는 사용자가 Flyway를 승인했다.

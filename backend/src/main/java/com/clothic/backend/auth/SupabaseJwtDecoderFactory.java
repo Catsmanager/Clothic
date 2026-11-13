@@ -19,11 +19,38 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 /**
- * 설정에 따라 Supabase 토큰 디코더를 만든다. 서명, 만료, 발급자, 대상, 사용자 식별값(sub)을 모두 검증한다.
+ * 설정에 따라 토큰 디코더를 만든다. 서명, 만료, 발급자, 대상, 사용자 식별값(sub)을 모두 검증한다.
+ * Supabase가 발급한 토큰(jwk-set-uri 또는 hmac-secret) 또는 서버가 직접 발급한 토큰(local.signing-secret) 중
+ * 한 가지만 받는다. 두 발급자를 동시에 신뢰하지 않는다.
  */
 final class SupabaseJwtDecoderFactory {
 
     private SupabaseJwtDecoderFactory() {
+    }
+
+    static JwtDecoder create(AuthProperties properties, LocalAuthProperties local) {
+        if (!local.enabled()) {
+            return create(properties);
+        }
+        if (properties.hasJwkSetUri() || properties.hasHmacSecret()) {
+            throw new IllegalStateException(
+                    "clothic.auth.local.signing-secret must not be combined with Supabase token verification settings");
+        }
+        if (local.issuer() == null || local.issuer().isBlank()) {
+            throw new IllegalStateException("clothic.auth.local.issuer must not be blank");
+        }
+        NimbusJwtDecoder decoder = NimbusJwtDecoder
+                .withSecretKey(new SecretKeySpec(local.secretBytes(), "HmacSHA256"))
+                .macAlgorithm(MacAlgorithm.HS256)
+                .build();
+        decoder.setJwtValidator(validator(local.issuer(), audience(properties)));
+        return decoder;
+    }
+
+    static String audience(AuthProperties properties) {
+        return properties.audience() == null || properties.audience().isBlank()
+                ? "authenticated"
+                : properties.audience();
     }
 
     static JwtDecoder create(AuthProperties properties) {
@@ -53,14 +80,11 @@ final class SupabaseJwtDecoderFactory {
                     properties.hmacSecret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
             decoder = NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
         }
-        decoder.setJwtValidator(validator(properties));
+        decoder.setJwtValidator(validator(properties.issuer(), audience(properties)));
         return decoder;
     }
 
-    private static OAuth2TokenValidator<Jwt> validator(AuthProperties properties) {
-        String audience = properties.audience() == null || properties.audience().isBlank()
-                ? "authenticated"
-                : properties.audience();
+    private static OAuth2TokenValidator<Jwt> validator(String issuer, String audience) {
         OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<List<String>>(
                 "aud", aud -> aud != null && aud.contains(audience));
         OAuth2TokenValidator<Jwt> subjectValidator = jwt -> {
@@ -72,7 +96,7 @@ final class SupabaseJwtDecoderFactory {
             return OAuth2TokenValidatorResult.success();
         };
         return new DelegatingOAuth2TokenValidator<>(
-                JwtValidators.createDefaultWithIssuer(properties.issuer()),
+                JwtValidators.createDefaultWithIssuer(issuer),
                 audienceValidator,
                 subjectValidator);
     }

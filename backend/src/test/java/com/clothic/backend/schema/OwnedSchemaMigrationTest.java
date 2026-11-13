@@ -67,7 +67,7 @@ class OwnedSchemaMigrationTest {
     }
 
     @Test
-    void createsTheFiveAppTablesWithoutSupabaseObjects() {
+    void createsTheAppTablesWithoutSupabaseObjects() {
         List<String> tables = jdbc.queryForList("""
                 select tablename from pg_tables
                 where schemaname = 'public' and tablename <> 'flyway_schema_history' order by tablename
@@ -79,7 +79,7 @@ class OwnedSchemaMigrationTest {
                 where n.nspname = 'public' and c.relkind = 'r' and c.relrowsecurity
                 """, Integer.class);
 
-        assertEquals(List.of("items", "notifications", "outfits", "profiles", "users"), tables);
+        assertEquals(List.of("items", "notifications", "outfits", "profiles", "refresh_tokens", "users"), tables);
         assertEquals(0, authSchemas, "Supabase의 auth 스키마에 의존하지 않는다");
         assertEquals(0, rlsTables, "RLS 정책 없이 서버의 user_id 조건으로 격리한다");
     }

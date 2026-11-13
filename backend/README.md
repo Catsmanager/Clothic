@@ -104,6 +104,38 @@ Supabase에서 독립하기 위해([ADR-004](../docs/architecture/ADR.md#adr-004
 
 `./mvnw --batch-mode verify`는 같은 테스트를 두 번 실행한다. 첫 실행은 전환 전 Supabase 스키마, 두 번째(`owned-schema-test`)는 Flyway로 만든 자체 스키마다. RLS 동작 확인 1개는 자체 스키마에 대상이 없어 건너뛴다. `OwnedSchemaMigrationTest`는 완전히 빈 PostgreSQL에 서버를 기동해 Flyway 적용, 재실행 시 변경 없음, 엔티티 매핑 일치, Supabase 객체·RLS 없음, 계정 삭제 시 본인 행만 삭제, 기본 옷 중복 방지를 확인한다.
 
+## 자체 인증: 이메일 가입·로그인·토큰 (S-02)
+
+서버가 직접 계정을 만들고 토큰을 발급한다. `CLOTHIC_AUTH_SIGNING_SECRET`을 설정했을 때만 켜지며, 위의 서버 소유 스키마가 적용된 DB가 필요하다. 앱 화면 연결은 S-03이고 지금 앱은 여전히 Supabase로 로그인한다.
+
+| 요청 | 본문 | 성공 | 실패 |
+| --- | --- | --- | --- |
+| `POST /api/auth/signup` | `{"email","password"}` | `201` 토큰 응답 | 형식 오류 `400`, 이미 가입한 이메일 `409` |
+| `POST /api/auth/login` | `{"email","password"}` | `200` 토큰 응답 | 없는 이메일·틀린 비밀번호 모두 `401` |
+| `POST /api/auth/refresh` | `{"refreshToken"}` | `200` 새 토큰 응답 | 만료·폐기·모르는 토큰 `401` |
+| `POST /api/auth/logout` | `{"refreshToken"}` | `204` | 토큰이 유효하지 않아도 `204` |
+
+토큰 응답: `userId`, `email`, `accessToken`, `expiresIn`(초), `refreshToken`. 본문에 정해진 키 외의 값이 있으면 `400`이다.
+
+- **접근 토큰**: 서버가 HS256으로 서명한 JWT, 기본 15분. 다른 `/api/**` 요청의 `Authorization: Bearer`에 넣는다. 서버는 `sub`를 사용자 ID로 쓰므로 옷·코디·프로필 API 코드는 그대로다. 로그아웃해도 이미 발급된 접근 토큰은 만료까지 유효하다.
+- **갱신 토큰**: 무작위 문자열, 기본 30일. DB에는 SHA-256 해시만 저장한다. 한 번 쓰면 폐기하고 새것을 준다. 폐기된 지 10초가 지난 토큰이 다시 오면 탈취로 보고 같은 로그인에서 나온 토큰을 모두 폐기한다. 10초 이내의 재시도는 같은 기기의 동시 갱신으로 보고 `401`만 돌려준다.
+- **비밀번호**: BCrypt 해시만 저장한다. 6자 이상(앱 화면과 같은 기준), UTF-8 72바이트 이하.
+- **이메일**: 앞뒤 공백을 지우고 소문자로 바꿔 저장·비교한다. 이메일 소유 확인(인증 메일)은 아직 없으며 S-04에서 메일 발송과 함께 다룬다.
+- 로그인 실패 응답은 가입 여부를 구분하지 않고, 없는 이메일에도 해시 비교를 한 번 수행한다.
+
+| 환경변수 | 값 | 비고 |
+| --- | --- | --- |
+| `CLOTHIC_AUTH_SIGNING_SECRET` | 32바이트 이상의 무작위 값 | 설정하면 자체 인증이 켜진다. 저장소·문서·로그에 적지 않는다 |
+| `CLOTHIC_AUTH_LOCAL_ISSUER` | 기본 `clothic` | 접근 토큰의 발급자 |
+| `CLOTHIC_AUTH_ACCESS_TOKEN_TTL` | 기본 `15m` | |
+| `CLOTHIC_AUTH_REFRESH_TOKEN_TTL` | 기본 `30d` | |
+
+**Supabase 토큰 검증 설정과 함께 쓸 수 없다.** `CLOTHIC_AUTH_SIGNING_SECRET`과 `CLOTHIC_AUTH_JWK_SET_URI`(또는 `CLOTHIC_AUTH_HMAC_SECRET`)를 같이 설정하면 서버가 기동하지 않는다. 서명 키가 없는 기존 설정에서는 동작이 바뀌지 않으며 위 네 경로는 토큰 없이 `401`, 유효한 Supabase 토큰으로도 `404`다.
+
+아직 없는 것: 로그인 시도 횟수 제한(R-02의 프록시 구성에서 적용), 비밀번호 재설정·변경(S-04), Apple·Kakao 로그인(S-05·S-06), 계정 삭제(F-18).
+
+`AuthApiTest`는 자체 스키마 실행에서만 동작하며 가입→로그인→보호 API→갱신→로그아웃 흐름, 실패 구분, 중복·동시 가입, 입력 검사, 만료·위조·다른 발급자 토큰 거부, 토큰 재사용 시 폐기, 사용자 격리, 비밀번호·갱신 토큰 원문 미저장을 확인한다.
+
 ## 내 옷 목록 API (F-04)
 
 ```http
