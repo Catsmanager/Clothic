@@ -139,7 +139,45 @@ GitHub Actions 앱 명령과 EAS 명령은 `frontend/`에서 실행하며 `app.j
 | 서버 버전 | main에 포함된 검증 커밋·서버 버전 태그·JAR의 SHA-256 지문을 고정한다. 기존 태그를 옮기지 않는다. |
 | DB 접속 | 기존 Supabase를 유지한다. 서버 배포용 역할·필요한 테이블/열 권한·비밀 전달 경로를 확인한다. 개발용 비밀번호를 문서나 서버 이미지에 복사하지 않는다. |
 
-1GB에서 충분히 동작하는지는 미검증이다. 빌드·테스트는 개발/지속적 통합(CI) 환경에서 수행하고 서버에는 검증한 실행 JAR를 전달하는 구성을 우선한다. 실제 메모리와 부하를 보고 용량을 판단한다. 단일 서버이므로 배포/복귀 때 짧은 중단이 발생할 수 있다.
+1GB에서 충분히 동작하는지는 미검증이다. 빌드·테스트는 개발/지속적 통합(CI) 환경에서 수행하고 서버에는 검증한 실행 JAR를 전달하는 구성을 우선한다. 실제 메모리와 부하를 보고 용량을 판단한다. 단일 서버이므로 배포/복귀 때 짧은 중단이 발생할 수 있다. JVM 힙 상한을 서비스 설정에 명시하고(운영체제·NGINX 여유를 남긴 값에서 시작) 실제 사용량을 측정해 조정한다. 상한 값은 아직 정하지 않았다.
+
+### 배포 실행 전 선행 조건
+
+2026-11-13 점검([#225](https://github.com/Catsmanager/Clothic/issues/225))에서 추가했다. 아래가 확인되기 전에는 인스턴스에 서버를 올리지 않는다.
+
+1. **Java 21 고정** — 첫 배포는 main의 Java 21 JAR와 Java 21 런타임을 사용한다. Java 25 업그레이드는 [plan.md](../../plan.md)의 J-01에서 따로 검증하며, main에 통합되기 전에는 서버 런타임을 바꾸지 않는다.
+2. **Supabase 프로젝트 정지 확인** — 2026-11-12에 앱이 사용하는 Clothic 프로젝트가 `INACTIVE`였고 수동으로 재개했다. 2026-11-13에는 `ACTIVE_HEALTHY`를 확인했다. 정지 원인과 현재 요금제는 확인하지 못했다. 대시보드에서 요금제와 정지 사유를 확인하고, 비활성 자동 정지 대상이면 재정지를 막을 방법(요금제 변경 등)을 정한다. 서버를 배포해도 프로젝트가 정지되면 인증·조회가 모두 실패한다.
+3. **배포용 DB 역할** — 개발용 `clothic_backend_dev`와 비밀번호를 배포에 재사용하지 않는다. 아래 초안을 검토한 뒤 사용자가 실행하고 조회로 확인한다.
+4. **HTTPS 주소** — 도메인 사용을 권장한다. IP 인증서는 유효기간이 짧아 자동 갱신이 실패하면 앱의 모든 서버 요청이 실패한다. 도메인이 없으면 IP 인증서의 갱신 감시 방법까지 정한 뒤 진행한다.
+5. **앱 복귀 기준** — 서버 주소는 앱 빌드에 포함되므로 서버 장애 시 기존 Supabase 직접 경로로 돌아가려면 새 앱 빌드·심사가 필요하다. 단일 서버의 허용 중단 시간과, 서버 주소를 넣은 앱을 공개하는 시점(R-03)의 기준을 정한다.
+
+배포용 역할 초안(미실행). 현재 main의 서버가 실제로 실행하는 SQL과 개발 역할에서 확인한 권한에 맞춘 최소 범위다. 프로필 변경(`PATCH /api/profile`)은 앱 전환(F-14)에서 권한을 추가한다. 역할 이름은 예시이며, 비밀번호는 SQL 기록에 남지 않는 방법으로 설정한다.
+
+```sql
+create role clothic_backend_prod login bypassrls
+  nosuperuser nocreatedb nocreaterole noinherit connection limit 10;
+
+grant usage on schema public to clothic_backend_prod;
+grant select, insert on public.items to clothic_backend_prod;
+grant select on public.profiles to clothic_backend_prod;
+grant select, insert on public.outfits to clothic_backend_prod;
+grant update (mood, memo) on public.outfits to clothic_backend_prod;
+```
+
+실행 후 확인할 조회:
+
+```sql
+select rolname, rolsuper, rolbypassrls, rolcreaterole, rolconnlimit
+from pg_roles where rolname = 'clothic_backend_prod';
+
+select table_name, privilege_type from information_schema.role_table_grants
+where grantee = 'clothic_backend_prod' order by 1, 2;
+
+select table_name, column_name, privilege_type from information_schema.column_privileges
+where grantee = 'clothic_backend_prod' and privilege_type = 'UPDATE' order by 1, 2;
+```
+
+이 역할은 RLS를 우회하므로 사용자 격리는 서버의 `user_id` 조건이 담당한다. 권한을 넓히는 기능은 해당 기능 작업에서 이 초안과 함께 갱신한다. 격리 테스트용 `backend/src/test/resources/db/99-grants.sql`은 실제 역할의 권한 기록이 아니다. 또한 개발 검증과 운영이 같은 Supabase 프로젝트를 사용하므로, 실사용자가 생긴 뒤에도 임시 계정으로 쓰기 검증을 계속할지 별도 프로젝트로 나눌지 정한다.
 
 ### 서버에 구성할 실행 경로
 
