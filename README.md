@@ -4,7 +4,7 @@ Expo 앱과 Spring Boot 마이그레이션 서버를 한 저장소에서 관리�
 
 ```text
 frontend/   Expo·React Native 앱, 앱 설정·테스트·에셋
-backend/    Java 21·Spring Boot 서버, Maven·서버 테스트
+backend/    Java 25·Spring Boot 서버, Maven·서버 테스트
 supabase/   기존 데이터베이스 마이그레이션·Edge Function
 docs/      설계·기능·운영·학습 문서
 HARNESS/    공통 검증 규칙·fixture·평가기준

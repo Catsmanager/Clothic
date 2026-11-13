@@ -58,7 +58,7 @@ node scripts/check-release.mjs versions app-v1.2.0
 - `node scripts/check-release.mjs versions`로 버전 파일 불일치를 거부한다.
 - 의존성 변경과 실제 릴리스 준비에서는 네트워크 영향을 받는 `npm run verify:environment`도 별도로 실행한다.
 
-서버는 별도의 `Spring Boot · Java 21` 작업에서 `backend/`의 `./mvnw --batch-mode verify`를 실행한다. 실제 HTTP 상태 확인 통합 테스트를 포함한다. 앱 검사와 서버 검사를 서로 대신하지 않으며 서버 운영 배포는 별도 작업이다.
+서버는 별도의 `Spring Boot · Java 25` 작업에서 `backend/`의 `./mvnw --batch-mode verify`를 실행한다. 실제 HTTP 상태 확인 통합 테스트를 포함한다. 앱 검사와 서버 검사를 서로 대신하지 않으며 서버 운영 배포는 별도 작업이다.
 
 ## 4. iOS 릴리스 — 버전을 지정한 Release
 
@@ -145,7 +145,7 @@ GitHub Actions 앱 명령과 EAS 명령은 `frontend/`에서 실행하며 `app.j
 
 2026-11-13 점검([#225](https://github.com/Catsmanager/Clothic/issues/225))에서 추가했다. 아래가 확인되기 전에는 인스턴스에 서버를 올리지 않는다.
 
-1. **Java 21 고정** — 첫 배포는 main의 Java 21 JAR와 Java 21 런타임을 사용한다. Java 25 업그레이드는 [plan.md](../../plan.md)의 J-01에서 따로 검증하며, main에 통합되기 전에는 서버 런타임을 바꾸지 않는다.
+1. **Java 버전 일치** — 2026-11-13 J-01에서 main의 서버를 Java 25로 올렸다. 배포 서버에는 Java 25 런타임을 설치하고, 배포하는 JAR가 Java 25로 빌드·검증된 main 커밋에서 나온 것인지 확인한다. 서버에 설치한 런타임의 실제 버전은 배포 때 기록한다.
 2. **Supabase 프로젝트 정지 확인** — 2026-11-12에 앱이 사용하는 Clothic 프로젝트가 `INACTIVE`였고 수동으로 재개했다. 2026-11-13에는 `ACTIVE_HEALTHY`를 확인했다. 정지 원인과 현재 요금제는 확인하지 못했다. 대시보드에서 요금제와 정지 사유를 확인하고, 비활성 자동 정지 대상이면 재정지를 막을 방법(요금제 변경 등)을 정한다. 서버를 배포해도 프로젝트가 정지되면 인증·조회가 모두 실패한다.
 3. **배포용 DB 역할** — 개발용 `clothic_backend_dev`와 비밀번호를 배포에 재사용하지 않는다. 아래 초안을 검토한 뒤 사용자가 실행하고 조회로 확인한다.
 4. **HTTPS 주소** — 도메인 사용을 권장한다. IP 인증서는 유효기간이 짧아 자동 갱신이 실패하면 앱의 모든 서버 요청이 실패한다. 도메인이 없으면 IP 인증서의 갱신 감시 방법까지 정한 뒤 진행한다.
@@ -183,7 +183,7 @@ where grantee = 'clothic_backend_prod' and privilege_type = 'UPDATE' order by 1,
 
 `앱 → HTTPS 443 → NGINX 역방향 프록시 → 127.0.0.1:8080의 Spring Boot → 기존 Supabase`
 
-Java 21 실행 JAR를 전용 OS 사용자와 systemd 서비스로 실행하고 재시작·로그를 관리하는 구성을 준비한다. 개발 전용 `scripts/run-local.py`나 서버에서의 `spring-boot:run`을 운영 시작 명령으로 사용하지 않는다. NGINX는 외부 요청을 내부 서버에 전달하는 역할이며 [공식 역방향 프록시 문서](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/)를 따른다. 이 구성의 설치·실행 검증은 아직 남아 있다.
+Java 25 실행 JAR를 전용 OS 사용자와 systemd 서비스로 실행하고 재시작·로그를 관리하는 구성을 준비한다. 개발 전용 `scripts/run-local.py`나 서버에서의 `spring-boot:run`을 운영 시작 명령으로 사용하지 않는다. NGINX는 외부 요청을 내부 서버에 전달하는 역할이며 [공식 역방향 프록시 문서](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/)를 따른다. 이 구성의 설치·실행 검증은 아직 남아 있다.
 
 - 인스턴스에 고정 IPv4를 연결하고, 외부에는 80·443만 공개한다. 원격 관리용 Secure Shell(SSH) 22번 포트는 관리자 출처 또는 필요한 브라우저 SSH 경로로 제한한다. Spring Boot 8080은 외부에 열지 않는다. IPv6를 사용하면 그 방화벽도 따로 확인한다. [고정 IP](https://docs.aws.amazon.com/lightsail/latest/userguide/lightsail-create-static-ip.html)·[Lightsail 방화벽](https://docs.aws.amazon.com/lightsail/latest/userguide/understanding-firewall-and-port-mappings-in-amazon-lightsail.html)
 - 도메인이 없다고 HTTPS가 불가능한 것은 아니다. Let's Encrypt의 IP 인증서와 Certbot 5.4 이상 webroot 방식도 사용할 수 있다. 다만 짧은 유효기간에 맞춘 자동 갱신·NGINX 인증서 재적용·실기기 신뢰 검증까지 필요하다. 실제 주소와 방식은 계정/도메인 확인 뒤 정한다. [Let's Encrypt의 지원 범위와 설정 조건](https://letsencrypt.org/2026/03/11/shorter-certs-certbot)

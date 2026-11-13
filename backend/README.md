@@ -4,7 +4,7 @@
 
 ## 실행
 
-Java Development Kit(JDK) 21이 필요하다. 아래 명령은 이 `backend/` 디렉터리에서 실행한다. Maven Wrapper가 Maven과 의존성을 처음 내려받을 때 네트워크 연결이 필요하다.
+Java Development Kit(JDK) 25가 필요하다. 아래 명령은 이 `backend/` 디렉터리에서 실행한다. Maven Wrapper가 Maven과 의존성을 처음 내려받을 때 네트워크 연결이 필요하다.
 
 ```bash
 ./mvnw spring-boot:run
@@ -39,7 +39,7 @@ Supabase shared session pooler를 사용하는 경우 Connect 화면이나 관�
 ./mvnw --batch-mode verify
 ```
 
-`HealthEndpointTest`가 임의 포트에 실제 서버를 띄우고, 인증·DB 설정 없이 상태 코드·콘텐츠 타입·응답 본문을 확인한다. `auth` 패키지의 테스트는 테스트가 만든 HS256 비밀키와 ES256 키(로컬 JWKS 서버)로 유효 토큰 `200`, 토큰 누락·다른 키·변조·만료·발급자·대상 불일치·`sub` 없음 `401`, 설정 없을 때 fail-closed를 확인한다. GitHub의 `Spring Boot · Java 21` 작업에서도 같은 명령을 실행한다. 이는 서버 검사이며 앱의 `npm run check`와 별도로 수행한다.
+`HealthEndpointTest`가 임의 포트에 실제 서버를 띄우고, 인증·DB 설정 없이 상태 코드·콘텐츠 타입·응답 본문을 확인한다. `auth` 패키지의 테스트는 테스트가 만든 HS256 비밀키와 ES256 키(로컬 JWKS 서버)로 유효 토큰 `200`, 토큰 누락·다른 키·변조·만료·발급자·대상 불일치·`sub` 없음 `401`, 설정 없을 때 fail-closed를 확인한다. GitHub의 `Spring Boot · Java 25` 작업에서도 같은 명령을 실행한다. 이는 서버 검사이며 앱의 `npm run check`와 별도로 수행한다.
 
 ## 사용자 토큰 검증 (F-02)
 
@@ -204,7 +204,7 @@ Authorization: Bearer <Supabase 사용자 접근 토큰>
 
 ## 버전과 범위
 
-- Java 21, Spring Boot `4.1.2`, 서버 개발 버전 `0.1.0-SNAPSHOT`을 사용한다. 앱 버전 `1.1.1`과 별도로 관리한다.
+- Java 25, Spring Boot `4.1.2`, 서버 개발 버전 `0.1.0-SNAPSHOT`을 사용한다. 앱 버전 `1.1.1`과 별도로 관리한다.
 - 프로젝트 골격과 Maven Wrapper는 [Spring Initializr](https://start.spring.io/)에서 생성했다. 생성 메타데이터가 제시한 `4.1.2.RELEASE`는 실제 Maven Central에 없어, 제공되는 `4.1.2`로 부모 버전을 고정했다.
 - [Boot 시스템 요구사항](https://docs.spring.io/spring-boot/system-requirements.html)은 Java 호환 범위의 근거다. 실제 실행 성공은 프로젝트 테스트·기동 결과로 별도 확인한다.
 - F-05 실제 연결 결과는 [실행 기록](../LOG.md)과 [.autoresearch/f05-live-verification.json](../.autoresearch/f05-live-verification.json)을 참고한다. 실기기 화면 확인과 운영 배포는 후속 기능이다.

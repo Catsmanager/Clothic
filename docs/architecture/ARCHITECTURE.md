@@ -10,7 +10,7 @@
 * Storage: Supabase DB (AsyncStorage 미사용)
 * Auth: Supabase Auth (이메일/비밀번호 + 카카오 OAuth)
 * 현재 앱의 인증·데이터: Supabase (PostgreSQL + RLS)
-* 마이그레이션 서버: `backend/`의 Java 21 + Spring Boot (상태 확인만 구현, 앱·DB 연결 전)
+* 마이그레이션 서버: `backend/`의 Java 25 + Spring Boot (상태 확인만 구현, 앱·DB 연결 전)
 * Styling: React Native StyleSheet
 
 ---
