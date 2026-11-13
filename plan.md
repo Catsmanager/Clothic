@@ -62,7 +62,7 @@
 
 [ADR-004](docs/architecture/ADR.md#adr-004-supabase에서-독립해-로그인과-데이터-저장을-직접-운영한다)의 실행 항목이다. 각 항목은 착수할 때 현재 앱 동작(`frontend/stores/authStore.ts` 등)과 대조해 범위를 다시 확인한다. 새 의존성·외부 서비스가 필요한 선택은 착수 전에 제안하고 승인받는다.
 
-- [ ] **S-01 서버 소유 DB 스키마** — 사용자·프로필·아이템·코디·알림 테이블을 Supabase의 `auth.users`·`auth.uid()`·RLS에 의존하지 않는 스키마로 정의하고, 빈 PostgreSQL에 순서대로 적용되는 이력으로 관리한다(관리 도구는 착수 시 제안). 빈 DB 적용과 서버 테스트 전체 통과로 완료한다.
+- [x] **S-01 서버 소유 DB 스키마** — 사용자·프로필·아이템·코디·알림 테이블을 Supabase의 `auth.users`·`auth.uid()`·RLS에 의존하지 않는 스키마로 정의하고 Flyway 이력(`backend/src/main/resources/db/migration`)으로 관리한다. 빈 PostgreSQL 적용과 서버 테스트 전체의 자체 스키마 통과를 확인했다. 기본은 비활성이며 실제 서버 DB 적용은 S-07이다. 추적: [#231](https://github.com/Catsmanager/Clothic/issues/231).
 - [ ] **S-02 이메일 회원가입·로그인·토큰** — 서버가 비밀번호를 안전한 해시로 저장하고 접근·갱신 토큰을 발급·갱신·폐기한다. 보호 경로는 서버가 발급한 토큰만 받는다. 잘못된 자격·만료·폐기·중복 가입·다른 사용자 격리를 검증한다. 선행: S-01.
 - [ ] **S-03 앱의 이메일 인증 전환** — 가입·로그인·세션 복원·토큰 갱신·로그아웃·계정 전환이 서버 인증으로 동작하고 세션은 expo-secure-store에 둔다. 만료·오프라인·서버 오류에서 로딩이 끝나고 이전 사용자 데이터가 보이지 않아야 한다. 선행: S-02.
 - [ ] **S-04 비밀번호 재설정·변경** — 현재 앱이 제공하는 재설정 메일과 비밀번호 변경을 서버로 옮긴다. 메일 발송 수단(외부 서비스·비용)을 먼저 결정한다. 선행: S-02.
@@ -96,6 +96,7 @@
 | P-08 | 파일 이동·참조 2곳 갱신, 로컬 문서 링크 검사 통과, `git check-ignore .vscode` 확인. 코드 변경 없음 | [PR #194](https://github.com/Catsmanager/Clothic/pull/194) 병합(bc9c347) | 해당 없음 |
 | P-09 | 규칙 문서 3개 갱신, 코드 변경 없음 | [PR #198](https://github.com/Catsmanager/Clothic/pull/198) | 해당 없음 |
 | R-02 준비 | 사용자 AWS 선택을 반영해 Lightsail 서울·1GB와 기존 Supabase 유지, 비용 경계·환경변수·HTTPS·관측·버전 복귀 검증 절차를 문서화. 코드 변경 없음. 실제 계정 접속·배포·복귀는 미검증이므로 미완료 유지 | 이슈 [#223](https://github.com/Catsmanager/Clothic/issues/223) | 미배포 |
+| S-01 | Flyway(사용자 승인) 추가, `V1__initial_schema.sql`. Java 25 `./mvnw --batch-mode clean verify`: 전환 전 스키마 81/81, 자체 스키마 81개 중 80 통과·1 건너뜀(RLS 전용). 기존 77개에 빈 DB 기동·재실행·Supabase 객체 없음·삭제 연쇄·중복 방지 4개 추가. 열 이름을 틀리게 바꾸면 자체 스키마 실행만 실패하는지 확인 후 복구. 실제 서버 DB에는 미적용 | 이슈 [#231](https://github.com/Catsmanager/Clothic/issues/231) | 미배포 |
 | 독립 결정 | 2026-11-13 사용자 결정(자체 로그인·자체 PostgreSQL, 새로 시작, `jinhyunji.kr` 하위 주소 사용)을 ADR-004와 S-01~S-09로 반영. 문서 변경만이며 구현·배포·Supabase 변경 없음 | 이슈 [#229](https://github.com/Catsmanager/Clothic/issues/229) | 미배포 |
 | J-01 | 최신 main(685de24)에 Java 25 변경을 다시 적용. `./mvnw --batch-mode clean verify`: Java 21.0.13 baseline 77/77, Java 25.0.2 77/77 통과. 이전 로컬 전용 브랜치의 32개 시점 검증·커버리지·CVE 기록은 이번 검증에 포함하지 않음. 배포 서버 런타임은 미확인 | 이슈 [#227](https://github.com/Catsmanager/Clothic/issues/227) | 미배포 |
 | R-02 선행 조건 | 2026-11-13 배포·DB 계획 점검 결과를 반영. Java 21 고정, Supabase 정지 확인, 배포용 역할 SQL 초안(미실행), HTTPS 주소 권장, 메모리 상한, 앱 복귀 기준을 문서화하고 J-01을 미완료 항목으로 등록. 읽기 전용 확인: Clothic 프로젝트 `ACTIVE_HEALTHY`(요금제·정지 원인은 미확인). 코드 변경 없음. 역할 생성·배포는 미실행 | 이슈 [#225](https://github.com/Catsmanager/Clothic/issues/225) | 미배포 |

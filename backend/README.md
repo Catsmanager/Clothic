@@ -86,6 +86,24 @@ curl -i -H "Authorization: Bearer <앱에서 얻은 접근 토큰>" http://local
 
 `ItemQueryServiceTest`는 `ddl-auto=validate`로 엔티티 매핑이 실제 스키마와 일치하는지 확인하고, A·B 계정 격리, 빈 결과, `catalog_item_id`·`text[]`·`timestamptz` 매핑, 정렬, RLS 동작(JWT 문맥 없음 → 0행, `request.jwt.claim.sub` 설정 → 본인 행)을 검증한다.
 
+## 서버 소유 스키마 (S-01)
+
+Supabase에서 독립하기 위해([ADR-004](../docs/architecture/ADR.md#adr-004-supabase에서-독립해-로그인과-데이터-저장을-직접-운영한다)) 서버가 직접 소유하는 스키마를 [src/main/resources/db/migration](src/main/resources/db/migration)에 둔다. [Flyway](https://documentation.red-gate.com/fd)가 `V1__`, `V2__`처럼 번호가 붙은 SQL 파일을 순서대로 한 번씩 적용하고 `flyway_schema_history` 테이블에 기록한다.
+
+- `V1__initial_schema.sql`: `users`·`profiles`·`items`·`outfits`·`notifications`. Supabase의 `auth.users`·`auth.uid()`·RLS를 쓰지 않는다. 사용자 격리는 서버의 `user_id` 조건이 담당한다.
+- 테이블·열 이름과 형식은 전환 전 스키마와 같다. 그래서 서버 코드는 두 DB에서 같은 SQL로 동작한다. 달라진 점은 계정 테이블이 `public.users`라는 것과 RLS가 없다는 것이다.
+- `users`에는 아직 `id`·`created_at`만 있다. 이메일·비밀번호 등 로그인용 열은 S-02에서 새 파일로 추가한다.
+- 계정 행이 생기면 트리거가 프로필 행을 함께 만든다. 프로필 API가 행을 만들지 않는 기존 계약을 유지한다.
+- 한 번 적용한 파일은 고치지 않는다. 변경은 다음 번호의 새 파일로 추가한다.
+
+| 환경변수 | 값 | 비고 |
+| --- | --- | --- |
+| `CLOTHIC_DB_MIGRATE` | 기본 `false` | `true`일 때만 서버 기동 시 Flyway를 실행한다. 테이블을 만들 권한이 있는 계정이 필요하다 |
+
+**Supabase DB에 연결할 때는 켜지 않는다.** 기본값이 꺼져 있으므로 현재 개발 연결에는 아무것도 실행되지 않는다. 직접 운영하는 PostgreSQL의 설치·접속 계정 분리·백업은 S-07에서 다루며 아직 실제 서버 DB에 적용한 적은 없다.
+
+`./mvnw --batch-mode verify`는 같은 테스트를 두 번 실행한다. 첫 실행은 전환 전 Supabase 스키마, 두 번째(`owned-schema-test`)는 Flyway로 만든 자체 스키마다. RLS 동작 확인 1개는 자체 스키마에 대상이 없어 건너뛴다. `OwnedSchemaMigrationTest`는 완전히 빈 PostgreSQL에 서버를 기동해 Flyway 적용, 재실행 시 변경 없음, 엔티티 매핑 일치, Supabase 객체·RLS 없음, 계정 삭제 시 본인 행만 삭제, 기본 옷 중복 방지를 확인한다.
+
 ## 내 옷 목록 API (F-04)
 
 ```http

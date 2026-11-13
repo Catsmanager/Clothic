@@ -60,9 +60,7 @@ class OutfitCreateApiTest {
 
     @BeforeAll
     static void users() {
-        new JdbcTemplate(TestDatabase.superuser()).update(
-                "insert into auth.users (id,email) values (?,?), (?,?) on conflict (id) do nothing",
-                USER_A, "create-a@test.local", USER_B, "create-b@test.local");
+        TestDatabase.insertUsers(USER_A, USER_B);
     }
 
     @BeforeEach
