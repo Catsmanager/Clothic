@@ -18,9 +18,14 @@ Codex가 코드만으로 완료할 수 없거나 사용자 계정·콘솔·디�
 - [ ] Kakao OAuth KOE205 해결
   - 카카오 개발자 콘솔에서 `account_email` 동의항목을 `선택 동의`로 활성화
   - 설정 후 카카오 로그인 완료 흐름 재확인
+- [ ] 서버 배포(R-02) 전 확인 (2026-11-13 추가, [선행 조건](CICD.md#배포-실행-전-선행-조건))
+  - Supabase 대시보드에서 Clothic 프로젝트의 요금제와 2026-11-12 정지 사유 확인, 재정지 방지 방법 결정
+  - 배포용 DB 역할 SQL 초안 검토·실행 후 권한 조회 결과 확인. 비밀번호는 서버 환경 설정에만 저장
+  - API에 사용할 도메인 보유 여부와 HTTPS 주소 결정
+  - AWS 로그인·Lightsail 권한 확인
+  - 로컬 전용 Java 25 브랜치(`appmod/java-upgrade-20261111071938`)를 최신 main 기준으로 다시 검증할지 결정 (plan.md J-01)
 - [ ] Supabase 운영 DB 마이그레이션 상태 확인
-  - `outfits.is_favorite boolean not null default false`
-  - `outfits.item_colors jsonb`
+  - `outfits.is_favorite`·`outfits.item_colors`: 2026-11-12 F-07·F-09 실연동에서 서버가 두 열을 조회·저장해 존재는 확인됨. 열의 not null·기본값 정의는 직접 조회하지 않음
   - repository의 fresh migration 순서(`profiles` 생성 전 alter)를 별도 이슈로 정리. 서버 테스트(F-03)는 이 문제를 피하기 위해 `backend/src/test/resources/db/00-auth-stub.sql`에서 `profiles`를 미리 만든다
 - [x] 서버용 Supabase DB 접속 역할 결정 (F-03 후속, 2026-11-12)
   - 개발용 `clothic_backend_dev`: F-05에서 items/profiles 조회를 확인했고, F-06에서 items INSERT만 추가. items SELECT/INSERT 허용·UPDATE/DELETE 불허를 확인했으며 서버의 인증 사용자 조건으로 격리. 기존 RLS 정책은 변경하지 않음

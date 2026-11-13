@@ -1,5 +1,12 @@
 # LOG
 
+## 2026-11-13 — R-02 배포 선행 조건 정리 (#225)
+
+- 백엔드 배포·데이터베이스 계획을 main `8e1dafa` 기준으로 점검하고 배포 실행 전 확인할 조건을 문서에 반영했다. `docs/225-r02-deploy-prerequisites` 원격 ref의 동일 SHA를 편집 전에 확인했다.
+- 반영 내용: 첫 배포 Java 21 고정, Supabase 프로젝트 정지 원인·요금제 확인, 개발 역할과 분리한 배포용 DB 역할 SQL 초안과 확인 조회, 도메인 기반 HTTPS 권장, JVM 힙 상한 명시, 서버 장애 시 앱 복귀 기준. Java 25 업그레이드는 로컬 전용 브랜치에만 있고 main에 없으므로 plan.md에 J-01 미완료 항목으로 등록했다. 해당 브랜치는 변경하지 않았다.
+- 읽기 전용 확인: `npx supabase projects list`에서 Clothic 프로젝트 `ACTIVE_HEALTHY`, 리전 `ap-northeast-2`. 요금제와 11-12 정지 원인은 확인하지 못했다. 역할 SQL은 main 서버 코드의 SQL·개발 역할 권한 기록과 대조해 작성했으며 실행하지 않았다.
+- 변경 파일: `plan.md`, `docs/operations/CICD.md`, `docs/operations/USER_ACTION_ITEMS.md`, `LOG.md`. 코드 변경 없음. 로컬 앱·서버 검사는 생략하고 추가한 문서 링크·앵커와 `git diff --check`를 확인했다. 역할 생성·인스턴스 생성·배포는 수행하지 않았고 R-02는 `[ ]`로 유지한다.
+
 ## 2026-11-12 — R-02 AWS Lightsail 배포 대상 선택·절차 준비 (#223)
 
 - 사용자가 기능 전환보다 배포 대상 결정을 우선한 뒤 AWS를 선택했다. 제안했던 Lightsail 서울 `ap-northeast-2`, Linux/Unix 공개 IPv4·1GB 가상 서버를 첫 검증 대상으로 기록했다. Supabase Auth·PostgreSQL은 유지한다. 실제 메모리 여유는 미확인이며 7 USD는 월 최대 기본 요금으로 총 청구액 보장이 아니다.
