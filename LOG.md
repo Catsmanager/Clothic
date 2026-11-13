@@ -1,5 +1,13 @@
 # LOG
 
+## 2026-11-13 — Supabase 독립 결정 반영 (#229)
+
+- 사용자 결정: 로그인까지 포함해 Supabase를 쓰지 않고 직접 만든 서버에서 처리한다. 실제 가입자는 있으나 활성 사용자가 없다고 판단해 기존 계정·데이터를 옮기지 않고 새로 시작한다. API 주소에는 보유한 `jinhyunji.kr`을 사용한다. Supabase 정지 원인은 장기간 미사용 자동 정지라고 확인했다.
+- 기준 main `12ab258`과 `docs/229-supabase-independence` 원격 ref의 동일 SHA를 편집 전에 확인했다.
+- 반영: ADR-004 추가(ADR-002·003과의 관계, 단계별 순서, 받아들이는 부담), plan.md 전제 수정과 S-01~S-09 추가, R-02 조건 갱신, CICD §9의 용량 권장(2GB)·하위 주소·Supabase 상태 확인, 사용자 작업 항목, 마이그레이션 참고 문서 상단 안내.
+- 확인: `jinhyunji.kr`에 이미 주소 기록이 있어 도메인 자체는 건드리지 않고 하위 주소(제안 `clothic-api.jinhyunji.kr`)를 쓰도록 적었다. 현재 앱의 Supabase 인증 호출(가입·비밀번호 로그인·재설정·비밀번호 변경·Apple·Kakao·계정 삭제 함수)을 main 코드에서 확인해 S 항목 범위에 반영했다.
+- 변경 파일: `docs/architecture/ADR.md`, `plan.md`, `docs/operations/CICD.md`, `docs/operations/USER_ACTION_ITEMS.md`, `docs/migration/SPRING_BOOT_MIGRATION_PLAN.md`, `LOG.md`. 코드 변경 없음. 로컬 앱·서버 검사는 생략하고 추가한 링크·앵커와 `git diff --check`를 확인했다. 구현·DNS 등록·인스턴스 생성·Supabase 변경은 하지 않았다. 2GB 플랜과 하위 주소 이름은 제안이며 미확정이다.
+
 ## 2026-11-13 — J-01 Java 25 런타임 업그레이드 재검증·반영 (#227)
 
 - 사용자 결정에 따라 Java 25 업그레이드를 최신 main `685de24`에서 다시 적용했다. `chore/227-java-25-upgrade` 원격 ref의 동일 SHA를 편집 전에 확인했다. 기존 로컬 전용 브랜치 `appmod/java-upgrade-20261111071938`는 변경하지 않았다.

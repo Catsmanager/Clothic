@@ -2,7 +2,7 @@
 
 경로 기준: 앱 파일의 짧은 경로와 앱 명령은 `frontend/` 기준이다. `docs/`, `supabase/`, `HARNESS/`, `.github/`는 저장소 루트 기준이다.
 작성일: 2026-11-10\
-상태: 학습·설계 참고 문서. 실제 기능별 진행 상태는 루트 [plan.md](../../plan.md)에서 확인한다.\
+상태: 학습·설계 참고 문서. 이 문서의 "Supabase 인증과 데이터를 유지한다"는 전제는 첫 전환 단계에 한정된다. 2026-11-13에 Supabase 독립을 결정했으며 근거는 [ADR-004](../architecture/ADR.md#adr-004-supabase에서-독립해-로그인과-데이터-저장을-직접-운영한다)다. 실제 기능별 진행 상태는 루트 [plan.md](../../plan.md)에서 확인한다.\
 기준: `release/app-store-1.1.1`의 `73c9863`\
 계획서 작업 브랜치: `docs/spring-boot-migration-plan`\
 상위 작업: [GitHub 이슈 #175](https://github.com/Catsmanager/Clothic/issues/175)
