@@ -23,7 +23,7 @@ Codex가 코드만으로 완료할 수 없거나 사용자 계정·콘솔·디�
   - 배포용 DB 역할 SQL 초안 검토·실행 후 권한 조회 결과 확인. 비밀번호는 서버 환경 설정에만 저장
   - API에 사용할 도메인 보유 여부와 HTTPS 주소 결정
   - AWS 로그인·Lightsail 권한 확인
-  - 로컬 전용 Java 25 브랜치(`appmod/java-upgrade-20261111071938`)를 최신 main 기준으로 다시 검증할지 결정 (plan.md J-01)
+  - Java 25 업그레이드는 사용자 결정에 따라 2026-11-13 최신 main에서 다시 검증해 반영함(plan.md J-01). 로컬 전용 브랜치 `appmod/java-upgrade-20261111071938`는 그대로 남아 있으며 정리 여부는 사용자가 결정
 - [ ] Supabase 운영 DB 마이그레이션 상태 확인
   - `outfits.is_favorite`·`outfits.item_colors`: 2026-11-12 F-07·F-09 실연동에서 서버가 두 열을 조회·저장해 존재는 확인됨. 열의 not null·기본값 정의는 직접 조회하지 않음
   - repository의 fresh migration 순서(`profiles` 생성 전 alter)를 별도 이슈로 정리. 서버 테스트(F-03)는 이 문제를 피하기 위해 `backend/src/test/resources/db/00-auth-stub.sql`에서 `profiles`를 미리 만든다

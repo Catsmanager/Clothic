@@ -43,7 +43,7 @@ jobs:
         run: node scripts/check-release.mjs versions
 
   verify-backend:
-    name: Spring Boot · Java 21
+    name: Spring Boot · Java 25
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -57,7 +57,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
           cache: maven
           cache-dependency-path: backend/pom.xml
 

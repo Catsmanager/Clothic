@@ -1,5 +1,12 @@
 # LOG
 
+## 2026-11-13 — J-01 Java 25 런타임 업그레이드 재검증·반영 (#227)
+
+- 사용자 결정에 따라 Java 25 업그레이드를 최신 main `685de24`에서 다시 적용했다. `chore/227-java-25-upgrade` 원격 ref의 동일 SHA를 편집 전에 확인했다. 기존 로컬 전용 브랜치 `appmod/java-upgrade-20261111071938`는 변경하지 않았다.
+- 변경: `backend/pom.xml`의 `java.version` 21 → 25, 서버 CI 작업 이름과 JDK 25, 루트·서버 README, ARCHITECTURE, ADR-003, CICD(서버 CI 설명·R-02 배포 런타임)의 현재 Java 버전 서술. F-01 등 과거 Java 21 검증 기록은 그대로 둔다.
+- 검증: 수정 전 Java 21.0.13에서 `./mvnw --batch-mode clean verify` 77/77 통과(baseline). 수정 후 Java 25.0.2(로컬 `~/.jdk`의 Microsoft 빌드)에서 같은 명령 77/77 통과. 실패 응답 테스트가 의도적으로 남기는 오류 로그 외 빌드 오류 없음. GitHub CI는 Temurin 25를 사용하며 결과는 해당 PR에서 확인한다.
+- 미확인: 이번에는 커버리지·의존성 취약점 검사를 다시 실행하지 않았다. 배포 서버의 Java 25 런타임 설치와 1GB 메모리에서의 동작은 R-02에서 확인한다. 앱 코드는 변경하지 않아 `npm --prefix frontend run check`는 CI 결과로 확인한다.
+
 ## 2026-11-13 — R-02 배포 선행 조건 정리 (#225)
 
 - 백엔드 배포·데이터베이스 계획을 main `8e1dafa` 기준으로 점검하고 배포 실행 전 확인할 조건을 문서에 반영했다. `docs/225-r02-deploy-prerequisites` 원격 ref의 동일 SHA를 편집 전에 확인했다.

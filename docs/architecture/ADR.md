@@ -46,7 +46,7 @@ PocketBase는 셀프 호스팅이 필요해 운영 비용이 생긴다.
 
 2026-11-12 사용자가 AWS를 선택했다. 앞서 제안한 **Lightsail 가상 서버, 서울 `ap-northeast-2`, Linux/Unix 공개 IPv4·메모리 1GB**를 첫 배포 검증 대상으로 삼는다. 인스턴스 생성·운영 배포는 아직 실행하지 않았다. 실행 상태는 [plan.md의 R-02](../../plan.md)를 따른다.
 
-Spring Boot만 AWS에 배치하고 Supabase Auth와 PostgreSQL은 유지한다. ADR-002의 인증·저장소 선택을 유지하면서 앱의 데이터 접근 경로를 서버로 단계적으로 옮긴다. 현재 main의 Java 21을 기준으로 준비하며, 별도 Java 업그레이드 작업은 포함하지 않는다.
+Spring Boot만 AWS에 배치하고 Supabase Auth와 PostgreSQL은 유지한다. ADR-002의 인증·저장소 선택을 유지하면서 앱의 데이터 접근 경로를 서버로 단계적으로 옮긴다. 결정 당시에는 main의 Java 21을 기준으로 준비했다. 2026-11-13 J-01에서 서버를 Java 25로 올렸으므로 배포 런타임도 Java 25를 사용한다.
 
 ### 선택 이유와 확인 범위
 
